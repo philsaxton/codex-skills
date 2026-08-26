@@ -24,6 +24,8 @@ Use this separation:
 3. **Suggested options:** Include only when useful, label them non-binding, explain relevant tradeoffs, and leave selection to the contract owner or applicable authority.
 4. **Readiness:** Conclude `ready`, `not ready`, or `ready only for <limited purpose>`, tied to the unresolved findings and available evidence. A readiness judgment is not approval.
 
+End every review with a concise receipt identifying the artifact or state reviewed, review basis, disposition, unresolved findings or uncertainty, and any evidence location. Return it to the caller using any project-defined receipt format.
+
 ## Preserve ownership and boundaries
 
 The author owns the contract's wording and decisions. Report defects without drafting, redlining, or silently rewriting the contract. Do not approve it, coordinate downstream work, implement it, or review a completed deliverable.
