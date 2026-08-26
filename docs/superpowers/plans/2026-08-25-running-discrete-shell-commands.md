@@ -77,7 +77,7 @@ Create `running-discrete-shell-commands/SKILL.md` with this initial content. Cha
 ````markdown
 ---
 name: running-discrete-shell-commands
-description: Use when running command-line or shell operations, especially approval-sensitive Git sequences, compound commands, pipelines, heredocs, command substitution, or shell indirection.
+description: Use when multiple independently meaningful operations, compound syntax, or indirection require command-shape decisions; exclude single direct commands and ordinary readable pipelines.
 ---
 
 # Running Discrete Shell Commands

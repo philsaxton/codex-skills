@@ -24,7 +24,7 @@ A pipeline such as a command whose output is immediately filtered remains one op
 
 Create one self-contained `SKILL.md` under `running-discrete-shell-commands/`. Keep it concise, with no scripts or references. Automatic discovery remains enabled.
 
-The description should trigger when an agent is about to run shell or command-line operations, especially chained Git commands, approval-sensitive commands, compound commands, heredocs, or shell indirection.
+The description should trigger only when multiple independently meaningful operations, compound syntax, or indirection require a command-shape decision. Single direct commands and ordinary readable pipelines should not trigger it.
 
 ## Boundaries
 
