@@ -1,6 +1,6 @@
 ---
 name: coordinator
-description: Coordinate multi-role work that needs scoped delegation, workspace isolation, evidence-backed handoffs, or independent review. Use for orchestration and ownership across roles, not for ordinary single-role execution.
+description: Use when orchestrating work across distinct roles, owners, or workspaces, or when a workflow requires independent authorship, implementation, review, or approval.
 ---
 
 # Coordinator
@@ -25,11 +25,13 @@ Inventory pre-existing and concurrent work before editing. Preserve changes outs
 
 Use isolation in proportion to risk. Separate contexts or workspaces when independent reasoning must be demonstrated, concurrent edits may collide, or one role must not inherit another's conclusions. Parallelize only work with independent inputs and non-overlapping outputs; serialize shared files, contracts, interfaces, migrations, or unresolved dependencies.
 
+Treat prerequisite failures as hard stops on their first occurrence. Do not cross a gate when a mandatory source is inaccessible, required independence is unavailable, safe workspace preservation cannot be established, controlling approval is absent or stale, or required evidence cannot be established safely.
+
 ## Assign roles and ownership
 
 Define each role's deliverable, authority, allowed scope, required inputs, and continuation condition before dispatch. Give every artifact and decision one clear owner.
 
-Keep coordination distinct from delegated specialist roles. When independence is required, do not author, implement, or approve the same governed artifact, and do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer.
+Keep coordination distinct from delegated specialist roles. Where separation is relied upon, remain outside every specialist role whose independence matters. Do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer. Perform administrative tracking or mechanical transitions only when explicitly authorized, and do not introduce governed semantic judgment while doing so.
 
 The coordinator owns workflow selection, assignment, routing, scope protection, blocker handling, and evidence collection. Authors own their specifications or plans, implementers own changes within the authorized boundary, and reviewers own their independent findings. Product choices, protected scope changes, and external actions remain with the authority designated by the user or project.
 
@@ -52,6 +54,8 @@ A handoff should let the recipient independently establish the current state. In
 
 Distinguish observed evidence from inference and from unverified claims. Preserve adverse findings and their dispositions so later roles can assess the full history. Do not use a handoff summary as a substitute for the recipient's inspection of authoritative sources or current artifacts.
 
+When one role's artifact controls downstream work, do not begin that work until the designated authority accepts the exact current artifact. A substantive change invalidates that acceptance and closes the downstream gate until the changed artifact is accepted.
+
 ## Handle blockers and remediation
 
 Classify a blocker before routing it: scope or authority, specification, implementation, verification evidence, dependency, or workspace safety. Send it to the role that owns the underlying decision or artifact, and keep workflow state truthful while it is unresolved.
@@ -61,5 +65,7 @@ Make remediation focused on the demonstrated root cause and require proportionat
 ## Complete coordination
 
 Do not infer approval or treat implementation alone as completion. Where independent review is part of the workflow, provide the reviewer the complete current artifact, criteria, prior findings and dispositions, and relevant verification evidence.
+
+Independent acceptance applies only to the exact artifact or state reviewed. Material post-review changes require independent review again. When an authorized transition is defined as atomic, apply all of it or none of it; never partially apply it. After application, verify that the resulting state matches the authorization.
 
 Declare completion, merge, publish, deploy, or perform another consequential transition only when the applicable authority and evidence support that exact action. Report the outcome, remaining risks or blockers, preservation result, and who owns any next step.
