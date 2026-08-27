@@ -12,7 +12,9 @@ git submodule add https://github.com/philsaxton/codex-skills.git .agents/skills
 
 The final argument explicitly checks the repository out as `.agents/skills/`; the GitHub repository can remain named `codex-skills`.
 
-Copy [config.toml.template](config.toml.template), or append its contents, to `.codex/config.toml` in the consuming project root. All implemented skills start disabled; enable them gradually by changing the corresponding `enabled` value to `true`, then restart Codex after config changes.
+Copy [config.toml.template](config.toml.template), or append its contents, to `.codex/config.toml` in the consuming project root. The template requests that all implemented skills start disabled so they can be enabled gradually.
+
+> **Current Codex limitation:** Do not rely on project-local `[[skills.config]]` entries to enforce per-skill enable or disable settings. Codex may ignore those entries and expose every skill under `.agents/skills/`; this is tracked in [openai/codex#20210](https://github.com/openai/codex/issues/20210). Until that behavior is fixed and verified, treat every skill installed under `.agents/skills/` as available to agents.
 
 The relative entries assume the repository is installed at `.agents/skills/` in that project root. If the installed Codex version does not resolve skill overrides from the project root, prefix each `.agents/skills/.../` entry with the project's absolute root.
 
