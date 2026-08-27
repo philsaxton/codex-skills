@@ -1,10 +1,16 @@
 # Codex Skills
 
-This repository contains portable Codex skills. Install it at `.agents/skills/` in another project as a Git submodule:
+This repository contains portable Codex skills.
+
+## Install
+
+From the root of the project where you want to use the skills, run:
 
 ```sh
 git submodule add https://github.com/philsaxton/codex-skills.git .agents/skills
 ```
+
+The final argument explicitly checks the repository out as `.agents/skills/`; the GitHub repository can remain named `codex-skills`.
 
 Copy [config.toml.template](config.toml.template), or append its contents, to `.codex/config.toml` in the consuming project root. All implemented skills start disabled; enable them gradually by changing the corresponding `enabled` value to `true`, then restart Codex after config changes.
 
