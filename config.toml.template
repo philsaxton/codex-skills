@@ -1,43 +1,43 @@
-# Copy this file, or append its contents, to `.codex/config.toml` in the root
-# of the project where you intend to use these skills. This lets you keep every
-# skill disabled initially and enable individual skills gradually.
-# Replace `/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY` with the actual absolute
-# path to this repository or submodule, then restart Codex after changing config.
+# Install this repository at `.agents/skills/`, then copy this file or append its
+# contents to `.codex/config.toml` in the consuming project root. Every implemented
+# skill starts disabled so you can enable them gradually. Restart Codex after changes.
+# These relative paths assume that layout. If your Codex version does not resolve
+# overrides from the project root, prefix each path with that project's absolute root.
 
 [[skills.config]]
-path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/coordinator"
+path = ".agents/skills/coordinator/"
 enabled = false
 
 [[skills.config]]
-path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/contract-author"
+path = ".agents/skills/contract-author/"
 enabled = false
 
 [[skills.config]]
-path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/contract-reviewer"
+path = ".agents/skills/contract-reviewer/"
 enabled = false
 
 [[skills.config]]
-path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/running-discrete-shell-commands"
+path = ".agents/skills/running-discrete-shell-commands/"
 enabled = false
 
 # The proposed candidates below do not have skill folders and cannot be active.
 
 # Evidence-tested hold: governed change control and evidence provenance
 # [[skills.config]]
-# path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/governed-change-control"
+# path = ".agents/skills/governed-change-control/"
 # enabled = false
 
 # Evidence-rejected as a standalone skill: governed review loop
 # [[skills.config]]
-# path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/governed-review-loop"
+# path = ".agents/skills/governed-review-loop/"
 # enabled = false
 
 # Evidence-tested hold: final reviewer
 # [[skills.config]]
-# path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/final-reviewer"
+# path = ".agents/skills/final-reviewer/"
 # enabled = false
 
 # Evidence-tested hold: implementer
 # [[skills.config]]
-# path = "/ABSOLUTE/PATH/TO/YOUR/SKILLS_REPOSITORY/implementer"
+# path = ".agents/skills/implementer/"
 # enabled = false
