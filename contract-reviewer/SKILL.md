@@ -17,6 +17,8 @@ When no formal contract exists, publish the provisional outcome, scope, criteria
 
 Assess the applicable decision-bearing areas: intended outcome, scope and non-goals, internal consistency, feasibility and dependencies, acceptance criteria and verification, and material risks or failure behavior. Focus on gaps that could make implementation or verification diverge.
 
+Do not resolve material ambiguity by inventing authority. Report the competing interpretations and consequences, withhold readiness, and route the unresolved decision through the controlling workflow.
+
 ## Return a review judgment
 
 Use this separation:
