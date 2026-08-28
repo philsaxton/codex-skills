@@ -17,7 +17,7 @@ When no formal contract exists, publish the provisional outcome, scope, criteria
 
 Assess the applicable decision-bearing areas: intended outcome, scope and non-goals, internal consistency, feasibility and dependencies, acceptance criteria and verification, and material risks or failure behavior. Focus on gaps that could make implementation or verification diverge.
 
-For each dependency-bearing item, trace consumed required authorities, inputs, and interfaces to the work that establishes them. If authoritative sources determine the relationship, derive the concrete prerequisite set; do not ask for a decision. Compare it with the consumer's executable edges under governing scheduling semantics, verifying reachability and explicit inheritance. An edge on later or other work cannot gate the consumer unless those semantics say it does. Prose, grouping relationships, and promised checks are not executable edges.
+Audit every proposed work item before judging topology or readiness, including items with no stated edge; complete it despite other blockers. Required slots: item; each consumed required authority/input/interface; establishing work; executable path/edge to the consumer under actual reachability/inheritance; match or mismatch. If authoritative sources determine a prerequisite and no executable path reaches that consumer, report the missing edge rather than ask. A later/other-work edge counts only when governing semantics explicitly make the consumer inherit it.
 
 When reporting a consequence, distinguish formal compliance, immediate operational impact in the current state, and systemic risk if the same structure is automated or reused. Low immediate impact does not erase a formal defect or systemic risk.
 
