@@ -1,5 +1,7 @@
 # S14.1 dependency-graph reviewer evaluation
 
+> **Retired:** The oracle's expected dependency was disproved. See [DISPOSITION.md](DISPOSITION.md) before using this bundle; its frozen oracle and scoring are preserved only as provenance.
+
 This fixture preserves a real reviewer failure for blinded regression testing of the portable `contract-reviewer` skill. It is evaluation material, not project authority and not a reusable project contract.
 
 ## Blinded input
