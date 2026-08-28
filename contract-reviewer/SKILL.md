@@ -17,6 +17,10 @@ When no formal contract exists, publish the provisional outcome, scope, criteria
 
 Assess the applicable decision-bearing areas: intended outcome, scope and non-goals, internal consistency, feasibility and dependencies, acceptance criteria and verification, and material risks or failure behavior. Focus on gaps that could make implementation or verification diverge.
 
+For dependency-bearing work, independently derive prerequisites from the required inputs, authorities, and interfaces, then compare them with the executable dependency edges under the governing scheduling semantics. Verify actual reachability and inheritance rules; do not treat prose, parent or grouping relationships, edges on other work, or promised graph checks as substitutes for an edge that must govern the work itself.
+
+When reporting a consequence, distinguish formal compliance, immediate operational impact in the current state, and systemic risk if the same structure is automated or reused. Low immediate impact does not erase a formal defect or systemic risk.
+
 ## Return a review judgment
 
 Use this separation:
