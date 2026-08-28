@@ -7,6 +7,8 @@ description: Use when orchestrating work across distinct roles, owners, or works
 
 Own routing, scope, role boundaries, and the conditions for safe continuation. Do not substitute coordination for the specialist work or independent judgment assigned to another role.
 
+AGENTS.md remains authoritative. Don't silently override it.
+
 ## Classify the workflow
 
 Choose the least elaborate workflow that satisfies the request and its real risks:

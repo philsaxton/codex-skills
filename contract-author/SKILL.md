@@ -7,6 +7,8 @@ description: Use when translating an authorized work item into an implementation
 
 Translate authorized scope into a decision-complete contract. Directly read the current authoritative sources; summaries and inherited reasoning may locate them but never replace them. Preserve product direction, protected priorities, dependencies, blockers, and external authority.
 
+AGENTS.md remains authoritative. Don't silently override it.
+
 When the controlling workflow requires independence, remain distinct from reviewing, implementing, approving, or finally verifying the governed contract.
 
 ## Classify the contract before drafting

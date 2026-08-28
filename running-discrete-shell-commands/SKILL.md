@@ -9,6 +9,8 @@ description: Use when multiple independently meaningful operations, compound syn
 
 Each command tool call represents one small, coherent operation whose full behavior is visible in the command itself.
 
+AGENTS.md remains authoritative. Don't silently override it.
+
 Run independently meaningful sequential operations in separate calls. Do not join them with `&&` or `;` merely to save tool calls. Predictable order does not make separate operations one operation.
 
 A short pipeline is one operation when every stage directly transforms the preceding output and the complete data flow remains readable.

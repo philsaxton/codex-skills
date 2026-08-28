@@ -7,6 +7,8 @@ description: Use when a proposed contract, specification, or recorded task basis
 
 Determine whether another practitioner can implement and verify the proposed work without inventing requirements. Own the review judgment, not the contract.
 
+AGENTS.md remains authoritative. Don't silently override it.
+
 ## Establish the review basis
 
 Read the proposed contract and the evidence it relies on. Identify whether the basis is authoritative or inferred.
