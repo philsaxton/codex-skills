@@ -36,6 +36,8 @@ Include the applicable decision-bearing material:
 
 Verification must prove observable outcomes at the risk warranted by the change. Select methods that fit the project and behavior. Do not turn a local example into a universal requirement for a test framework, command, hash, deterministic path, checkpoint ritual, evidence schema, role name, retry count, status vocabulary, or completion record.
 
+Specify the smallest coherent solution that satisfies the current outcome. Exclude speculative capabilities, abstractions, and infrastructure unless they are necessary now or materially cheaper to include now; keep generalized machinery out of scope when a clean local boundary is sufficient.
+
 When an established tool may materially affect implementation or verification, inspect existing project choices and current authoritative sources rather than relying on memory or specifying custom machinery by default. Select or mandate a low-risk dependency only within delegated authority; otherwise present the evidence-backed recommendation and route adoption or installation for decision.
 
 ## Preserve authority
