@@ -21,6 +21,15 @@ When a formal controlling artifact is absent, use the best available evidence, s
 
 ## Initial candidates
 
+### Workspace integrity and hygiene (possible split)
+
+- **Candidate boundary A — Codex workspace trust hygiene:** Inspect whether skills, scripts, instructions, configuration, symlinks, and writable roots preserve the intended trust boundary. Detect cases such as a supposedly protected skill resolving into writable source, conflicting instruction locations, or mutable automation being treated as preapproved. Guide remediation without silently moving or rewriting trusted control files.
+- **Candidate boundary B — General repository organization hygiene:** Identify recurring organizational problems such as misplaced durable artifacts, abandoned workspace directories, duplicated generated state, unclear source-versus-installation boundaries, and conventions that make ownership or cleanup unsafe. Keep this distinct from stylistic linting and from the dedicated Git branch/worktree cleanup workflow.
+- **Shared invariant/workflow:** Inventory before remediation, distinguish observed filesystem and permission facts from assumptions, explain why each condition matters, and propose the smallest reversible correction. Require human direction for moves, deletions, trust-boundary changes, or competing plausible layouts.
+- **Must remain project-specific:** Canonical directory layout, permitted writable roots, installation mechanism, generated-file policy, ownership, naming conventions, protected paths beyond platform defaults, and which remediations may run automatically.
+- **Evidence needed before authoring:** Examples from multiple repositories showing whether the two boundaries fail independently, whether one trigger description can remain discriminating, and which checks add value beyond existing Codex permissions, repository instructions, and ordinary cleanup tools.
+- **Current disposition:** Idea logged for later scoping (2026-09-04). Revisit whether this should become two skills before designing or implementing either one.
+
 ### Governed change control and evidence provenance
 
 - **Trigger boundary:** Changes whose governing policy requires state transitions or consequential completion actions to be bound to exact artifacts, approvals, and durable evidence. It should not trigger for ordinary edits, routine verification, or informal progress tracking.
