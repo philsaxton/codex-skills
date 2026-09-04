@@ -195,6 +195,53 @@ class RepositoryCase(unittest.TestCase):
         self.assertEqual(decision["assessment"], "possible squash merge")
         self.assertIn("diff_stat", decision)
 
+    def test_human_decision_summary_contains_comparable_evidence(self) -> None:
+        run(["git", "switch", "-c", "unmerged"], self.repo)
+        self.commit_file(
+            self.repo / "unmerged.txt", "unique\n", "unique work"
+        )
+        tip = run(["git", "rev-parse", "HEAD"], self.repo).stdout.strip()
+        run(["git", "switch", "main"], self.repo)
+        plan_path = self.root / "plan.json"
+
+        result = run(
+            [
+                sys.executable,
+                str(SOURCE_SCRIPT),
+                "plan",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "main",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+        )
+
+        self.assertIn(f"`unmerged` at `{tip[:12]}`", result.stdout)
+        self.assertIn("upstream: none", result.stdout)
+        self.assertIn("worktree: none", result.stdout)
+        self.assertIn("ahead 1, behind 0", result.stdout)
+        self.assertIn("unique work", result.stdout)
+        self.assertIn("Cleanup Test", result.stdout)
+        self.assertIn("unmerged.txt", result.stdout)
+
+    def test_unrelated_history_is_reported_without_blocking_the_plan(self) -> None:
+        run(["git", "switch", "--orphan", "unrelated"], self.repo)
+        self.commit_file(
+            self.repo / "unrelated.txt", "separate\n", "unrelated root"
+        )
+        run(["git", "switch", "main"], self.repo)
+
+        plan = self.plan_repository()
+
+        decision = next(
+            item for item in plan["decisions"] if item["branch"] == "unrelated"
+        )
+        self.assertIn("unrelated.txt", decision["diff_stat"])
+        self.assertIn("no merge base", decision["diff_stat"])
+
     def test_dirty_locked_and_detached_worktrees_are_never_actions(
         self,
     ) -> None:
@@ -517,6 +564,95 @@ class RepositoryCase(unittest.TestCase):
             ).returncode,
             0,
         )
+
+    def test_stale_worktree_metadata_is_pruned_only_for_an_absent_path(
+        self,
+    ) -> None:
+        linked = self.create_merged_linked_worktree()
+        shutil.rmtree(linked)
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+
+        prune = next(
+            action
+            for action in plan["actions"]
+            if action["kind"] == "prune_worktree_metadata"
+        )
+        self.assertEqual(prune["expected_paths"], [str(linked.resolve())])
+        self.assertFalse(
+            any(action["kind"] == "remove_worktree" for action in plan["actions"])
+        )
+
+        run(
+            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
+            self.repo,
+        )
+
+        listing = run(
+            ["git", "worktree", "list", "--porcelain"], self.repo
+        ).stdout
+        self.assertNotIn(str(linked.resolve()), listing)
+
+    def test_remote_refs_are_evidence_only_and_never_actions(self) -> None:
+        origin = self.root / "origin.git"
+        backup = self.root / "backup.git"
+        run(["git", "init", "--bare", str(origin)], self.root)
+        run(["git", "init", "--bare", str(backup)], self.root)
+        run(["git", "remote", "add", "origin", str(origin)], self.repo)
+        run(["git", "remote", "add", "backup", str(backup)], self.repo)
+        run(["git", "push", "origin", "main"], self.repo)
+        run(["git", "push", "backup", "main"], self.repo)
+        run(["git", "branch", "merged-remote"], self.repo)
+        run(["git", "push", "origin", "merged-remote"], self.repo)
+        run(["git", "switch", "-c", "remote-only"], self.repo)
+        self.commit_file(
+            self.repo / "remote-only.txt", "unique\n", "remote-only work"
+        )
+        run(["git", "push", "origin", "remote-only"], self.repo)
+        run(["git", "switch", "main"], self.repo)
+
+        plan = self.plan_repository()
+
+        remote_refs = {
+            item["ref"]: item for item in plan["remote_tracking_branches"]
+        }
+        self.assertTrue(remote_refs["refs/remotes/origin/main"]["merged"])
+        self.assertTrue(remote_refs["refs/remotes/backup/main"]["merged"])
+        self.assertFalse(
+            remote_refs["refs/remotes/origin/main"]["follow_up_candidate"]
+        )
+        self.assertTrue(
+            remote_refs["refs/remotes/origin/merged-remote"][
+                "follow_up_candidate"
+            ]
+        )
+        self.assertFalse(
+            remote_refs["refs/remotes/origin/remote-only"]["merged"]
+        )
+        self.assertFalse(
+            remote_refs["refs/remotes/origin/remote-only"][
+                "follow_up_candidate"
+            ]
+        )
+        self.assertTrue(
+            all(
+                action["kind"]
+                in {
+                    "remove_worktree",
+                    "prune_worktree_metadata",
+                    "delete_branch",
+                }
+                for action in plan["actions"]
+            )
+        )
+
+        unsupported = run(
+            [sys.executable, str(SOURCE_SCRIPT), "remote-delete"],
+            self.repo,
+            check=False,
+        )
+        self.assertNotEqual(unsupported.returncode, 0)
 
 
 if __name__ == "__main__":

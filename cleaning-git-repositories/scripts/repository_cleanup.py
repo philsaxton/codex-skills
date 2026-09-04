@@ -204,14 +204,16 @@ def collect_local_branches(repo: Path) -> list[dict[str, Any]]:
     return branches
 
 
-def collect_remote_tracking_branches(repo: Path) -> list[dict[str, str]]:
+def collect_remote_tracking_branches(
+    repo: Path, integration_oid: str, protected_names: set[str]
+) -> list[dict[str, Any]]:
     output = run_git(
         repo,
         "for-each-ref",
         "--format=%(refname)%09%(objectname)%09%(symref)",
         "refs/remotes",
     ).stdout
-    branches: list[dict[str, str]] = []
+    branches: list[dict[str, Any]] = []
     for line in output.splitlines():
         if not line:
             continue
@@ -221,8 +223,21 @@ def collect_remote_tracking_branches(repo: Path) -> list[dict[str, str]]:
         remote_and_branch = ref.removeprefix("refs/remotes/")
         remote, separator, branch = remote_and_branch.partition("/")
         if separator:
+            ahead, behind = ahead_behind(repo, integration_oid, oid)
+            merged = is_ancestor(repo, oid, integration_oid)
             branches.append(
-                {"remote": remote, "branch": branch, "ref": ref, "oid": oid}
+                {
+                    "remote": remote,
+                    "branch": branch,
+                    "ref": ref,
+                    "oid": oid,
+                    "ahead": ahead,
+                    "behind": behind,
+                    "merged": merged,
+                    "follow_up_candidate": (
+                        merged and branch not in protected_names
+                    ),
+                }
             )
     return branches
 
@@ -264,9 +279,21 @@ def commit_summary(repo: Path, oid: str) -> dict[str, str]:
 
 
 def branch_diff_stat(repo: Path, integration_oid: str, branch_oid: str) -> str:
-    return run_git(
-        repo, "diff", "--stat", f"{integration_oid}...{branch_oid}"
-    ).stdout.strip()
+    merge_base = run_git(
+        repo, "merge-base", integration_oid, branch_oid, check=False
+    )
+    if merge_base.returncode == 0:
+        return run_git(
+            repo, "diff", "--stat", f"{integration_oid}...{branch_oid}"
+        ).stdout.strip()
+    if merge_base.returncode == 1:
+        stat = run_git(
+            repo, "diff", "--stat", integration_oid, branch_oid
+        ).stdout.strip()
+        return f"no merge base; full tree diff:\n{stat}"
+    raise GitFailure(
+        merge_base.stderr.strip() or "could not determine a diff base"
+    )
 
 
 def trees_equal(repo: Path, left_oid: str, right_oid: str) -> bool:
@@ -477,7 +504,9 @@ def build_plan(
         "protected_branches": sorted(protected_names),
         "worktrees": worktrees,
         "branches": branches,
-        "remote_tracking_branches": collect_remote_tracking_branches(repo),
+        "remote_tracking_branches": collect_remote_tracking_branches(
+            repo, integration_oid, protected_names
+        ),
         "retained": retained,
         "actions": actions,
         "decisions": decisions,
@@ -488,9 +517,16 @@ def render_summary(plan: dict[str, Any]) -> str:
     lines = ["# Repository cleanup plan", "", "## Safe local actions", ""]
     if plan["actions"]:
         for action in plan["actions"]:
-            target = action.get("path") or action.get("branch") or ", ".join(
-                action.get("expected_paths", [])
-            )
+            if action["kind"] == "remove_worktree":
+                target = (
+                    f"{action['path']} at `{action['expected_head'][:12]}`"
+                )
+            elif action["kind"] == "delete_branch":
+                target = (
+                    f"{action['branch']} at `{action['expected_oid'][:12]}`"
+                )
+            else:
+                target = ", ".join(action["expected_paths"])
             lines.append(f"- `{action['kind']}`: {target}")
     else:
         lines.append("- None")
@@ -499,16 +535,29 @@ def render_summary(plan: dict[str, Any]) -> str:
     if plan["decisions"]:
         for decision in plan["decisions"]:
             target = decision.get("branch") or decision.get("path")
-            details = decision["reason"]
             if "ahead" in decision:
-                details += (
-                    f"; ahead {decision['ahead']}, behind {decision['behind']}; "
+                upstream = decision["upstream"] or "none"
+                if decision["upstream_state"] == "gone":
+                    upstream += " (gone)"
+                worktree = decision["worktree"] or "none"
+                lines.append(
+                    f"- `{target}` at `{decision['tip'][:12]}`; "
+                    f"upstream: {upstream}; worktree: {worktree}; "
+                    f"ahead {decision['ahead']}, behind {decision['behind']}; "
                     f"assessment: {decision['assessment']}"
                 )
-            lines.append(f"- `{target}`: {details}")
-            if decision.get("diff_stat"):
-                for stat_line in decision["diff_stat"].splitlines():
-                    lines.append(f"  {stat_line}")
+                last = decision["last_commit"]
+                lines.append(
+                    f"  Last: {last['subject']} — {last['author']}, "
+                    f"{last['date']}"
+                )
+                lines.append(f"  Reason: {decision['reason']}")
+                if decision["diff_stat"]:
+                    lines.append("  Diff stat:")
+                    for stat_line in decision["diff_stat"].splitlines():
+                        lines.append(f"    {stat_line}")
+            else:
+                lines.append(f"- `{target}`: {decision['reason']}")
     else:
         lines.append("- None")
 
@@ -520,10 +569,17 @@ def render_summary(plan: dict[str, Any]) -> str:
         lines.append("- None")
 
     lines.extend(["", "## Remote follow-up candidates", ""])
-    if plan["remote_tracking_branches"]:
-        for item in plan["remote_tracking_branches"]:
+    remote_candidates = [
+        item
+        for item in plan["remote_tracking_branches"]
+        if item["follow_up_candidate"]
+    ]
+    if remote_candidates:
+        for item in remote_candidates:
             lines.append(
-                f"- `{item['remote']}/{item['branch']}` at `{item['oid'][:12]}`"
+                f"- `{item['remote']}/{item['branch']}` at "
+                f"`{item['oid'][:12]}`; exact tip is merged; "
+                f"ahead {item['ahead']}, behind {item['behind']}"
             )
     else:
         lines.append("- None")
