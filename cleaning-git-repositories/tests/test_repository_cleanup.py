@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from contextlib import redirect_stderr
+import importlib.util
+import io
 import json
 from pathlib import Path
 import shutil
@@ -58,6 +61,69 @@ class RepositoryCase(unittest.TestCase):
         else:
             shutil.copy2(SOURCE_SCRIPT, installed)
         return installed
+
+    def install_script_with_symlinked_ancestor(self, ancestor: str) -> Path:
+        host = self.root / f"host-{ancestor}"
+        if ancestor == ".agents":
+            real_agents = host / "real-agents"
+            real_agents.mkdir(parents=True)
+            (host / ".agents").symlink_to(
+                real_agents, target_is_directory=True
+            )
+        elif ancestor == "skills":
+            agents = host / ".agents"
+            agents.mkdir(parents=True)
+            real_skills = host / "real-skills"
+            real_skills.mkdir()
+            (agents / "skills").symlink_to(
+                real_skills, target_is_directory=True
+            )
+        else:
+            raise AssertionError(f"unsupported ancestor: {ancestor}")
+        target = (
+            host
+            / ".agents"
+            / "skills"
+            / "cleaning-git-repositories"
+            / "scripts"
+        )
+        target.mkdir(parents=True)
+        installed = target / "repository_cleanup.py"
+        shutil.copy2(SOURCE_SCRIPT, installed)
+        return installed
+
+    def load_installed_module(self, script: Path):
+        spec = importlib.util.spec_from_file_location(
+            "installed_repository_cleanup", script
+        )
+        if spec is None or spec.loader is None:
+            raise AssertionError("could not load installed helper")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def apply_local(
+        self,
+        script: Path,
+        plan: Path,
+        *,
+        protect: tuple[str, ...] = (),
+        check: bool = True,
+    ) -> subprocess.CompletedProcess[str]:
+        command = [
+            sys.executable,
+            str(script),
+            "apply-local",
+            "--repo",
+            str(self.repo),
+            "--integration",
+            "main",
+            "--plan",
+            str(plan),
+        ]
+        for branch in protect:
+            command.extend(["--protect", branch])
+        return run(command, self.repo, check=check)
 
     def plan_repository(self, *extra: str, script: Path | None = None) -> dict:
         path = self.root / "plan.json"
@@ -125,27 +191,11 @@ class RepositoryCase(unittest.TestCase):
             ],
             self.repo,
         )
-        source_result = run(
-            [
-                sys.executable,
-                str(SOURCE_SCRIPT),
-                "apply-local",
-                "--plan",
-                str(plan),
-            ],
-            self.repo,
-            check=False,
+        source_result = self.apply_local(
+            SOURCE_SCRIPT, plan, check=False
         )
-        symlink_result = run(
-            [
-                sys.executable,
-                str(self.install_script(symlink=True)),
-                "apply-local",
-                "--plan",
-                str(plan),
-            ],
-            self.repo,
-            check=False,
+        symlink_result = self.apply_local(
+            self.install_script(symlink=True), plan, check=False
         )
         self.assertIn(
             "protected non-symlinked installation", source_result.stderr
@@ -153,6 +203,23 @@ class RepositoryCase(unittest.TestCase):
         self.assertIn(
             "protected non-symlinked installation", symlink_result.stderr
         )
+
+    def assert_symlinked_ancestor_is_rejected(self, ancestor: str) -> None:
+        linked = self.create_merged_linked_worktree()
+        installed = self.install_script_with_symlinked_ancestor(ancestor)
+        plan_path = self.write_plan_with(installed)
+
+        result = self.apply_local(installed, plan_path, check=False)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("protected non-symlinked installation", result.stderr)
+        self.assertTrue(linked.exists())
+
+    def test_apply_local_rejects_a_symlinked_agents_ancestor(self) -> None:
+        self.assert_symlinked_ancestor_is_rejected(".agents")
+
+    def test_apply_local_rejects_a_symlinked_skills_ancestor(self) -> None:
+        self.assert_symlinked_ancestor_is_rejected("skills")
 
     def test_merged_branch_and_clean_linked_worktree_are_safe_actions(
         self,
@@ -277,6 +344,32 @@ class RepositoryCase(unittest.TestCase):
         self.assertIn("main", retained)
         self.assertIn("release/next", retained)
 
+    def test_branch_deletion_requires_every_checkout_to_be_removable(self) -> None:
+        run(["git", "branch", "merged"], self.repo)
+        removable = self.root / "removable"
+        retained = self.root / "retained"
+        run(["git", "worktree", "add", str(removable), "merged"], self.repo)
+        run(
+            ["git", "worktree", "add", "--force", str(retained), "merged"],
+            self.repo,
+        )
+        (retained / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+
+        plan = self.plan_repository()
+
+        removed_paths = {
+            action["path"]
+            for action in plan["actions"]
+            if action["kind"] == "remove_worktree"
+        }
+        deleted_branches = {
+            action["branch"]
+            for action in plan["actions"]
+            if action["kind"] == "delete_branch"
+        }
+        self.assertEqual(removed_paths, {str(removable.resolve())})
+        self.assertNotIn("merged", deleted_branches)
+
     def test_gone_upstream_with_unique_commits_requires_a_decision(
         self,
     ) -> None:
@@ -337,16 +430,7 @@ class RepositoryCase(unittest.TestCase):
         installed = self.install_script()
         plan_path = self.write_plan_with(installed)
 
-        result = run(
-            [
-                sys.executable,
-                str(installed),
-                "apply-local",
-                "--plan",
-                str(plan_path),
-            ],
-            self.repo,
-        )
+        result = self.apply_local(installed, plan_path)
 
         events = json.loads(result.stdout)
         self.assertEqual(
@@ -373,17 +457,7 @@ class RepositoryCase(unittest.TestCase):
             linked,
         )
 
-        result = run(
-            [
-                sys.executable,
-                str(installed),
-                "apply-local",
-                "--plan",
-                str(plan_path),
-            ],
-            self.repo,
-            check=False,
-        )
+        result = self.apply_local(installed, plan_path, check=False)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("stale cleanup plan", result.stderr)
@@ -404,17 +478,7 @@ class RepositoryCase(unittest.TestCase):
         plan_path = self.write_plan_with(installed)
         (linked / "dirty.txt").write_text("dirty\n", encoding="utf-8")
 
-        result = run(
-            [
-                sys.executable,
-                str(installed),
-                "apply-local",
-                "--plan",
-                str(plan_path),
-            ],
-            self.repo,
-            check=False,
-        )
+        result = self.apply_local(installed, plan_path, check=False)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("stale cleanup plan", result.stderr)
@@ -428,17 +492,7 @@ class RepositoryCase(unittest.TestCase):
             self.repo / "after-plan.txt", "changed\n", "integration changed"
         )
 
-        result = run(
-            [
-                sys.executable,
-                str(installed),
-                "apply-local",
-                "--plan",
-                str(plan_path),
-            ],
-            self.repo,
-            check=False,
-        )
+        result = self.apply_local(installed, plan_path, check=False)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("integration commit changed", result.stderr)
@@ -458,20 +512,151 @@ class RepositoryCase(unittest.TestCase):
         )
         plan_path.write_text(json.dumps(plan), encoding="utf-8")
 
+        result = self.apply_local(installed, plan_path, check=False)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("plan does not match current safe action set", result.stderr)
+
+    def test_apply_local_binds_plan_to_independent_trusted_inputs(self) -> None:
+        run(["git", "branch", "protected"], self.repo)
+        installed = self.install_script()
+        trusted_plan = self.root / "trusted-plan.json"
+        run(
+            [
+                sys.executable,
+                str(installed),
+                "plan",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "main",
+                "--protect",
+                "protected",
+                "--plan",
+                str(trusted_plan),
+            ],
+            self.repo,
+        )
+        attacker_repo = self.root / "attacker-repo"
+        shutil.copytree(self.repo, attacker_repo)
+        run(["git", "branch", "attacker-target"], attacker_repo)
+        attacker_plan = self.root / "attacker-plan.json"
+        run(
+            [
+                sys.executable,
+                str(installed),
+                "plan",
+                "--repo",
+                str(attacker_repo),
+                "--integration",
+                "main",
+                "--plan",
+                str(attacker_plan),
+            ],
+            attacker_repo,
+        )
+        trusted_plan.write_text(
+            attacker_plan.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+
         result = run(
             [
                 sys.executable,
                 str(installed),
                 "apply-local",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "main",
+                "--protect",
+                "protected",
                 "--plan",
-                str(plan_path),
+                str(trusted_plan),
             ],
             self.repo,
             check=False,
         )
 
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("plan does not match current safe action set", result.stderr)
+        self.assertIn("trusted cleanup inputs", result.stderr)
+        self.assertEqual(
+            run(
+                ["git", "show-ref", "--verify", "refs/heads/attacker-target"],
+                attacker_repo,
+            ).returncode,
+            0,
+        )
+
+    def test_apply_local_rejects_a_plan_for_an_untrusted_integration(self) -> None:
+        run(["git", "branch", "alternate"], self.repo)
+        installed = self.install_script()
+        plan_path = self.root / "plan.json"
+        run(
+            [
+                sys.executable,
+                str(installed),
+                "plan",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "alternate",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+        )
+
+        result = self.apply_local(installed, plan_path, check=False)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("trusted cleanup inputs: integration", result.stderr)
+
+    def test_apply_local_rejects_removed_protection_even_without_new_actions(
+        self,
+    ) -> None:
+        run(["git", "switch", "-c", "protected-work"], self.repo)
+        self.commit_file(
+            self.repo / "protected.txt", "unique\n", "protected work"
+        )
+        run(["git", "switch", "main"], self.repo)
+        installed = self.install_script()
+        plan_path = self.root / "plan.json"
+        run(
+            [
+                sys.executable,
+                str(installed),
+                "plan",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "main",
+                "--protect",
+                "protected-work",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+        )
+        tampered = json.loads(plan_path.read_text(encoding="utf-8"))
+        tampered["protected_branches"].remove("protected-work")
+        plan_path.write_text(json.dumps(tampered), encoding="utf-8")
+
+        result = self.apply_local(
+            installed,
+            plan_path,
+            protect=("protected-work",),
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("trusted cleanup inputs: protected branches", result.stderr)
+        self.assertEqual(
+            run(
+                ["git", "show-ref", "--verify", "refs/heads/protected-work"],
+                self.repo,
+            ).returncode,
+            0,
+        )
 
     def test_apply_local_rejects_malformed_oids_and_unknown_actions(
         self,
@@ -484,29 +669,21 @@ class RepositoryCase(unittest.TestCase):
         malformed = json.loads(json.dumps(original))
         malformed["actions"][0]["expected_head"] = "not-an-oid"
         plan_path.write_text(json.dumps(malformed), encoding="utf-8")
-        malformed_result = run(
-            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
-            self.repo,
-            check=False,
+        malformed_result = self.apply_local(
+            installed, plan_path, check=False
         )
 
         wrong_length = json.loads(json.dumps(original))
         wrong_length["actions"][0]["expected_head"] = "0" * 41
         plan_path.write_text(json.dumps(wrong_length), encoding="utf-8")
-        wrong_length_result = run(
-            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
-            self.repo,
-            check=False,
+        wrong_length_result = self.apply_local(
+            installed, plan_path, check=False
         )
 
         unknown = json.loads(json.dumps(original))
         unknown["actions"][0]["kind"] = "remote-delete"
         plan_path.write_text(json.dumps(unknown), encoding="utf-8")
-        unknown_result = run(
-            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
-            self.repo,
-            check=False,
-        )
+        unknown_result = self.apply_local(installed, plan_path, check=False)
 
         self.assertIn("malformed cleanup plan", malformed_result.stderr)
         self.assertIn("malformed cleanup plan", wrong_length_result.stderr)
@@ -540,17 +717,7 @@ class RepositoryCase(unittest.TestCase):
         installed = self.install_script()
         plan_path = self.write_plan_with(installed)
 
-        result = run(
-            [
-                sys.executable,
-                str(installed),
-                "apply-local",
-                "--plan",
-                str(plan_path),
-            ],
-            self.repo,
-            check=False,
-        )
+        result = self.apply_local(installed, plan_path, check=False)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(linked.exists())
@@ -564,6 +731,50 @@ class RepositoryCase(unittest.TestCase):
             ).returncode,
             0,
         )
+
+    def test_apply_local_reports_completed_actions_on_a_recheck_failure(
+        self,
+    ) -> None:
+        run(["git", "branch", "merged-one"], self.repo)
+        run(["git", "branch", "merged-two"], self.repo)
+        first = self.root / "linked-one"
+        second = self.root / "linked-two"
+        run(["git", "worktree", "add", str(first), "merged-one"], self.repo)
+        run(["git", "worktree", "add", str(second), "merged-two"], self.repo)
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        module = self.load_installed_module(installed)
+        real_collect_worktrees = module.collect_worktrees
+
+        def collect_with_concurrent_change(repo: Path):
+            worktrees = real_collect_worktrees(repo)
+            if not first.exists():
+                for worktree in worktrees:
+                    if worktree["path"] == str(second.resolve()):
+                        worktree["dirty"] = True
+            return worktrees
+
+        module.collect_worktrees = collect_with_concurrent_change
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            returncode = module.main(
+                [
+                    "apply-local",
+                    "--repo",
+                    str(self.repo),
+                    "--integration",
+                    "main",
+                    "--plan",
+                    str(plan_path),
+                ]
+            )
+
+        self.assertEqual(returncode, 3)
+        self.assertFalse(first.exists())
+        self.assertTrue(second.exists())
+        self.assertIn("completed-actions:", stderr.getvalue())
+        self.assertIn('"target": "' + str(first.resolve()), stderr.getvalue())
+        self.assertIn("failed-target: " + str(second.resolve()), stderr.getvalue())
 
     def test_stale_worktree_metadata_is_pruned_only_for_an_absent_path(
         self,
@@ -584,10 +795,7 @@ class RepositoryCase(unittest.TestCase):
             any(action["kind"] == "remove_worktree" for action in plan["actions"])
         )
 
-        run(
-            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
-            self.repo,
-        )
+        self.apply_local(installed, plan_path)
 
         listing = run(
             ["git", "worktree", "list", "--porcelain"], self.repo

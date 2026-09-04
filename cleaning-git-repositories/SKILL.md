@@ -35,10 +35,14 @@ Use `apply-local` only when the script is a reviewed, real, non-symlinked instal
 
 ```text
 python3 <protected-skill-directory>/scripts/repository_cleanup.py apply-local \
+  --repo <repository> \
+  --integration <local-integration-branch> \
   --plan <plan.json>
 ```
 
-The helper revalidates repository identity, integration commit, the complete action set, branch tips, and worktree state. It removes worktrees before branches, uses `git branch -d`, and never force-deletes or mutates a remote.
+Repeat `--protect <protected-branch>` exactly as for `plan`. Supply the repository, integration branch, and protected branches again from the independently established cleanup basis; never copy them from the plan. The helper rejects a plan whose recorded authority differs from these trusted apply-time inputs.
+
+The helper revalidates repository identity, integration commit, protected branches, the complete action set, branch tips, and worktree state. It removes worktrees before branches, uses `git branch -d`, and never force-deletes or mutates a remote.
 
 If the installation is writable, symlinked, or its protection is uncertain, use the helper for planning only. Perform approved local changes as visible, individually scoped Git commands after repeating the same checks. Never turn a failed safe deletion into a forceful fallback.
 

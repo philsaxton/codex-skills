@@ -26,7 +26,7 @@ class ApplyFailure(RuntimeError):
         self,
         target: str,
         completed: list[dict[str, str]],
-        cause: GitFailure,
+        cause: Exception,
     ) -> None:
         super().__init__(str(cause))
         self.target = target
@@ -81,7 +81,7 @@ def has_symlink_component(path: Path) -> bool:
     components = [absolute]
     for parent in absolute.parents:
         components.append(parent)
-        if parent.name in {".agents", SKILL_NAME}:
+        if parent.name == ".agents":
             break
     return any(component.is_symlink() for component in components)
 
@@ -363,19 +363,18 @@ def build_plan(
     worktree_actions: list[dict[str, Any]] = []
     prunable_paths: list[str] = []
     decisions: list[dict[str, Any]] = []
-    removable_branch_refs: set[str] = set()
-    worktree_by_branch: dict[str, dict[str, Any]] = {}
+    scheduled_worktree_paths: set[str] = set()
+    worktrees_by_branch: dict[str, list[dict[str, Any]]] = {}
 
     for worktree in worktrees:
         branch_ref = worktree["branch_ref"]
         if branch_ref:
-            worktree_by_branch[branch_ref] = worktree
+            worktrees_by_branch.setdefault(branch_ref, []).append(worktree)
         if worktree["current"]:
             continue
         if worktree["prunable"] and not worktree["exists"]:
             prunable_paths.append(worktree["path"])
-            if branch_ref:
-                removable_branch_refs.add(branch_ref)
+            scheduled_worktree_paths.add(worktree["path"])
             continue
         if worktree["locked"]:
             decisions.append(
@@ -441,26 +440,32 @@ def build_plan(
                 "expected_head": worktree["head"],
             }
         )
-        removable_branch_refs.add(branch["ref"])
+        scheduled_worktree_paths.add(worktree["path"])
 
     retained: list[dict[str, str]] = []
     branch_actions: list[dict[str, str]] = []
     for branch in branches:
-        worktree = worktree_by_branch.get(branch["ref"])
+        branch_worktrees = worktrees_by_branch.get(branch["ref"], [])
+        retained_worktrees = [
+            worktree
+            for worktree in branch_worktrees
+            if worktree["path"] not in scheduled_worktree_paths
+        ]
+        retained_worktree = retained_worktrees[0] if retained_worktrees else None
         if branch["name"] in protected_names:
             retained.append(
                 {"kind": "branch", "branch": branch["name"], "reason": "protected"}
             )
             continue
         merged = is_ancestor(repo, branch["oid"], integration_oid)
-        if worktree and branch["ref"] not in removable_branch_refs:
+        if retained_worktree:
             decisions.append(
                 decision_for_branch(
                     repo,
                     branch,
                     integration_oid,
                     "branch is checked out in a retained worktree",
-                    worktree["path"],
+                    retained_worktree["path"],
                 )
             )
             continue
@@ -480,7 +485,7 @@ def build_plan(
                 branch,
                 integration_oid,
                 "tip is not an ancestor of integration",
-                worktree["path"] if worktree else None,
+                branch_worktrees[0]["path"] if branch_worktrees else None,
             )
         )
 
@@ -731,26 +736,42 @@ def canonical_actions(actions: list[dict[str, Any]]) -> list[str]:
     ]
 
 
-def revalidate_plan(plan: dict[str, Any]) -> dict[str, Any]:
+def revalidate_plan(
+    plan: dict[str, Any],
+    trusted_repo: Path,
+    trusted_integration: str,
+    trusted_protected: Iterable[str],
+) -> dict[str, Any]:
     validate_plan_shape(plan)
     repository = plan["repository"]
-    repo = Path(repository["top_level"])
-    if repository_identity(repo) != {
+    trusted_identity = repository_identity(trusted_repo)
+    if trusted_identity != {
         "top_level": repository["top_level"],
         "common_dir": repository["common_dir"],
     }:
-        raise ValueError("stale cleanup plan: repository identity changed")
-    integration_ref = repository["integration_ref"]
-    current_integration = run_git(
-        repo, "rev-parse", "--verify", f"{integration_ref}^{{commit}}"
-    ).stdout.strip()
-    if current_integration != repository["integration_oid"]:
+        raise ValueError(
+            "cleanup plan does not match trusted cleanup inputs: repository"
+        )
+    repo = Path(trusted_identity["top_level"])
+    integration_ref, integration_oid = validate_integration_ref(
+        repo, trusted_integration
+    )
+    if integration_ref != repository["integration_ref"]:
+        raise ValueError(
+            "cleanup plan does not match trusted cleanup inputs: integration"
+        )
+    if integration_oid != repository["integration_oid"]:
         raise ValueError("stale cleanup plan: integration commit changed")
     rebuilt = build_plan(
         repo,
-        integration_ref.removeprefix("refs/heads/"),
-        plan["protected_branches"],
+        trusted_integration,
+        trusted_protected,
     )
+    if rebuilt["protected_branches"] != plan["protected_branches"]:
+        raise ValueError(
+            "cleanup plan does not match trusted cleanup inputs: "
+            "protected branches"
+        )
     if canonical_actions(rebuilt["actions"]) != canonical_actions(
         plan["actions"]
     ):
@@ -772,124 +793,156 @@ def run_mutation(
         raise ApplyFailure(target, completed.copy(), error) from error
 
 
-def apply_plan(plan: dict[str, Any]) -> list[dict[str, str]]:
-    rebuilt = revalidate_plan(plan)
+def apply_action(
+    repo: Path,
+    integration_oid: str,
+    protected: set[str],
+    action: dict[str, Any],
+    events: list[dict[str, str]],
+) -> None:
+    kind = action["kind"]
+    if kind == "remove_worktree":
+        worktree = next(
+            (
+                item
+                for item in collect_worktrees(repo)
+                if item["path"] == action["path"]
+            ),
+            None,
+        )
+        if (
+            worktree is None
+            or worktree["head"] != action["expected_head"]
+            or worktree["branch_ref"] != action["branch_ref"]
+            or worktree["current"]
+            or worktree["dirty"] is not False
+            or worktree["locked"]
+            or worktree["detached"]
+        ):
+            raise ValueError(
+                f"stale cleanup plan: worktree changed: {action['path']}"
+            )
+        run_mutation(
+            repo,
+            action["path"],
+            events,
+            "worktree",
+            "remove",
+            "--",
+            action["path"],
+        )
+        events.append(
+            {
+                "kind": kind,
+                "target": action["path"],
+                "expected_oid": action["expected_head"],
+                "status": "removed",
+            }
+        )
+        return
+
+    if kind == "prune_worktree_metadata":
+        current_prunable = sorted(
+            item["path"]
+            for item in collect_worktrees(repo)
+            if item["prunable"] and not item["exists"]
+        )
+        if current_prunable != action["expected_paths"]:
+            raise ValueError(
+                "stale cleanup plan: prunable worktree metadata changed"
+            )
+        target = ", ".join(current_prunable)
+        run_mutation(
+            repo,
+            target,
+            events,
+            "worktree",
+            "prune",
+            "--expire",
+            "now",
+        )
+        events.append(
+            {
+                "kind": kind,
+                "target": target,
+                "expected_oid": "",
+                "status": "pruned",
+            }
+        )
+        return
+
+    branch = next(
+        (
+            item
+            for item in collect_local_branches(repo)
+            if item["ref"] == action["ref"]
+        ),
+        None,
+    )
+    checked_out = {
+        item["branch_ref"]
+        for item in collect_worktrees(repo)
+        if item["branch_ref"]
+    }
+    if (
+        branch is None
+        or branch["oid"] != action["expected_oid"]
+        or branch["name"] in protected
+        or branch["ref"] in checked_out
+        or not is_ancestor(repo, branch["oid"], integration_oid)
+    ):
+        raise ValueError(
+            f"stale cleanup plan: branch changed: {action['branch']}"
+        )
+    run_mutation(
+        repo,
+        action["branch"],
+        events,
+        "branch",
+        "-d",
+        "--",
+        action["branch"],
+    )
+    events.append(
+        {
+            "kind": kind,
+            "target": action["branch"],
+            "expected_oid": action["expected_oid"],
+            "status": "deleted",
+        }
+    )
+
+
+def action_target(action: dict[str, Any]) -> str:
+    if action["kind"] == "remove_worktree":
+        return action["path"]
+    if action["kind"] == "prune_worktree_metadata":
+        return ", ".join(action["expected_paths"])
+    return action["branch"]
+
+
+def apply_plan(
+    plan: dict[str, Any],
+    trusted_repo: Path,
+    trusted_integration: str,
+    trusted_protected: Iterable[str],
+) -> list[dict[str, str]]:
+    rebuilt = revalidate_plan(
+        plan, trusted_repo, trusted_integration, trusted_protected
+    )
     repo = Path(rebuilt["repository"]["top_level"])
     integration_oid = rebuilt["repository"]["integration_oid"]
     protected = set(rebuilt["protected_branches"])
     events: list[dict[str, str]] = []
 
     for action in rebuilt["actions"]:
-        kind = action["kind"]
-        if kind == "remove_worktree":
-            worktree = next(
-                (
-                    item
-                    for item in collect_worktrees(repo)
-                    if item["path"] == action["path"]
-                ),
-                None,
-            )
-            if (
-                worktree is None
-                or worktree["head"] != action["expected_head"]
-                or worktree["branch_ref"] != action["branch_ref"]
-                or worktree["current"]
-                or worktree["dirty"] is not False
-                or worktree["locked"]
-                or worktree["detached"]
-            ):
-                raise ValueError(
-                    f"stale cleanup plan: worktree changed: {action['path']}"
-                )
-            run_mutation(
-                repo,
-                action["path"],
-                events,
-                "worktree",
-                "remove",
-                "--",
-                action["path"],
-            )
-            events.append(
-                {
-                    "kind": kind,
-                    "target": action["path"],
-                    "expected_oid": action["expected_head"],
-                    "status": "removed",
-                }
-            )
-            continue
-
-        if kind == "prune_worktree_metadata":
-            current_prunable = sorted(
-                item["path"]
-                for item in collect_worktrees(repo)
-                if item["prunable"] and not item["exists"]
-            )
-            if current_prunable != action["expected_paths"]:
-                raise ValueError(
-                    "stale cleanup plan: prunable worktree metadata changed"
-                )
-            run_mutation(
-                repo,
-                ", ".join(current_prunable),
-                events,
-                "worktree",
-                "prune",
-                "--expire",
-                "now",
-            )
-            events.append(
-                {
-                    "kind": kind,
-                    "target": ", ".join(current_prunable),
-                    "expected_oid": "",
-                    "status": "pruned",
-                }
-            )
-            continue
-
-        branch = next(
-            (
-                item
-                for item in collect_local_branches(repo)
-                if item["ref"] == action["ref"]
-            ),
-            None,
-        )
-        checked_out = {
-            item["branch_ref"]
-            for item in collect_worktrees(repo)
-            if item["branch_ref"]
-        }
-        if (
-            branch is None
-            or branch["oid"] != action["expected_oid"]
-            or branch["name"] in protected
-            or branch["ref"] in checked_out
-            or not is_ancestor(repo, branch["oid"], integration_oid)
-        ):
-            raise ValueError(
-                f"stale cleanup plan: branch changed: {action['branch']}"
-            )
-        run_mutation(
-            repo,
-            action["branch"],
-            events,
-            "branch",
-            "-d",
-            "--",
-            action["branch"],
-        )
-        events.append(
-            {
-                "kind": kind,
-                "target": action["branch"],
-                "expected_oid": action["expected_oid"],
-                "status": "deleted",
-            }
-        )
+        target = action_target(action)
+        try:
+            apply_action(repo, integration_oid, protected, action, events)
+        except ApplyFailure:
+            raise
+        except (GitFailure, ValueError, OSError) as error:
+            raise ApplyFailure(target, events.copy(), error) from error
     return events
 
 
@@ -910,7 +963,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     apply_parser = subparsers.add_parser(
         "apply-local", help="apply a revalidated safe local cleanup plan"
     )
+    apply_parser.add_argument("--repo", type=Path, required=True)
+    apply_parser.add_argument("--integration", required=True)
     apply_parser.add_argument("--plan", type=Path, required=True)
+    apply_parser.add_argument("--protect", action="append", default=[])
     return parser.parse_args(argv)
 
 
@@ -924,7 +980,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         assert_trusted_installation(Path(__file__))
-        events = apply_plan(load_plan(args.plan))
+        events = apply_plan(
+            load_plan(args.plan), args.repo, args.integration, args.protect
+        )
         print(json.dumps(events, indent=2, sort_keys=True))
         return 0
     except ApplyFailure as error:
