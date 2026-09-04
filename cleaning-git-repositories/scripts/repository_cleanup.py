@@ -14,11 +14,23 @@ from typing import Any, Iterable
 
 SCHEMA_VERSION = 1
 SKILL_NAME = "cleaning-git-repositories"
-OID_RE = re.compile(r"^[0-9a-f]{40,64}$")
+OID_RE = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
 
 
 class GitFailure(RuntimeError):
     pass
+
+
+class ApplyFailure(RuntimeError):
+    def __init__(
+        self,
+        target: str,
+        completed: list[dict[str, str]],
+        cause: GitFailure,
+    ) -> None:
+        super().__init__(str(cause))
+        self.target = target
+        self.completed = completed
 
 
 def run_git(
@@ -66,7 +78,12 @@ def validate_integration_ref(repo: Path, name: str) -> tuple[str, str]:
 
 def has_symlink_component(path: Path) -> bool:
     absolute = path.absolute()
-    return any(part.is_symlink() for part in [absolute, *absolute.parents])
+    components = [absolute]
+    for parent in absolute.parents:
+        components.append(parent)
+        if parent.name in {".agents", SKILL_NAME}:
+            break
+    return any(component.is_symlink() for component in components)
 
 
 def assert_trusted_installation(script: Path) -> None:
@@ -532,14 +549,292 @@ def load_plan(path: Path) -> dict[str, Any]:
     return value
 
 
-def revalidate_plan(plan: dict[str, Any]) -> None:
-    del plan
-    raise ValueError("cleanup plan application is not implemented")
+def validate_plan_shape(plan: dict[str, Any]) -> None:
+    expected_top_level = {
+        "schema_version",
+        "repository",
+        "protected_branches",
+        "worktrees",
+        "branches",
+        "remote_tracking_branches",
+        "retained",
+        "actions",
+        "decisions",
+    }
+    if set(plan) != expected_top_level or plan.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError("malformed cleanup plan")
+
+    repository = plan.get("repository")
+    if not isinstance(repository, dict) or set(repository) != {
+        "top_level",
+        "common_dir",
+        "integration_ref",
+        "integration_oid",
+    }:
+        raise ValueError("malformed cleanup plan")
+    for key in ("top_level", "common_dir"):
+        value = repository.get(key)
+        if (
+            not isinstance(value, str)
+            or not Path(value).is_absolute()
+            or str(Path(value).resolve()) != value
+        ):
+            raise ValueError("malformed cleanup plan")
+    integration_ref = repository.get("integration_ref")
+    if not isinstance(integration_ref, str) or not integration_ref.startswith(
+        "refs/heads/"
+    ):
+        raise ValueError("malformed cleanup plan")
+    if not isinstance(repository.get("integration_oid"), str) or not OID_RE.fullmatch(
+        repository["integration_oid"]
+    ):
+        raise ValueError("malformed cleanup plan")
+
+    protected = plan.get("protected_branches")
+    actions = plan.get("actions")
+    if (
+        not isinstance(protected, list)
+        or not all(isinstance(item, str) for item in protected)
+        or not isinstance(actions, list)
+    ):
+        raise ValueError("malformed cleanup plan")
+
+    seen_targets: set[tuple[str, str]] = set()
+    for action in actions:
+        if not isinstance(action, dict) or not isinstance(action.get("kind"), str):
+            raise ValueError("malformed cleanup plan")
+        kind = action["kind"]
+        if kind == "remove_worktree":
+            if set(action) != {
+                "kind",
+                "path",
+                "branch_ref",
+                "expected_head",
+            }:
+                raise ValueError("malformed cleanup plan")
+            path = action["path"]
+            if (
+                not isinstance(path, str)
+                or not Path(path).is_absolute()
+                or str(Path(path).resolve()) != path
+                or not isinstance(action["branch_ref"], str)
+                or not action["branch_ref"].startswith("refs/heads/")
+                or not isinstance(action["expected_head"], str)
+                or not OID_RE.fullmatch(action["expected_head"])
+            ):
+                raise ValueError("malformed cleanup plan")
+            target = path
+        elif kind == "prune_worktree_metadata":
+            if set(action) != {"kind", "expected_paths"}:
+                raise ValueError("malformed cleanup plan")
+            paths = action["expected_paths"]
+            if (
+                not isinstance(paths, list)
+                or not paths
+                or not all(
+                    isinstance(path, str)
+                    and Path(path).is_absolute()
+                    and str(Path(path).resolve()) == path
+                    for path in paths
+                )
+                or len(paths) != len(set(paths))
+            ):
+                raise ValueError("malformed cleanup plan")
+            target = "\0".join(sorted(paths))
+        elif kind == "delete_branch":
+            if set(action) != {
+                "kind",
+                "branch",
+                "ref",
+                "expected_oid",
+            }:
+                raise ValueError("malformed cleanup plan")
+            branch = action["branch"]
+            ref = action["ref"]
+            if (
+                not isinstance(branch, str)
+                or not isinstance(ref, str)
+                or ref != f"refs/heads/{branch}"
+                or not isinstance(action["expected_oid"], str)
+                or not OID_RE.fullmatch(action["expected_oid"])
+            ):
+                raise ValueError("malformed cleanup plan")
+            target = ref
+        else:
+            raise ValueError(f"unknown cleanup action: {kind}")
+        marker = (kind, target)
+        if marker in seen_targets:
+            raise ValueError("malformed cleanup plan")
+        seen_targets.add(marker)
+
+
+def canonical_actions(actions: list[dict[str, Any]]) -> list[str]:
+    return [
+        json.dumps(action, sort_keys=True, separators=(",", ":"))
+        for action in actions
+    ]
+
+
+def revalidate_plan(plan: dict[str, Any]) -> dict[str, Any]:
+    validate_plan_shape(plan)
+    repository = plan["repository"]
+    repo = Path(repository["top_level"])
+    if repository_identity(repo) != {
+        "top_level": repository["top_level"],
+        "common_dir": repository["common_dir"],
+    }:
+        raise ValueError("stale cleanup plan: repository identity changed")
+    integration_ref = repository["integration_ref"]
+    current_integration = run_git(
+        repo, "rev-parse", "--verify", f"{integration_ref}^{{commit}}"
+    ).stdout.strip()
+    if current_integration != repository["integration_oid"]:
+        raise ValueError("stale cleanup plan: integration commit changed")
+    rebuilt = build_plan(
+        repo,
+        integration_ref.removeprefix("refs/heads/"),
+        plan["protected_branches"],
+    )
+    if canonical_actions(rebuilt["actions"]) != canonical_actions(
+        plan["actions"]
+    ):
+        raise ValueError(
+            "stale cleanup plan: plan does not match current safe action set"
+        )
+    return rebuilt
+
+
+def run_mutation(
+    repo: Path,
+    target: str,
+    completed: list[dict[str, str]],
+    *args: str,
+) -> None:
+    try:
+        run_git(repo, *args)
+    except GitFailure as error:
+        raise ApplyFailure(target, completed.copy(), error) from error
 
 
 def apply_plan(plan: dict[str, Any]) -> list[dict[str, str]]:
-    revalidate_plan(plan)
-    return []
+    rebuilt = revalidate_plan(plan)
+    repo = Path(rebuilt["repository"]["top_level"])
+    integration_oid = rebuilt["repository"]["integration_oid"]
+    protected = set(rebuilt["protected_branches"])
+    events: list[dict[str, str]] = []
+
+    for action in rebuilt["actions"]:
+        kind = action["kind"]
+        if kind == "remove_worktree":
+            worktree = next(
+                (
+                    item
+                    for item in collect_worktrees(repo)
+                    if item["path"] == action["path"]
+                ),
+                None,
+            )
+            if (
+                worktree is None
+                or worktree["head"] != action["expected_head"]
+                or worktree["branch_ref"] != action["branch_ref"]
+                or worktree["current"]
+                or worktree["dirty"] is not False
+                or worktree["locked"]
+                or worktree["detached"]
+            ):
+                raise ValueError(
+                    f"stale cleanup plan: worktree changed: {action['path']}"
+                )
+            run_mutation(
+                repo,
+                action["path"],
+                events,
+                "worktree",
+                "remove",
+                "--",
+                action["path"],
+            )
+            events.append(
+                {
+                    "kind": kind,
+                    "target": action["path"],
+                    "expected_oid": action["expected_head"],
+                    "status": "removed",
+                }
+            )
+            continue
+
+        if kind == "prune_worktree_metadata":
+            current_prunable = sorted(
+                item["path"]
+                for item in collect_worktrees(repo)
+                if item["prunable"] and not item["exists"]
+            )
+            if current_prunable != action["expected_paths"]:
+                raise ValueError(
+                    "stale cleanup plan: prunable worktree metadata changed"
+                )
+            run_mutation(
+                repo,
+                ", ".join(current_prunable),
+                events,
+                "worktree",
+                "prune",
+                "--expire",
+                "now",
+            )
+            events.append(
+                {
+                    "kind": kind,
+                    "target": ", ".join(current_prunable),
+                    "expected_oid": "",
+                    "status": "pruned",
+                }
+            )
+            continue
+
+        branch = next(
+            (
+                item
+                for item in collect_local_branches(repo)
+                if item["ref"] == action["ref"]
+            ),
+            None,
+        )
+        checked_out = {
+            item["branch_ref"]
+            for item in collect_worktrees(repo)
+            if item["branch_ref"]
+        }
+        if (
+            branch is None
+            or branch["oid"] != action["expected_oid"]
+            or branch["name"] in protected
+            or branch["ref"] in checked_out
+            or not is_ancestor(repo, branch["oid"], integration_oid)
+        ):
+            raise ValueError(
+                f"stale cleanup plan: branch changed: {action['branch']}"
+            )
+        run_mutation(
+            repo,
+            action["branch"],
+            events,
+            "branch",
+            "-d",
+            "--",
+            action["branch"],
+        )
+        events.append(
+            {
+                "kind": kind,
+                "target": action["branch"],
+                "expected_oid": action["expected_oid"],
+                "status": "deleted",
+            }
+        )
+    return events
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -576,6 +871,15 @@ def main(argv: list[str] | None = None) -> int:
         events = apply_plan(load_plan(args.plan))
         print(json.dumps(events, indent=2, sort_keys=True))
         return 0
+    except ApplyFailure as error:
+        print(f"error: {error}", file=sys.stderr)
+        print(
+            "completed-actions: "
+            + json.dumps(error.completed, indent=2, sort_keys=True),
+            file=sys.stderr,
+        )
+        print(f"failed-target: {error.target}", file=sys.stderr)
+        return 3
     except (GitFailure, ValueError, OSError, json.JSONDecodeError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

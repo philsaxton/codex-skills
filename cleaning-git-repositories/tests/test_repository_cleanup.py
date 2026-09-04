@@ -259,6 +259,265 @@ class RepositoryCase(unittest.TestCase):
             )
         )
 
+    def create_merged_linked_worktree(self) -> Path:
+        run(["git", "branch", "merged"], self.repo)
+        linked = self.root / "linked"
+        run(["git", "worktree", "add", str(linked), "merged"], self.repo)
+        return linked
+
+    def write_plan_with(self, script: Path) -> Path:
+        plan_path = self.root / "plan.json"
+        run(
+            [
+                sys.executable,
+                str(script),
+                "plan",
+                "--repo",
+                str(self.repo),
+                "--integration",
+                "main",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+        )
+        return plan_path
+
+    def test_apply_local_removes_only_planned_merged_worktree_and_branch(
+        self,
+    ) -> None:
+        linked = self.create_merged_linked_worktree()
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+        )
+
+        events = json.loads(result.stdout)
+        self.assertEqual(
+            [event["status"] for event in events], ["removed", "deleted"]
+        )
+        self.assertFalse(linked.exists())
+        self.assertNotEqual(
+            run(
+                ["git", "show-ref", "--verify", "refs/heads/merged"],
+                self.repo,
+                False,
+            ).returncode,
+            0,
+        )
+
+    def test_apply_local_rejects_a_stale_branch_tip_before_any_mutation(
+        self,
+    ) -> None:
+        linked = self.create_merged_linked_worktree()
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        run(
+            ["git", "commit", "--allow-empty", "-m", "changed"],
+            linked,
+        )
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("stale cleanup plan", result.stderr)
+        self.assertTrue(linked.exists())
+        self.assertEqual(
+            run(
+                ["git", "show-ref", "--verify", "refs/heads/merged"],
+                self.repo,
+            ).returncode,
+            0,
+        )
+
+    def test_apply_local_rejects_a_worktree_dirtied_after_planning(
+        self,
+    ) -> None:
+        linked = self.create_merged_linked_worktree()
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        (linked / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("stale cleanup plan", result.stderr)
+        self.assertTrue(linked.exists())
+
+    def test_apply_local_rejects_a_changed_integration_commit(self) -> None:
+        linked = self.create_merged_linked_worktree()
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        self.commit_file(
+            self.repo / "after-plan.txt", "changed\n", "integration changed"
+        )
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("integration commit changed", result.stderr)
+        self.assertTrue(linked.exists())
+
+    def test_apply_local_rejects_tampered_paths_and_extra_actions(self) -> None:
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+        plan["actions"].append(
+            {
+                "kind": "remove_worktree",
+                "path": str(self.root.resolve()),
+                "branch_ref": "refs/heads/main",
+                "expected_head": "0" * 40,
+            }
+        )
+        plan_path.write_text(json.dumps(plan), encoding="utf-8")
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("plan does not match current safe action set", result.stderr)
+
+    def test_apply_local_rejects_malformed_oids_and_unknown_actions(
+        self,
+    ) -> None:
+        self.create_merged_linked_worktree()
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+        original = json.loads(plan_path.read_text(encoding="utf-8"))
+
+        malformed = json.loads(json.dumps(original))
+        malformed["actions"][0]["expected_head"] = "not-an-oid"
+        plan_path.write_text(json.dumps(malformed), encoding="utf-8")
+        malformed_result = run(
+            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
+            self.repo,
+            check=False,
+        )
+
+        wrong_length = json.loads(json.dumps(original))
+        wrong_length["actions"][0]["expected_head"] = "0" * 41
+        plan_path.write_text(json.dumps(wrong_length), encoding="utf-8")
+        wrong_length_result = run(
+            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
+            self.repo,
+            check=False,
+        )
+
+        unknown = json.loads(json.dumps(original))
+        unknown["actions"][0]["kind"] = "remote-delete"
+        plan_path.write_text(json.dumps(unknown), encoding="utf-8")
+        unknown_result = run(
+            [sys.executable, str(installed), "apply-local", "--plan", str(plan_path)],
+            self.repo,
+            check=False,
+        )
+
+        self.assertIn("malformed cleanup plan", malformed_result.stderr)
+        self.assertIn("malformed cleanup plan", wrong_length_result.stderr)
+        self.assertIn("unknown cleanup action", unknown_result.stderr)
+
+    def test_apply_local_reports_completed_actions_when_git_stops_midway(
+        self,
+    ) -> None:
+        remote = self.root / "remote.git"
+        run(["git", "init", "--bare", str(remote)], self.root)
+        run(["git", "remote", "add", "origin", str(remote)], self.repo)
+        run(["git", "push", "origin", "main:tracking-base"], self.repo)
+        run(["git", "switch", "-c", "merged"], self.repo)
+        self.commit_file(
+            self.repo / "merged.txt", "merged\n", "merged but not upstream"
+        )
+        run(["git", "switch", "main"], self.repo)
+        run(["git", "merge", "--ff-only", "merged"], self.repo)
+        run(
+            [
+                "git",
+                "branch",
+                "--set-upstream-to",
+                "origin/tracking-base",
+                "merged",
+            ],
+            self.repo,
+        )
+        linked = self.root / "linked"
+        run(["git", "worktree", "add", str(linked), "merged"], self.repo)
+        installed = self.install_script()
+        plan_path = self.write_plan_with(installed)
+
+        result = run(
+            [
+                sys.executable,
+                str(installed),
+                "apply-local",
+                "--plan",
+                str(plan_path),
+            ],
+            self.repo,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(linked.exists())
+        self.assertIn("completed-actions:", result.stderr)
+        self.assertIn('"status": "removed"', result.stderr)
+        self.assertIn("failed-target: merged", result.stderr)
+        self.assertEqual(
+            run(
+                ["git", "show-ref", "--verify", "refs/heads/merged"],
+                self.repo,
+            ).returncode,
+            0,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
