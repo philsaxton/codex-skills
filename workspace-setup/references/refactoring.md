@@ -10,6 +10,8 @@ Distinguish a garage containing independent repositories from an application rep
 
 Trace producers and consumers of paths being changed: application settings, scripts, tests, scheduled jobs, shared reports, local adapters, and instructions. Separate intentional product assets from runtime outputs. Preserve supported interfaces and human-facing application docs with the application.
 
+Include existing scratch locations, active writers and registered application worktrees in that map. Add garage-local scratch/worktree defaults for future use without sweeping old directories into cleanup. Keep contracts and recovery copies outside disposable scratch. Worktree placement changes require Git-aware relocation and shared-metadata access, not an ordinary directory move or a scratch cleanup command.
+
 Produce a compact migration map with source, destination, owner/repository, affected references, and verification. Record uncertain ownership explicitly. Resolve only material ambiguities that prevent a safe migration; use established conventions for routine choices.
 
 Classify existing `AGENTS.md` content by purpose, not as a whole document. Preserve product build/use requirements and contributor conventions in the application's human-facing docs; transfer local Codex-agent governance and support guidance to the garage. Reconcile with existing docs, preserve requirements and their meaning, and update links before removing authorized old copies. Record unresolved conflicts rather than silently dropping requirements. Relocating a checkout intact preserves history but does not complete this separation. Keep product-supported interfaces and their documentation with the application.

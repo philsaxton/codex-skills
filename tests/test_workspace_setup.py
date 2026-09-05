@@ -43,7 +43,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(target.exists())
             self.assertIn(os.fspath(target), result.stdout)
-            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "artifacts/"):
+            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "artifacts/", "tmp/", ".worktrees/", "support/workspace_scratch.py"):
                 self.assertIn(relative_path, result.stdout)
             self.assertIn("dry run", result.stdout.lower())
 
@@ -57,7 +57,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(
                 {path.name for path in target.iterdir()},
-                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "artifacts"},
+                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "artifacts", "tmp", ".worktrees", "support"},
             )
             self.assertTrue((target / "apps").is_dir())
             self.assertTrue((target / "artifacts").is_dir())
@@ -79,13 +79,15 @@ class WorkspaceSetupCliTests(unittest.TestCase):
 
             self.assertEqual(
                 self.git(target, "diff", "--cached", "--name-only").stdout.splitlines(),
-                [".gitignore", "AGENTS.md", "README.md"],
+                [".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py"],
             )
             self.assertEqual(self.git(target, "check-ignore", "-q", os.fspath(app_file)).returncode, 0)
             self.assertEqual(
                 self.git(target, "check-ignore", "-q", os.fspath(artifact_file)).returncode,
                 0,
             )
+            for name in ("tmp/task/output.txt", ".worktrees/app/task/main.py", "support/local-config.json"):
+                self.assertEqual(self.git(target, "check-ignore", "-q", name).returncode, 0)
 
     def test_apply_accepts_an_absent_target(self) -> None:
         with tempfile.TemporaryDirectory(prefix="workspace setup ") as temporary:

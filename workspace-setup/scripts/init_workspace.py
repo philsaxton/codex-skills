@@ -14,6 +14,9 @@ GITIGNORE = """/*
 !/.gitignore
 !/AGENTS.md
 !/README.md
+!/support/
+/support/*
+!/support/workspace_scratch.py
 """
 
 README = """# Agent workspace
@@ -23,6 +26,9 @@ This workspace keeps application repositories, generated work, and workspace gov
 - Clone independent application repositories under `apps/`.
 - Put generated reports and other runtime work under `artifacts/`.
 - Keep workspace-wide guidance in `AGENTS.md`.
+- Use `tmp/<task>/` for disposable task scratch and `.worktrees/<app>/<task>/` for application worktrees. Both stay ignored.
+
+From this garage, run `python3 support/workspace_scratch.py create TASK` for a unique scratch directory. Use its printed absolute path for explicit temporary files and process-scoped `TMPDIR`/`TMP`/`TEMP` settings in tools that honor them. When its writers have stopped and only disposable data remains, run `python3 support/workspace_scratch.py complete TASK`, then `python3 support/workspace_scratch.py clean TASK` to preview, and the same clean command with `--apply` to permanently delete it. The helper accepts task names, not arbitrary paths; it never cleans worktrees.
 
 Applications should remain usable from an independent checkout. Configure their output locations through supported flags, environment variables, or settings rather than hard-coding this workspace path.
 """
@@ -32,7 +38,11 @@ AGENTS = """# Workspace instructions
 - `apps/` contains independent application repositories. Before editing an application, read its own README, contributor documentation, and applicable instructions. Those application documents are authoritative for application work.
 - Preserve each application's independent Git repository, history, and origin. Do not add application contents or generated work to the workspace repository.
 - `artifacts/` contains generated reports, exchanges, and runtime work. Keep outputs outside product source by using each application's supported flags, environment variables, or settings.
-- The root Git repository owns only `.gitignore`, `AGENTS.md`, and `README.md` by default.
+- Create scratch with `python3 <garage>/support/workspace_scratch.py create TASK`; choose a unique name per task. Use the printed absolute path for temporary files and process-scoped `TMPDIR`/`TMP`/`TEMP` settings where supported. Do not put deliverables, recovery evidence, repositories, or another task's data in scratch.
+- Mark your scratch complete only after its writers stop and any retained material has been moved out. Use the helper's `complete TASK`, then `clean TASK` preview and `clean TASK --apply` within authorized cleanup scope. Completion is a caller declaration, not detection of running processes. Never clean another active task or delete worktrees with this helper.
+- Create requested application worktrees under `.worktrees/<app>/<task>/`, using the owning application's Git repository and collision-free paths. Preserve existing worktrees; inspect shared Git metadata access as well as destination access. Remove worktrees through Git-aware cleanup after checking active use, changes, locks and merge status.
+- Check effective write permissions; these locations do not override protected paths or host-managed worktree placement. The scratch helper runs within the sandbox. Do not give a mutable helper standing outside-sandbox approval; its installation and executable dependencies would need protection first.
+- The root Git repository owns `.gitignore`, `AGENTS.md`, `README.md`, and `support/workspace_scratch.py` by default. Application contents, artifacts, scratch, and worktrees stay ignored.
 """
 
 FILES = {
@@ -40,7 +50,7 @@ FILES = {
     "AGENTS.md": AGENTS,
     "README.md": README,
 }
-DIRECTORIES = ("apps", "artifacts")
+DIRECTORIES = ("apps", "artifacts", "tmp", ".worktrees", "support")
 GIT_ENVIRONMENT_VARIABLES = (
     "GIT_COMMON_DIR",
     "GIT_DIR",
@@ -147,9 +157,11 @@ def print_plan(target: Path, applying: bool) -> None:
         print(f"Create: {target / name}")
     for name in DIRECTORIES:
         print(f"Create: {target / name}/")
+    print(f"Create: {target / 'support/workspace_scratch.py'}")
 
 
 def apply_scaffold(target: Path) -> None:
+    helper = Path(__file__).with_name("workspace_scratch.py").read_bytes()
     if not target.exists():
         target.mkdir()
     subprocess.run(
@@ -162,6 +174,8 @@ def apply_scaffold(target: Path) -> None:
             stream.write(content)
     for name in DIRECTORIES:
         (target / name).mkdir()
+    with (target / "support/workspace_scratch.py").open("xb") as stream:
+        stream.write(helper)
 
 
 def main() -> int:
