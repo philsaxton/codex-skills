@@ -82,8 +82,8 @@
 
 - [x] Update the workspace integrity and hygiene candidate to distinguish workspace organization from the separate trust-hygiene idea. Link the new skill only after it exists and describe only verified modes.
 - [x] Check the skill remains standalone and does not turn specific directory names, repository manifests, or tool installations into mandatory cross-project policy.
-- [ ] Run the skill validator again if instructions changed, then `git diff --check`. Review the complete diff and confirm no unrelated files were changed.
-- [ ] Deliver the skill link, observed validation results, and any remaining limitations. Installation, live migration, publishing, and remote changes are separate actions requiring applicable user authorization.
+- [x] Run the skill validator again if instructions changed, then `git diff --check`. Review the complete diff and confirm no unrelated files were changed.
+- [x] Deliver the skill link, observed validation results, and any remaining limitations. Installation, live migration, publishing, and remote changes are separate actions requiring applicable user authorization.
 
 ## Plan review
 
@@ -116,3 +116,13 @@ See [existing-workspace validation](../../evidence/2026-09-04-workspace-refactor
 - [x] Require stable session context and effective access to both paths before relocation; avoid a redundant scaffold approval gate within already authorized setup scope.
 
 Validation for these final instruction changes is recorded in the refactoring evidence record. No live migration, new trust-review implementation, merge, or push is included.
+
+## Standalone pilot completion
+
+- [x] Commit the validated implementation (`ee11615`) and pilot preparation record (`fdab8d3`).
+- [x] Execute the disposable migration in a stable enclosing-project session, preserving application identity, staged/working data, recovery evidence, and standalone product behavior.
+- [x] Relocate the completed pilot to a standalone project and verify a fresh garage-root session received the root instructions and workspace-setup metadata at startup.
+- [x] Reconcile completed migration state without repeating it; verify the receiving session's ordinary write access and retain its protected-control/sibling access limits.
+- [x] Review all 43 recorded assertions and independently match the current Git index hashes against receiving-session evidence.
+
+The standalone pilot now lives at `/Users/phil-mac/Projects/garage-handoff-pilot/garage`. Its `STARTUP-RESULT.md` and the [repository validation record](../../evidence/2026-09-04-workspace-refactoring-validation.md) document the completed startup check. The user explicitly invoked the skill; automatic selection without that invocation remains untested. Earlier no-skill comparison, witnessed RED-cycle, broader routing, linked-worktree/submodule, active-writer and narrower-permission relocation assertions remain limitations. Implementation and the authorized pilot are complete; these results do not claim those additional tests passed.
