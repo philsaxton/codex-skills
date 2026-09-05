@@ -21,14 +21,19 @@ When a formal controlling artifact is absent, use the best available evidence, s
 
 ## Initial candidates
 
-### Workspace integrity and hygiene (possible split)
+### Workspace organization
 
-- **Candidate boundary A — Codex workspace trust hygiene:** Inspect whether skills, scripts, instructions, configuration, symlinks, and writable roots preserve the intended trust boundary. Detect cases such as a supposedly protected skill resolving into writable source, conflicting instruction locations, or mutable automation being treated as preapproved. Guide remediation without silently moving or rewriting trusted control files.
-- **Candidate boundary B — General repository organization hygiene:** Identify recurring organizational problems such as misplaced durable artifacts, abandoned workspace directories, duplicated generated state, unclear source-versus-installation boundaries, and conventions that make ownership or cleanup unsafe. Keep this distinct from stylistic linting and from the dedicated Git branch/worktree cleanup workflow.
-- **Shared invariant/workflow:** Inventory before remediation, distinguish observed filesystem and permission facts from assumptions, explain why each condition matters, and propose the smallest reversible correction. Require human direction for moves, deletions, trust-boundary changes, or competing plausible layouts.
-- **Must remain project-specific:** Canonical directory layout, permitted writable roots, installation mechanism, generated-file policy, ownership, naming conventions, protected paths beyond platform defaults, and which remediations may run automatically.
-- **Evidence needed before authoring:** Examples from multiple repositories showing whether the two boundaries fail independently, whether one trigger description can remain discriminating, and which checks add value beyond existing Codex permissions, repository instructions, and ordinary cleanup tools.
-- **Current disposition:** Idea logged for later scoping (2026-09-04). Revisit whether this should become two skills before designing or implementing either one.
+- **Outcome:** Separate portable application repositories, generated work, and local agent governance/support within an enclosing workspace. Keep project layouts, installation choices, permissions, and retention policy local to each workspace.
+- **Current disposition:** User-directed workspace organization is implemented as [workspace-setup](workspace-setup/SKILL.md), displayed as “Set up the garage” (2026-09-04). It separates portable application repositories, generated work, and workspace support, with a deterministic empty-workspace scaffold and conditionally loaded refactoring guidance. See the [design](docs/superpowers/specs/2026-09-04-organizing-workspaces-design.md), [plan](docs/superpowers/plans/2026-09-04-organizing-workspaces.md), and [validation record](docs/evidence/2026-09-04-organizing-workspaces-validation.md). The scaffold has executable coverage; the [refactoring follow-up](docs/evidence/2026-09-04-workspace-refactoring-validation.md) adds independent planning/recheck and two-application migration exercises plus an intact-repository relocation check. No-skill comparison, live application-root handoff, and broader migration evidence remain open. Workspace trust review remains the separate future candidate below.
+
+### Workspace trust review
+
+- **Trigger boundary:** Review whether agent-editable scripts, imports/dependencies, symlink targets, or configuration can change tooling trusted to execute with greater permissions, especially under standing outside-sandbox command approval. Do not trigger a broad vulnerability audit or review every ordinary sandboxed command.
+- **Reusable invariant/workflow:** Identify the trusted invocation and its actual execution permissions, trace the relevant executable inputs and who can change them, and distinguish observed facts from assumptions. Ordinary sandbox execution remains sandboxed; skills do not bypass it. Approval of a command does not bind the contents of the script or dependencies that command later executes. Report the concrete mismatch and proportionate remediation without silently changing trust or approval policy.
+- **Must remain project-specific:** Approved commands, installation/dependency mechanisms, writable and protected paths, intended trust owners, permissions, and authority to change approvals or tooling.
+- **Dependencies and overlap:** Standalone review, with no prerequisite skill. Workspace refactoring keeps only a focused check when a migration changes what trusted tooling executes or who can edit it; that check must not depend on this future candidate.
+- **Evidence needed before authoring:** Cases across distinct workspaces showing mutable executable inputs crossing an intended permission boundary, alongside ordinary sandbox cases that must not be flagged. Establish which decisions add value beyond existing permissions and routine review.
+- **Current disposition:** Future standalone candidate, recorded at the user's request (2026-09-04). Not implemented. Replaces the earlier broad trust-hygiene idea with this narrower execution-trust review.
 
 ### Governed change control and evidence provenance
 
