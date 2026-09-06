@@ -1,3 +1,0 @@
-[submodule "vendor/superpowers"]
-	path = vendor/superpowers
-	url = git@github.com:obra/superpowers.git
