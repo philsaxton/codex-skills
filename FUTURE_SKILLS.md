@@ -36,6 +36,14 @@ When a formal controlling artifact is absent, use the best available evidence, s
 - **Validation needed:** Exercise actual temporary-file routing and tool settings, concurrent tasks, retained migration evidence, traversal/symlink substitution, occupied paths, multiple app worktree namespaces, dirty/active worktree refusal, and protected shared Git metadata. Test that an approved helper invocation cannot be redirected outside its assigned scratch scope.
 - **Current disposition:** Implemented at the user's request as an extension of [workspace-setup](workspace-setup/SKILL.md), not a separate skill (2026-09-04). The new scaffold establishes ignored scratch/worktree locations, local operating instructions and a named-task scratch helper with explicit completion, preview and apply. Existing garages use additive setup; no live workspace was changed. Nineteen executable tests and an independent bounded review cover the new helper and existing scaffold; [validation](docs/evidence/2026-09-04-workspace-local-storage-validation.md) records scope and concurrency limits. No permission rule was added; Git-aware worktree deletion remains with the existing cleanup workflow.
 
+### Workspace scratch maintenance
+
+- **Outcome:** Own the ongoing creation, completion, and safe cleanup of disposable task folders as a standalone maintenance skill, separate from workspace setup.
+- **Scope:** Start narrowly with scratch lifecycle and explicit retention decisions. Preserve active work and recovery evidence; leave Git branch and worktree cleanup with `cleaning-git-repositories`.
+- **Proposed separation:** Workspace setup chooses locations and documents their purpose. It may reference the maintenance skill when available, but should not require it. Evaluate moving helper ownership out of workspace setup and running it from the installed skill without copying it into each workspace, while preserving target-root validation and permission boundaries.
+- **Validation needed:** Safe workspace selection independent of helper installation location, existing installations, concurrent tasks, completed-task cleanup, and refusal to remove repositories, active files, or retained evidence.
+- **Current disposition:** Future candidate requested after migration testing (2026-09-06). Not implemented; the existing workspace-setup helper and scaffold remain unchanged. This revisits the maintenance portion of the temporary-files candidate above, not its worktree-placement responsibility.
+
 ### Workspace trust review
 
 - **Trigger boundary:** Review whether agent-editable scripts, imports/dependencies, symlink targets, or configuration can change tooling trusted to execute with greater permissions, especially under standing outside-sandbox command approval. Do not trigger a broad vulnerability audit or review every ordinary sandboxed command.
