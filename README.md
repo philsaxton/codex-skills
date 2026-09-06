@@ -30,3 +30,7 @@ To create a link manually instead:
 mkdir -p .agents/skills
 ln -s ../../vendor/codex-skills/contract-author .agents/skills/contract-author
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for skill authoring and validation requirements.

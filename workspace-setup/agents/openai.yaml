@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up the garage"
+  short_description: "Separate apps, artifacts, and agent workspace tools"
+  default_prompt: "Use $workspace-setup to set up the garage around my applications."
