@@ -43,7 +43,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(target.exists())
             self.assertIn(os.fspath(target), result.stdout)
-            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "artifacts/", "tmp/", ".worktrees/", "support/workspace_scratch.py"):
+            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "docs/", "artifacts/", "tmp/", ".worktrees/", "support/workspace_scratch.py"):
                 self.assertIn(relative_path, result.stdout)
             self.assertIn("dry run", result.stdout.lower())
 
@@ -57,7 +57,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(
                 {path.name for path in target.iterdir()},
-                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "artifacts", "tmp", ".worktrees", "support"},
+                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "docs", "artifacts", "tmp", ".worktrees", "support"},
             )
             self.assertTrue((target / "apps").is_dir())
             self.assertTrue((target / "artifacts").is_dir())
@@ -97,6 +97,40 @@ class WorkspaceSetupCliTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((target / ".git").is_dir())
+
+    def test_workspace_docs_track_separately_from_app_docs_reports_and_recovery(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="workspace docs ") as temporary:
+            target = Path(temporary).resolve() / "garage"
+            result = self.run_script(target, apply=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            docs = ("docs/workspace-plan.md", "docs/migration.md", "docs/decisions.md")
+            excluded = ("docs/raw-recovery.json", "docs/local/recovery.md", "artifacts/report.md",
+                        "artifacts/recovery/index-copy", "tmp/task/draft.md")
+            for name in (*docs, *excluded):
+                path = target / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("fixture\n")
+            app = target / "apps/widget"
+            app.mkdir()
+            self.git(app, "init", "--quiet", "--template=")
+            (app / "README.md").write_text("Application instructions\n")
+            self.git(app, "add", "README.md")
+            self.git(target, "add", ".")
+            self.assertEqual(set(self.git(target, "ls-files").stdout.splitlines()),
+                             {".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py", *docs})
+            self.assertEqual(self.git(app, "ls-files").stdout.splitlines(), ["README.md"])
+            for name in (*excluded, "apps/widget/README.md"):
+                self.assertEqual(self.git(target, "check-ignore", "-q", name).returncode, 0)
+            # A selected nested document can be included without exposing its siblings.
+            nested = target / "docs/plans/selected.md"
+            nested.parent.mkdir()
+            nested.write_text("Selected workspace plan\n")
+            (nested.parent / "local.json").write_text("{}\n")
+            with (target / ".gitignore").open("a") as stream:
+                stream.write("!/docs/plans/\n/docs/plans/*\n!/docs/plans/selected.md\n")
+            self.git(target, "add", ".gitignore", "docs/plans/selected.md")
+            self.assertIn("docs/plans/selected.md", self.git(target, "ls-files").stdout.splitlines())
+            self.assertEqual(self.git(target, "check-ignore", "-q", "docs/plans/local.json").returncode, 0)
 
     def test_rerun_refuses_and_preserves_the_workspace(self) -> None:
         with tempfile.TemporaryDirectory(prefix="workspace setup ") as temporary:

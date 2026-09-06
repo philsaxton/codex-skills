@@ -14,6 +14,9 @@ GITIGNORE = """/*
 !/.gitignore
 !/AGENTS.md
 !/README.md
+!/docs/
+/docs/*
+!/docs/*.md
 !/support/
 /support/*
 !/support/workspace_scratch.py
@@ -26,23 +29,28 @@ This workspace keeps application repositories, generated work, and workspace gov
 - Clone independent application repositories under `apps/`.
 - Put generated reports and other runtime work under `artifacts/`.
 - Keep workspace-wide guidance in `AGENTS.md`.
+- Put lasting workspace plans, migration contracts and decisions in `docs/`; top-level Markdown files there are eligible for garage tracking. Application-specific documentation belongs in its application repository.
 - Use `tmp/<task>/` for disposable task scratch and `.worktrees/<app>/<task>/` for application worktrees. Both stay ignored.
 
 From this garage, run `python3 support/workspace_scratch.py create TASK` for a unique scratch directory. Use its printed absolute path for explicit temporary files and process-scoped `TMPDIR`/`TMP`/`TEMP` settings in tools that honor them. When its writers have stopped and only disposable data remains, run `python3 support/workspace_scratch.py complete TASK`, then `python3 support/workspace_scratch.py clean TASK` to preview, and the same clean command with `--apply` to permanently delete it. The helper accepts task names, not arbitrary paths; it never cleans worktrees.
 
 Applications should remain usable from an independent checkout. Configure their output locations through supported flags, environment variables, or settings rather than hard-coding this workspace path.
+
+Designate one authoritative migration document, for example `docs/migration.md`, and link it here or in `AGENTS.md` when created. Mark handoff/recovery copies as snapshots with their source revision or content identity and a pointer to the authoritative record; document location changes. Retained generated reports belong in `artifacts/`, disposable work in `tmp/`. Keep migration contracts and recovery evidence out of scratch. Review documentation before staging; keep machine-local or sensitive recovery data retained outside scratch and ignored unless deliberately selected for tracking.
 """
 
 AGENTS = """# Workspace instructions
 
 - `apps/` contains independent application repositories. Before editing an application, read its own README, contributor documentation, and applicable instructions. Those application documents are authoritative for application work.
-- Preserve each application's independent Git repository, history, and origin. Do not add application contents or generated work to the workspace repository.
+- Preserve each application's independent Git repository, history, and origin. Do not add application contents or runtime outputs to the workspace repository.
+- Classify documents by purpose, not by being agent-generated. Lasting workspace organization plans, migration contracts and decisions default to tracked `docs/`; application-specific docs stay with the app. Top-level `docs/*.md` are eligible by default; add explicit exceptions for other selected documentation paths, and inspect content before staging.
+- Identify one authoritative migration document and link it from root guidance. Label handoff/recovery copies as snapshots with source revision/content identity and the authoritative location. Record location transitions and reconcile with the current authoritative record before resuming. Keep contracts and recovery evidence out of disposable scratch; retain machine-local or sensitive evidence outside scratch and ignored unless intentionally selected for tracking.
 - `artifacts/` contains generated reports, exchanges, and runtime work. Keep outputs outside product source by using each application's supported flags, environment variables, or settings.
 - Create scratch with `python3 <garage>/support/workspace_scratch.py create TASK`; choose a unique name per task. Use the printed absolute path for temporary files and process-scoped `TMPDIR`/`TMP`/`TEMP` settings where supported. Do not put deliverables, recovery evidence, repositories, or another task's data in scratch.
 - Mark your scratch complete only after its writers stop and any retained material has been moved out. Use the helper's `complete TASK`, then `clean TASK` preview and `clean TASK --apply` within authorized cleanup scope. Completion is a caller declaration, not detection of running processes. Never clean another active task or delete worktrees with this helper.
 - Create requested application worktrees under `.worktrees/<app>/<task>/`, using the owning application's Git repository and collision-free paths. Preserve existing worktrees; inspect shared Git metadata access as well as destination access. Remove worktrees through Git-aware cleanup after checking active use, changes, locks and merge status.
 - Check effective write permissions; these locations do not override protected paths or host-managed worktree placement. The scratch helper runs within the sandbox. Do not give a mutable helper standing outside-sandbox approval; its installation and executable dependencies would need protection first.
-- The root Git repository owns `.gitignore`, `AGENTS.md`, `README.md`, and `support/workspace_scratch.py` by default. Application contents, artifacts, scratch, and worktrees stay ignored.
+- The root Git repository owns `.gitignore`, `AGENTS.md`, `README.md`, selected `docs/*.md`, and `support/workspace_scratch.py` by default. Application contents, artifacts, scratch, and worktrees stay ignored.
 """
 
 FILES = {
@@ -50,7 +58,7 @@ FILES = {
     "AGENTS.md": AGENTS,
     "README.md": README,
 }
-DIRECTORIES = ("apps", "artifacts", "tmp", ".worktrees", "support")
+DIRECTORIES = ("apps", "docs", "artifacts", "tmp", ".worktrees", "support")
 GIT_ENVIRONMENT_VARIABLES = (
     "GIT_COMMON_DIR",
     "GIT_DIR",
