@@ -7,7 +7,7 @@ usage() {
 }
 
 project_root=$(pwd -P)
-library_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+library_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 
 case "$library_dir" in
   "$project_root"/*) library_relative=${library_dir#"$project_root"/} ;;
