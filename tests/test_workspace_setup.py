@@ -86,7 +86,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
                 self.git(target, "check-ignore", "-q", os.fspath(artifact_file)).returncode,
                 0,
             )
-            for name in ("tmp/task/output.txt", ".worktrees/app/task/main.py", "support/local-config.json"):
+            for name in ("tmp/task/output.txt", ".worktrees/app/task/main.py"):
                 self.assertEqual(self.git(target, "check-ignore", "-q", name).returncode, 0)
 
     def test_apply_accepts_an_absent_target(self) -> None:
@@ -103,13 +103,20 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             target = Path(temporary).resolve() / "garage"
             result = self.run_script(target, apply=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            docs = ("docs/workspace-plan.md", "docs/migration.md", "docs/decisions.md")
-            excluded = ("docs/raw-recovery.json", "docs/local/recovery.md", "artifacts/report.md",
-                        "artifacts/recovery/index-copy", "tmp/task/draft.md")
-            for name in (*docs, *excluded):
+            eligible = ("docs/workspace-plan.md", "docs/migration.md", "docs/plans/nested.md",
+                        "docs/diagram.svg", "support/another-helper.py", "notes.txt")
+            private = ("docs/raw-recovery.json", "docs/local/recovery.md")
+            excluded = ("artifacts/report.md", "artifacts/recovery/index-copy",
+                        "tmp/task/draft.md", ".worktrees/widget/task/source.py")
+            for name in (*eligible, *private, *excluded):
                 path = target / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("fixture\n")
+            # Private content needs a deliberate narrow exclusion, not a docs-wide rule.
+            for name in (*eligible, *private):
+                self.assertEqual(self.git(target, "check-ignore", "-q", name, check=False).returncode, 1)
+            with (target / ".gitignore").open("a") as stream:
+                stream.write("/docs/raw-recovery.json\n/docs/local/recovery.md\n")
             app = target / "apps/widget"
             app.mkdir()
             self.git(app, "init", "--quiet", "--template=")
@@ -117,20 +124,10 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.git(app, "add", "README.md")
             self.git(target, "add", ".")
             self.assertEqual(set(self.git(target, "ls-files").stdout.splitlines()),
-                             {".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py", *docs})
+                             {".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py", *eligible})
             self.assertEqual(self.git(app, "ls-files").stdout.splitlines(), ["README.md"])
-            for name in (*excluded, "apps/widget/README.md"):
+            for name in (*excluded, *private, "apps/widget/README.md"):
                 self.assertEqual(self.git(target, "check-ignore", "-q", name).returncode, 0)
-            # A selected nested document can be included without exposing its siblings.
-            nested = target / "docs/plans/selected.md"
-            nested.parent.mkdir()
-            nested.write_text("Selected workspace plan\n")
-            (nested.parent / "local.json").write_text("{}\n")
-            with (target / ".gitignore").open("a") as stream:
-                stream.write("!/docs/plans/\n/docs/plans/*\n!/docs/plans/selected.md\n")
-            self.git(target, "add", ".gitignore", "docs/plans/selected.md")
-            self.assertIn("docs/plans/selected.md", self.git(target, "ls-files").stdout.splitlines())
-            self.assertEqual(self.git(target, "check-ignore", "-q", "docs/plans/local.json").returncode, 0)
 
     def test_rerun_refuses_and_preserves_the_workspace(self) -> None:
         with tempfile.TemporaryDirectory(prefix="workspace setup ") as temporary:
