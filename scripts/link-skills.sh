@@ -6,6 +6,8 @@ usage() {
   echo "       $0 --all" >&2
 }
 
+# Run from the consuming project root; install this repository at
+# .agents/vendors/codex-skills and activate links in .agents/skills.
 project_root=$(pwd -P)
 library_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 
