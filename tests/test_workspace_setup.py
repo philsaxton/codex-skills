@@ -43,7 +43,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(target.exists())
             self.assertIn(os.fspath(target), result.stdout)
-            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "docs/", "artifacts/", "tmp/", ".worktrees/", "support/workspace_scratch.py"):
+            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "docs/", "artifacts/", "tmp/", ".worktrees/"):
                 self.assertIn(relative_path, result.stdout)
             self.assertIn("dry run", result.stdout.lower())
 
@@ -57,7 +57,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(
                 {path.name for path in target.iterdir()},
-                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "docs", "artifacts", "tmp", ".worktrees", "support"},
+                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "docs", "artifacts", "tmp", ".worktrees"},
             )
             self.assertTrue((target / "apps").is_dir())
             self.assertTrue((target / "artifacts").is_dir())
@@ -79,7 +79,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
 
             self.assertEqual(
                 self.git(target, "diff", "--cached", "--name-only").stdout.splitlines(),
-                [".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py"],
+                [".gitignore", "AGENTS.md", "README.md"],
             )
             self.assertEqual(self.git(target, "check-ignore", "-q", os.fspath(app_file)).returncode, 0)
             self.assertEqual(
@@ -124,7 +124,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.git(app, "add", "README.md")
             self.git(target, "add", ".")
             self.assertEqual(set(self.git(target, "ls-files").stdout.splitlines()),
-                             {".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py", *eligible})
+                             {".gitignore", "AGENTS.md", "README.md", *eligible})
             self.assertEqual(self.git(app, "ls-files").stdout.splitlines(), ["README.md"])
             for name in (*excluded, *private, "apps/widget/README.md"):
                 self.assertEqual(self.git(target, "check-ignore", "-q", name).returncode, 0)

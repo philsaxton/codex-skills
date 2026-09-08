@@ -11,8 +11,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCAFFOLD = ROOT / "workspace-setup/scripts/init_workspace.py"
-SOURCE_HELPER = ROOT / "workspace-setup/scripts/workspace_scratch.py"
+SOURCE_HELPER = ROOT / "workspace-scratch/scripts/workspace_scratch.py"
 spec = importlib.util.spec_from_file_location("scratch_helper", SOURCE_HELPER)
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)
@@ -20,17 +19,17 @@ spec.loader.exec_module(helper)
 
 class WorkspaceScratchTests(unittest.TestCase):
     def setUp(self):
-        # Scaffold refusal tests require a location outside any ancestor Git repo.
         self.temporary = tempfile.TemporaryDirectory(prefix="garage scratch ")
         self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name).resolve()
         self.garage = self.base / "garage with spaces"
-        subprocess.run([sys.executable, str(SCAFFOLD), str(self.garage), "--apply"],
-                       check=True, capture_output=True)
-        self.script = self.garage / "support/workspace_scratch.py"
+        self.garage.mkdir()
+        for name in ("tmp", "artifacts", "apps", ".worktrees"):
+            (self.garage / name).mkdir()
+        self.script = SOURCE_HELPER
 
-    def run_helper(self, *args, success=True, script=None):
-        p = subprocess.run([sys.executable, str(script or self.script), *args],
+    def run_helper(self, *args, success=True, script=None, workspace=None):
+        p = subprocess.run([sys.executable, str(script or self.script), "--workspace", str(workspace or self.garage), *args],
                            cwd=self.base, capture_output=True, text=True)
         if success:
             self.assertEqual(p.returncode, 0, p.stderr)
@@ -128,12 +127,41 @@ class WorkspaceScratchTests(unittest.TestCase):
         self.run_helper("clean", "task-a", "--apply", success=False)
         self.assertEqual(outside.read_text(), "external")
 
-    def test_uninstalled_or_symlinked_helper_refused(self):
-        self.run_helper("create", "task-a", script=SOURCE_HELPER, success=False)
+    def test_explicit_workspace_required_and_unsafe_roots_refused(self):
+        p = subprocess.run([sys.executable, str(self.script), "create", "task-a"],
+                           cwd=self.garage, capture_output=True, text=True)
+        self.assertNotEqual(p.returncode, 0)
+        for workspace in (".", "/", str(self.garage / ".." / self.garage.name),
+                          str(self.base / "missing")):
+            with self.subTest(workspace=workspace):
+                self.run_helper("create", "task-a", workspace=workspace, success=False)
         alias = self.base / "alias"
         alias.symlink_to(self.garage, target_is_directory=True)
-        self.run_helper("create", "task-a", script=alias / "support/workspace_scratch.py", success=False)
+        self.run_helper("create", "task-a", workspace=alias, success=False)
         self.assertFalse((self.garage / "tmp/task-a").exists())
+
+    def test_external_installation_and_multiple_workspaces_are_independent(self):
+        alias = self.base / "installed-helper.py"
+        alias.symlink_to(self.script)
+        other = self.base / "other workspace"
+        (other / "tmp").mkdir(parents=True)
+        self.run_helper("create", "same-task", script=alias)
+        self.run_helper("create", "same-task", workspace=other)
+        self.run_helper("complete", "same-task", workspace=other)
+        self.run_helper("clean", "same-task", "--apply", workspace=other)
+        self.assertTrue((self.garage / "tmp/same-task").is_dir())
+        self.assertFalse((other / "tmp/same-task").exists())
+        self.assertFalse((self.garage / "support").exists())
+
+    def test_existing_version_one_marker_remains_usable(self):
+        task = self.garage / "tmp/legacy-task"
+        task.mkdir()
+        (task / helper.MARKER).write_text(json.dumps(
+            {"version": 1, "task": "legacy-task", "state": "active"}))
+        (task / "output.txt").write_text("disposable")
+        self.run_helper("complete", "legacy-task")
+        self.run_helper("clean", "legacy-task", "--apply")
+        self.assertFalse(task.exists())
 
     def test_changed_and_replaced_paths_after_inventory_are_not_followed(self):
         task = self.create()
@@ -180,6 +208,8 @@ class WorkspaceScratchTests(unittest.TestCase):
     def test_real_worktrees_use_separate_app_namespaces_and_git_owners(self):
         def git(repo, *args):
             return subprocess.check_output(["git", "-C", str(repo), *args], text=True).strip()
+        git(self.garage, "init", "--quiet", "--template=")
+        (self.garage / ".gitignore").write_text("/apps/\n/artifacts/\n/tmp/\n/.worktrees/\n")
         for app_name in ("reporter", "consumer"):
             app = self.garage / "apps" / app_name
             app.mkdir()
@@ -201,7 +231,7 @@ class WorkspaceScratchTests(unittest.TestCase):
             self.assertEqual((worktree / "code.txt").read_text(), "dirty work")
         git(self.garage, "add", ".")
         self.assertEqual(set(git(self.garage, "ls-files").splitlines()),
-                         {".gitignore", "AGENTS.md", "README.md", "support/workspace_scratch.py"})
+                         {".gitignore"})
 
 
 if __name__ == "__main__":

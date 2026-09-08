@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace scratch"
+  short_description: "Manage temporary task files and bounded cleanup"
+  default_prompt: "Use $workspace-scratch to manage temporary task files in my workspace."

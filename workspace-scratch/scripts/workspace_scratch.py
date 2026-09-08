@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manage named disposable tasks in this installation's garage/tmp (POSIX)."""
+"""Manage named disposable tasks under an explicit workspace/tmp (POSIX)."""
 
 from __future__ import annotations
 
@@ -125,17 +125,12 @@ def remove_inventory(fd: int, entries: dict):
             os.rmdir(name, dir_fd=fd)
 
 
-def run(action: str, task: str, apply: bool):
+def run(action: str, task: str, apply: bool, workspace: Path):
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", task):
         raise Refusal("task must be one simple name, not a path")
-    installed = Path(os.path.abspath(__file__))
-    if installed.name != "workspace_scratch.py" or installed.parent.name != "support":
-        raise Refusal("run the installed garage/support/workspace_scratch.py helper")
-    if installed.is_symlink():
-        raise Refusal("helper installation must not be a symlink")
-    garage = installed.parent.parent
-    with open_absolute_directory(installed.parent):
-        pass
+    if not workspace.is_absolute() or workspace == Path(workspace.anchor) or ".." in workspace.parts:
+        raise Refusal("workspace must be an absolute non-root directory without traversal")
+    garage = workspace
     with open_absolute_directory(garage / "tmp") as scratch:
         names = set(os.listdir(scratch))
         if ".git" in names or {"HEAD", "objects", "refs"} <= names:
@@ -178,6 +173,8 @@ def run(action: str, task: str, apply: bool):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--workspace", type=Path, required=True,
+                        help="absolute workspace directory with an existing real tmp/ child")
     parser.add_argument("action", choices=("create", "complete", "clean"))
     parser.add_argument("task", help="unique task name, never a filesystem path")
     parser.add_argument("--apply", action="store_true", help="apply clean instead of previewing")
@@ -185,7 +182,7 @@ def main() -> int:
     if args.apply and args.action != "clean":
         parser.error("--apply is only used with clean")
     try:
-        run(args.action, args.task, args.apply)
+        run(args.action, args.task, args.apply, args.workspace)
     except (OSError, ValueError, Refusal) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
