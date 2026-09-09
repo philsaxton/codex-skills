@@ -43,7 +43,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(target.exists())
             self.assertIn(os.fspath(target), result.stdout)
-            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "docs/", "artifacts/", "tmp/", ".worktrees/"):
+            for relative_path in (".gitignore", "AGENTS.md", "README.md", "apps/", "docs/", "artifacts/", ".recovery/", "tmp/", ".worktrees/"):
                 self.assertIn(relative_path, result.stdout)
             self.assertIn("dry run", result.stdout.lower())
 
@@ -57,7 +57,7 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(
                 {path.name for path in target.iterdir()},
-                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "docs", "artifacts", "tmp", ".worktrees"},
+                {".git", ".gitignore", "AGENTS.md", "README.md", "apps", "docs", "artifacts", ".recovery", "tmp", ".worktrees"},
             )
             self.assertTrue((target / "apps").is_dir())
             self.assertTrue((target / "artifacts").is_dir())
@@ -103,10 +103,11 @@ class WorkspaceSetupCliTests(unittest.TestCase):
             target = Path(temporary).resolve() / "garage"
             result = self.run_script(target, apply=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            eligible = ("docs/workspace-plan.md", "docs/migration.md", "docs/plans/nested.md",
-                        "docs/diagram.svg", "support/another-helper.py", "notes.txt")
+            eligible = ("docs/workspace-plan.md", "docs/workspace-migration.md", "docs/plans/nested.md",
+                        "docs/diagram.svg", ".agents/vendors/example/SKILL.md",
+                        "support/another-helper.py", "notes.txt")
             private = ("docs/raw-recovery.json", "docs/local/recovery.md")
-            excluded = ("artifacts/report.md", "artifacts/recovery/index-copy",
+            excluded = ("artifacts/report.md", ".recovery/workspace-migration/index-copy",
                         "tmp/task/draft.md", ".worktrees/widget/task/source.py")
             for name in (*eligible, *private, *excluded):
                 path = target / name

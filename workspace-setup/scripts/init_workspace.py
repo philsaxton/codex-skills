@@ -12,6 +12,7 @@ import sys
 
 GITIGNORE = """/apps/
 /artifacts/
+/.recovery/
 /tmp/
 /.worktrees/
 """
@@ -21,7 +22,9 @@ README = """# Agent workspace
 This workspace keeps application repositories, generated work, and workspace governance separate.
 
 - Clone independent application repositories under `apps/`.
-- Put generated reports and other runtime work under `artifacts/`.
+- Put application-generated reports, output documents and exchanges under `artifacts/`.
+- Keep workspace backups and recovery evidence in ignored `.recovery/`, with migration evidence under `.recovery/workspace-migration/`.
+- Install needed vendored skills under `.agents/vendors/<dependency>/`, for example `.agents/vendors/codex-skills/`, and selected activation links under `.agents/skills/`. Create these only when needed; `vendors/` belongs inside `.agents/`.
 - Keep workspace-wide guidance in `AGENTS.md`.
 - Put lasting workspace plans, migration contracts and decisions in `docs/`; workspace documents, including nested paths and other formats, are eligible for garage tracking by default. Application-specific documentation belongs in its application repository.
 - Use `tmp/<task>/` for disposable task scratch and `.worktrees/<app>/<task>/` for application worktrees. Both stay ignored.
@@ -30,7 +33,7 @@ Use a unique `tmp/<task>/` directory for disposable work and supported temporary
 
 Applications should remain usable from an independent checkout. Configure their output locations through supported flags, environment variables, or settings rather than hard-coding this workspace path.
 
-Designate one authoritative migration document, for example `docs/migration.md`, and link it here or in `AGENTS.md` when created. Mark handoff/recovery copies as snapshots with their source revision or content identity and a pointer to the authoritative record; document location changes. Retained generated reports belong in `artifacts/`, disposable work in `tmp/`. Keep migration contracts and recovery evidence out of scratch. Review documentation before staging; keep machine-local or sensitive recovery data retained outside scratch and ignored unless deliberately selected for tracking.
+Designate one authoritative migration document, defaulting to `docs/workspace-migration.md`, and link it here or in `AGENTS.md` when created. Mark handoff/recovery copies as snapshots with their source revision or content identity and a pointer to the authoritative record; document location changes. Retained application reports belong in `artifacts/`, workspace recovery evidence in ignored `.recovery/workspace-migration/`, and disposable work in `tmp/`. Keep migration contracts and recovery evidence out of scratch. Review documentation before staging; keep machine-local or sensitive recovery data retained outside scratch and ignored unless deliberately selected for tracking.
 """
 
 AGENTS = """# Workspace instructions
@@ -38,12 +41,13 @@ AGENTS = """# Workspace instructions
 - `apps/` contains independent application repositories. Before editing an application, read its own README, contributor documentation, and applicable instructions. Those application documents are authoritative for application work.
 - Preserve each application's independent Git repository, history, and origin. Do not add application contents or runtime outputs to the workspace repository.
 - Classify documents by purpose, not by being agent-generated. Lasting workspace organization plans, migration contracts and decisions default to tracked `docs/`; application-specific docs stay with the app. Workspace documents and support files are eligible by default. Add narrow ignore rules for private or generated content, and inspect content before staging.
-- Identify one authoritative migration document and link it from root guidance. Label handoff/recovery copies as snapshots with source revision/content identity and the authoritative location. Record location transitions and reconcile with the current authoritative record before resuming. Keep contracts and recovery evidence out of disposable scratch; retain machine-local or sensitive evidence outside scratch and ignored unless intentionally selected for tracking.
-- `artifacts/` contains generated reports, exchanges, and runtime work. Keep outputs outside product source by using each application's supported flags, environment variables, or settings.
+- Default the authoritative migration document to tracked `docs/workspace-migration.md` and link it from root guidance. Keep backups and recovery evidence in ignored `.recovery/`, with migration evidence under `.recovery/workspace-migration/`. Label handoff/recovery copies as snapshots with source revision/content identity and the authoritative location. Record location transitions and reconcile with the current authoritative record before resuming. Keep contracts and recovery evidence out of disposable scratch; retain machine-local or sensitive evidence outside scratch and ignored unless intentionally selected for tracking.
+- `artifacts/` contains application-generated reports, output documents, and exchanges. Keep outputs outside product source by using each application's supported flags, environment variables, or settings.
 - Use unique `tmp/<task>/` directories and supported temporary-directory settings for disposable task work. Keep deliverables, recovery evidence, repositories, and other tasks' data outside your scratch. Before cleanup, stop writers, inspect the exact directory, and retain anything needed. Never clean worktrees as scratch.
 - Create requested application worktrees under `.worktrees/<app>/<task>/`, using the owning application's Git repository and collision-free paths. Preserve existing worktrees; inspect shared Git metadata access as well as destination access. Remove worktrees through Git-aware cleanup after checking active use, changes, locks and merge status.
+- Install needed vendored skill dependencies under `.agents/vendors/<dependency>/` (for example `.agents/vendors/codex-skills/`), with selected activation links under `.agents/skills/`. Keep dependencies pinned separately and active instructions separate from editable application sources. The `vendors/` container belongs inside `.agents/`; preserve explicitly chosen installation conventions.
 - Check effective write permissions; these locations do not override protected paths or host-managed worktree placement.
-- The root Git repository makes workspace files eligible for tracking by default. Explicitly ignore application and runtime directories: `/apps/`, `/artifacts/`, `/tmp/`, and `/.worktrees/`. Adapt application exclusions to the chosen layout; do not add application files or Git links to the outer index.
+- The root Git repository makes workspace files eligible for tracking by default. Explicitly ignore application, runtime and recovery directories: `/apps/`, `/artifacts/`, `/.recovery/`, `/tmp/`, and `/.worktrees/`. Adapt application exclusions to the chosen layout; do not add application files or Git links to the outer index.
 """
 
 FILES = {
@@ -51,7 +55,7 @@ FILES = {
     "AGENTS.md": AGENTS,
     "README.md": README,
 }
-DIRECTORIES = ("apps", "docs", "artifacts", "tmp", ".worktrees")
+DIRECTORIES = ("apps", "docs", "artifacts", ".recovery", "tmp", ".worktrees")
 GIT_ENVIRONMENT_VARIABLES = (
     "GIT_COMMON_DIR",
     "GIT_DIR",
