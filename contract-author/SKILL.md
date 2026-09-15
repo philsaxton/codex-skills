@@ -5,34 +5,32 @@ description: Use when translating an authorized work item into an implementation
 
 # Contract Author
 
-Translate authorized scope into a decision-complete contract. Directly read the current authoritative sources; summaries and inherited reasoning may locate them but never replace them. Preserve product direction, protected priorities, dependencies, blockers, and external authority.
+Translate authorized scope into a decision-complete contract. Directly read the current authoritative sources; summaries and inherited reasoning may locate them but never replace them. For revisions, read the complete current contract and preserve unaffected requirements and invariants. Preserve product direction, protected priorities, dependencies, blockers, and external authority.
 
 AGENTS.md remains authoritative. Don't silently override it.
 
 When the controlling workflow requires independence, remain distinct from reviewing, implementing, approving, or finally verifying the governed contract.
 
-## Classify the contract before drafting
+## Choose the contract's depth
 
 - **Substantial domain contract:** Include the detail genuinely needed to decide domain behavior, interfaces, state, failure handling, security, recovery, and verification. Complexity may require extensive treatment.
-- **Focused delta or correction:** The complete artifact is one compact pass through seven slots: changed semantic outcome; exact scope and non-goals; affected invariants or interfaces; acceptance criteria; verification; applicable risks, assumptions, and stop conditions; handoff. Put only delta-specific facts in those slots, consolidate repeated invariants, and use one precise source-reference statement for shared machinery.
-
-For a focused delta, give each fact one semantic home: state the change once in the outcome; unchanged boundaries in scope; downstream effects only under invariants; decidable predicates in acceptance criteria; observations in verification; delta-specific uncertainty in risks; and artifacts, sources, and the continuation gate in handoff. Expand a slot only when a source conflict or affected interface creates a distinct implementation or review decision.
-
-Reference shared governance, role procedures, lifecycle controls, evidence architecture, status rules, and repository mechanics from their authoritative sources. Include their content only when it changes an implementation, verification, authority, or review decision for this work item.
-
-Apply this semantic compression test to every section: if removing it would not change implementation, verification, authority, or review, replace it with a precise source reference or omit it. This is a relevance test, not a numeric length limit.
+- **Focused delta or correction:** Keep the complete artifact compact: state delta-specific decisions, consolidate repeated invariants, and reference shared machinery precisely. Expand only when a source conflict or affected interface creates a distinct implementation or review decision.
 
 ## Make the contract implementation-ready
 
-Include the applicable decision-bearing material:
+The content below is required where applicable; a focused delta must account for each area, using precise references for unchanged requirements. Choose the organization that makes these decisions clear, retaining any structure required by downstream consumers. Separate headings for each area are not otherwise required. For a focused delta, give each decision-bearing fact one semantic home.
 
-- required behavior and explicit non-goals;
-- relevant interfaces, inputs, outputs, state transitions, and failure behavior;
-- independently decidable acceptance criteria with stable identifiers;
-- objective, proportional verification tied to the criteria;
-- implementation boundaries, dependencies, assumptions, and stop conditions;
-- applicable security, confidentiality, integrity, availability, preservation, and recovery risks; and
-- the downstream handoff and continuation condition.
+| Area | Required information |
+|---|---|
+| Outcome | Required behavior; for a delta, state the changed semantic outcome once. |
+| Scope and non-goals | Exact implementation boundaries, explicit exclusions, and unchanged boundaries. |
+| Invariants and interfaces | Affected invariants, inputs, outputs, state transitions, failure behavior, and downstream effects. |
+| Acceptance criteria | Independently decidable predicates with stable identifiers. Preserve existing identifiers across revisions; do not invent identifiers from an unavailable current contract. |
+| Verification | Objective, proportional observations and methods tied to the criteria. |
+| Risks and stop conditions | Applicable dependencies, assumptions, uncertainty, stop conditions, and security, confidentiality, integrity, availability, preservation, and recovery risks. |
+| Handoff | Artifacts, direct sources, and the exact downstream continuation condition; see Handoff below. |
+
+Reference shared governance, role procedures, lifecycle controls, evidence architecture, status rules, and repository mechanics from their authoritative sources. Include their content only when it changes an implementation, verification, authority, or review decision for this work item. Apply that relevance test to every section: otherwise replace the content with a precise source reference or omit it. This is not a numeric length limit.
 
 Verification must prove observable outcomes at the risk warranted by the change. Select methods that fit the project and behavior. Do not turn a local example into a universal requirement for a test framework, command, hash, deterministic path, checkpoint ritual, evidence schema, role name, retry count, status vocabulary, or completion record.
 

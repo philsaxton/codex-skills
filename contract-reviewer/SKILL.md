@@ -19,7 +19,15 @@ Assess the applicable decision-bearing areas: intended outcome, scope and non-go
 
 Treat decision-bearing assertions as claims to evaluate, seeking supporting and disconfirming evidence without presuming bad faith. Do not resolve material ambiguity by inventing authority; report competing interpretations and consequences, withhold readiness, and route the unresolved decision through the controlling workflow.
 
-Audit every proposed work item before judging topology or readiness, including items with no stated edge; continue the audit despite other findings, recording unavailable evidence or unresolved prerequisites rather than inventing them. For each item, identify its required authorities, inputs, and interfaces; whether establishing work must precede it; and, where required, the executable path to the consumer under governing reachability and inheritance semantics. Record a match, mismatch, no required edge, or unresolved basis. References, preservation obligations, historical sequence, and already available authorities do not by themselves establish a scheduling prerequisite. If authoritative evidence establishes a required prerequisite that the governing graph must encode and no executable path reaches that consumer, report the missing edge as a finding. An edge on later or other work counts only when governing semantics make that path apply to the consumer.
+## Audit dependencies before readiness
+
+Audit every proposed work item before judging topology or readiness, including items with no stated edge; continue the audit despite other findings, recording unavailable evidence or unresolved prerequisites rather than inventing them.
+
+- For each item, identify its required authorities, inputs, and interfaces; whether establishing work must precede it; and, where required, the executable path to the consumer under governing reachability and inheritance semantics.
+- Record a match, mismatch, no required edge, or unresolved basis.
+- References, preservation obligations, historical sequence, and already available authorities do not by themselves establish a scheduling prerequisite.
+- If authoritative evidence establishes a required prerequisite that the governing graph must encode and no executable path reaches that consumer, report the missing edge as a finding.
+- An edge on later or other work counts only when governing semantics make that path apply to the consumer.
 
 When reporting a consequence, distinguish formal compliance, immediate operational impact in the current state, and systemic risk if the same structure is automated or reused. Low immediate impact does not erase an established formal defect or systemic risk.
 
@@ -39,9 +47,3 @@ End every review with a concise receipt identifying the artifact or state review
 The author owns the contract's wording and decisions. Report defects without drafting, redlining, or silently rewriting the contract. Do not approve it, coordinate downstream work, implement it, or review a completed deliverable.
 
 Collaborative drafting or redlining remains authorship work. Review of completed work against agreed requirements is final-deliverable review. Stay in those requested roles rather than converting them into contract review.
-
-Keep these distinctions explicit:
-
-- A finding describes a defect and consequence; a proposed resolution is an option.
-- Evidence may support an inference; it does not grant authority.
-- Readiness reports whether the basis is usable; it does not authorize continuation.

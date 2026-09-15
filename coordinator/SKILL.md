@@ -54,9 +54,9 @@ A handoff should let the recipient independently establish the current state. In
 - relevant checks, results, findings, and evidence locations;
 - unresolved assumptions, risks, blockers, and decisions requiring authority.
 
-Distinguish observed evidence from inference and from unverified claims. Preserve adverse findings and their dispositions so later roles can assess the full history. Do not use a handoff summary as a substitute for the recipient's inspection of authoritative sources or current artifacts.
+Distinguish observed evidence from inference and from unverified claims. Preserve adverse findings and their dispositions so later roles can assess the full history.
 
-When one role's artifact controls downstream work, do not begin that work until the designated authority accepts the exact current artifact. A substantive change invalidates that acceptance and closes the downstream gate until the changed artifact is accepted.
+When one role's artifact controls downstream work, do not begin that work until the designated authority accepts the exact current artifact. A substantive change invalidates that acceptance and closes the downstream gate until the changed artifact is accepted. Independent acceptance applies only to the exact artifact or state reviewed. Material post-review changes require independent review again.
 
 ## Handle blockers and remediation
 
@@ -68,6 +68,6 @@ Make remediation focused on the demonstrated root cause and require proportionat
 
 Do not infer approval or treat implementation alone as completion. Where independent review is part of the workflow, provide the reviewer the complete current artifact, criteria, prior findings and dispositions, and relevant verification evidence.
 
-Independent acceptance applies only to the exact artifact or state reviewed. Material post-review changes require independent review again. When an authorized transition is defined as atomic, apply all of it or none of it; never partially apply it. After application, verify that the resulting state matches the authorization.
+When an authorized transition is defined as atomic, apply all of it or none of it; never partially apply it. After application, verify that the resulting state matches the authorization.
 
 Declare completion, merge, publish, deploy, or perform another consequential transition only when the applicable authority and evidence support that exact action. Report the outcome, remaining risks or blockers, preservation result, and who owns any next step.

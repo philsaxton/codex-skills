@@ -27,11 +27,13 @@ python3 <skill-directory>/scripts/repository_cleanup.py plan \
 
 Repeat `--protect` as needed. Review the generated Markdown summary and JSON plan before applying anything.
 
-The helper treats a branch as safe only when its exact tip is an ancestor of the recorded integration commit. It treats a worktree as removable only when it is non-current, clean, unlocked, attached to such a merged branch, and still matches the plan. Stale worktree metadata is eligible only when the recorded path is absent and Git marks the entry prunable. Age, naming, a missing upstream, and pull-request metadata are never deletion proof.
+The helper treats a branch as safe only when its exact tip is an ancestor of the recorded integration commit. It treats a worktree as removable only when it is non-current, clean, unlocked, attached to such a merged branch, and still matches the plan. Before removing a worktree, establish that no active task or other writer is using it; clean and unlocked state alone does not establish that it is unused. Stale worktree metadata is eligible only when the recorded path is absent and Git marks the entry prunable. Age, naming, a missing upstream, and pull-request metadata are never deletion proof.
 
 ## Apply safe local actions
 
 Use `apply-local` only when the script is a reviewed, real, non-symlinked installation under `.agents/skills/cleaning-git-repositories` or `/etc/codex/skills/cleaning-git-repositories`, and the active permission profile keeps that installation recursively outside agent-writable space. Assume invocation may not prompt for approval.
+
+If the installation is writable, symlinked, or its protection is uncertain, use the helper for planning only. Perform approved local changes as visible, individually scoped Git commands after repeating the same checks. Never turn a failed safe deletion into a forceful fallback.
 
 ```text
 python3 <protected-skill-directory>/scripts/repository_cleanup.py apply-local \
@@ -43,8 +45,6 @@ python3 <protected-skill-directory>/scripts/repository_cleanup.py apply-local \
 Repeat `--protect <protected-branch>` exactly as for `plan`. Supply the repository, integration branch, and protected branches again from the independently established cleanup basis; never copy them from the plan. The helper rejects a plan whose recorded authority differs from these trusted apply-time inputs.
 
 The helper revalidates repository identity, integration commit, protected branches, the complete action set, branch tips, and worktree state. It removes worktrees before branches, uses `git branch -d`, and never force-deletes or mutates a remote.
-
-If the installation is writable, symlinked, or its protection is uncertain, use the helper for planning only. Perform approved local changes as visible, individually scoped Git commands after repeating the same checks. Never turn a failed safe deletion into a forceful fallback.
 
 If repository state changes, stop acting on the stale plan. Report completed actions before generating a fresh plan for what remains.
 
