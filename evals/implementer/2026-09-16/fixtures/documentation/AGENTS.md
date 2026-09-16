@@ -1,0 +1,1 @@
+Edit QUICKSTART.md only. cli-help.txt is authoritative for supported CLI syntax. Operator notes are observations. Deployment policy remains in POLICY.md. Documentation edits may be prepared without a formal contract; operational policy changes need the owner. Do not run a deployment or install tools. Check command examples against the help and verify local Markdown links.

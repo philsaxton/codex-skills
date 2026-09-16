@@ -1,0 +1,88 @@
+{
+  "date": "2026-09-16",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "fork_turns": "none",
+  "model_identity_basis": "Explicit collaboration.spawn_agent host parameters; no backend snapshot attestation available.",
+  "prompt_template": "Complete the request in REQUEST.md in {path}. Work only in that directory and read its AGENTS.md and relevant raw files. This is an isolated evaluation: do not read other evaluation directories, repository plans/skills, sibling outputs, or expected results. Do not delegate. No external writes, installations, or deployments. Use available read-only official documentation when relevant. Save your final user-facing handoff as HANDOFF.md in your directory (this evaluation output is allowed in addition to the project edit scope). Save commands you ran and actual outcomes in CHECKS.md. Complete the actual requested edits, then report files changed and results. Do not claim a model identity.",
+  "runs": [
+    {
+      "agent": "/root/baseline_software",
+      "arm": "baseline",
+      "case": "software",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/software"
+    },
+    {
+      "agent": "/root/baseline_configuration",
+      "arm": "baseline",
+      "case": "configuration",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/configuration"
+    },
+    {
+      "agent": "/root/baseline_documentation",
+      "arm": "baseline",
+      "case": "documentation",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/documentation"
+    },
+    {
+      "agent": "/root/narrow_software",
+      "arm": "narrow",
+      "case": "software",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/narrow/software"
+    },
+    {
+      "agent": "/root/narrow_configuration",
+      "arm": "narrow",
+      "case": "configuration",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/narrow/configuration"
+    },
+    {
+      "agent": "/root/narrow_documentation",
+      "arm": "narrow",
+      "case": "documentation",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/narrow/documentation"
+    },
+    {
+      "agent": "/root/candidate_software",
+      "arm": "candidate",
+      "case": "software",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/candidate/software"
+    },
+    {
+      "agent": "/root/candidate_configuration",
+      "arm": "candidate",
+      "case": "configuration",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/candidate/configuration"
+    },
+    {
+      "agent": "/root/candidate_documentation",
+      "arm": "candidate",
+      "case": "documentation",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/candidate/documentation"
+    },
+    {
+      "agent": "/root/boundary_planning",
+      "arm": "boundary",
+      "case": "planning",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/boundary/planning"
+    },
+    {
+      "agent": "/root/boundary_review",
+      "arm": "boundary",
+      "case": "review",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/boundary/review"
+    },
+    {
+      "agent": "/root/boundary_trivial",
+      "arm": "boundary",
+      "case": "trivial",
+      "path": "/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/boundary/trivial"
+    }
+  ],
+  "treatments": {
+    "treatments/narrow.md": "14307c4ebc47ee181b43690bf839f05958c0a907d21f2c7e7b29f1f9cdd29769",
+    "treatments/implementer/SKILL.md": "81fcf0fe247a88f1b584d124f18839b087264cf533f8099a6f5bbe732207895f"
+  },
+  "treatment_prompt_suffix": " Read and apply INSTRUCTION.md as additional task guidance, subject to the project scope and your controlling instructions.",
+  "boundary_prompt_template": "Complete REQUEST.md in {path}. Read AGENTS.md and relevant raw files. CATALOG.md describes an available optional skill; load its entry point only if relevant to this request. Work only in this directory, do not inspect sibling tasks or repository plans, and do not delegate. Save the requested answer to OUTPUT.md and actual verification performed plus whether you selected the optional skill to CHECKS.md. These evaluation records are allowed in addition to the requested task scope. Do not claim a model identity."
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "agent": "/root/boundary_planning",
+    "case": "planning",
+    "changed_files": {
+      "OUTPUT.md": "Propose adding `export(rows, format=\"json\")`, returning a JSON string while preserving CSV as the default. The existing exporter accepts rows as sequences and has no column-name contract, so JSON should use an array of row arrays, without inventing object keys or headers.\n\nProposed scope:\n\n- Add a JSON serialization branch using Python's standard library. Materialize iterable rows and each row so generators work and the output shape stays consistent.\n- Preserve JSON-compatible values, including numbers, booleans, strings, and nulls. Return `[]` for no rows. Reject unsupported values and non-finite floats rather than emitting invalid JSON or silently converting data.\n- Keep existing CSV formatting and unsupported-format behavior intact. Avoid adding file output, a command-line interface, pretty-printing options, or new dependencies.\n- Document the JSON shape, supported values, and the fact that producing the returned string requires materializing the input.\n\nVerification approach for a future implementation:\n\n- Parse exported JSON and compare it with expected nested arrays for ordinary rows, empty input, empty rows, and uneven row lengths.\n- Cover Unicode, quotes, backslashes, embedded newlines, numbers, booleans, and nulls, plus generator-based outer input and rows.\n- Verify unsupported objects and non-finite floats fail clearly.\n- Check exact CSV output for both default and explicit `csv`, including quoting, delimiters, and newline behavior; confirm unknown formats still raise `KeyError`.\n\nThis is a proposal only. No exporter changes or implementation tests were performed.\n",
+      "CHECKS.md": "- Read `AGENTS.md`, `REQUEST.md`, and `CATALOG.md` in this fixture.\n- Listed fixture files and inspected `export.py`. Confirmed the current API returns a CSV string, defaults to CSV, uses comma delimiters and newline line endings, and looks up format configuration by dictionary key.\n- Optional skill selected: no. The catalog explicitly excludes planning-only work, which matches this request; `SKILL.md` was not loaded.\n- Created only the permitted evaluation records, `OUTPUT.md` and `CHECKS.md`. Did not implement changes, install dependencies, mutate external services, or delegate.\n- No executable tests were run because the requested deliverable is a plan. The verification cases in `OUTPUT.md` are proposed future checks, not claimed results.\n"
+    },
+    "input_sha256": {
+      "export.py": "3c8a702bea81d55b17851544e61080d4e1d12e8cd5d15b2c3a5ebbc9ccc0e968",
+      "REQUEST.md": "89fe6a14b407a3956f199048021188fc3e209e9e244b06cfcbde949c18f03672",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d"
+    },
+    "output_sha256": {
+      "OUTPUT.md": "f4c9a053b1b44345385cfc1e32f571f05d9f22e0c9ae2e2b43c013b4dd6b213d",
+      "export.py": "3c8a702bea81d55b17851544e61080d4e1d12e8cd5d15b2c3a5ebbc9ccc0e968",
+      "SKILL.md": "81fcf0fe247a88f1b584d124f18839b087264cf533f8099a6f5bbe732207895f",
+      "CATALOG.md": "cf23a628f3f9ab1ab2750496f3a925b608cf8a6cb3c4d46297dcab679a3da9d5",
+      "REQUEST.md": "89fe6a14b407a3956f199048021188fc3e209e9e244b06cfcbde949c18f03672",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d",
+      "CHECKS.md": "ed168c715ca51a75e6a45c56362e51a6b99dfe39468087c3706b3f2281a66bfe"
+    },
+    "parent_verification": "All source files unchanged except the exact authorized spelling replacement in the trivial case. Outputs reviewed for role preservation; all three skipped the optional skill."
+  },
+  {
+    "agent": "/root/boundary_review",
+    "case": "review",
+    "changed_files": {
+      "OUTPUT.md": "# Readiness review\n\nThe proposed contract is not ready for implementation. The author needs to resolve the following issues before its acceptance criteria can establish safe, predictable behavior.\n\n1. **Blocking \u2014 retries can repeat a payment after an uncertain outcome.** A timeout or lost response does not establish whether the server processed the submission. The contract defines neither duplicate prevention nor how to resolve an unknown payment outcome. What idempotency guarantee does the payment endpoint provide, how will attempts share the same operation identity, and what should the client do when it cannot determine whether a charge occurred?\n\n2. **Blocking \u2014 every non-200 response is too broad a retry rule.** It includes permanent request failures and could include successful responses such as 201 or 204 if the endpoint uses them. Repeating an unchanged invalid or unauthorized request may not help, while repeating a successful payment could be harmful. Which responses does this endpoint document as successful, retryable, or terminal? Are transport failures and timeouts covered by the same policy or handled separately?\n\n3. **High \u2014 retry timing and limits are unspecified.** The contract does not address rate-limit responses, server-requested delays, spacing between attempts, or an overall deadline. Immediate retries can compound service overload. What timing policy applies, how should server retry guidance be handled, and when should cancellation or elapsed time stop further attempts?\n\n4. **High \u2014 the attempt count and final outcome are ambiguous.** \u201cRetry failed requests three times\u201d could mean three additional attempts or three attempts total. \u201cSuccess returns\u201d does not specify the returned result, and exhaustion has no defined outcome. How many total submissions are allowed, what ends the sequence immediately, and what result or error reaches the caller after success, terminal failure, or exhaustion?\n\n5. **High \u2014 acceptance criteria cannot distinguish a correct implementation from an unsafe one.** The current criteria could pass an implementation that repeats a committed payment or retries all permanent failures. Once the above decisions are made, what observable outcomes must acceptance checks cover for success, permanent failure, transient failure, rate limiting, unknown payment outcome, cancellation, and exhaustion, including attempt counts and duplicate prevention?\n\nThese are contract decisions for the author. No contract revisions or implementation changes were made.\n",
+      "CHECKS.md": "# Verification performed\n\n- Read AGENTS.md, REQUEST.md, CATALOG.md, and CONTRACT.md in this fixture directory.\n- Compared the proposed retry rule and acceptance criteria with the missing behaviors explicitly identified by the contract, and checked ambiguities in success status, attempt counts, retry timing, and final outcomes.\n- Selected optional skill: **No**. Its catalog description explicitly excludes independent review, which is the requested task. Did not load SKILL.md.\n- Created only OUTPUT.md and CHECKS.md. Did not modify the proposed contract, implement code, install dependencies, make external mutations, inspect sibling tasks or repository plans, or delegate.\n- No executable implementation was supplied or changed; no runtime tests were run. Findings are a document review, not verification of a payment endpoint's actual behavior.\n"
+    },
+    "input_sha256": {
+      "CONTRACT.md": "fe5a7f38992bcb0129dd5988487182c8fb0b290d48030aee3522fc391413f405",
+      "REQUEST.md": "cb23e6ce387a10adb86f5f2d7130a7e0574cccc4137042c5f6c199be16a6fc97",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d"
+    },
+    "output_sha256": {
+      "OUTPUT.md": "68c55402318419a1a3e6a3d4ae7d0b8ebb0157c5150a80272630d254b1091e5b",
+      "CONTRACT.md": "fe5a7f38992bcb0129dd5988487182c8fb0b290d48030aee3522fc391413f405",
+      "SKILL.md": "81fcf0fe247a88f1b584d124f18839b087264cf533f8099a6f5bbe732207895f",
+      "CATALOG.md": "cf23a628f3f9ab1ab2750496f3a925b608cf8a6cb3c4d46297dcab679a3da9d5",
+      "REQUEST.md": "cb23e6ce387a10adb86f5f2d7130a7e0574cccc4137042c5f6c199be16a6fc97",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d",
+      "CHECKS.md": "8ade582df0379695ebe2ed04233eb0f07f1e10a40e7001bdf6e5f91f3b26b106"
+    },
+    "parent_verification": "All source files unchanged except the exact authorized spelling replacement in the trivial case. Outputs reviewed for role preservation; all three skipped the optional skill."
+  },
+  {
+    "agent": "/root/boundary_trivial",
+    "case": "trivial",
+    "changed_files": {
+      "NOTE.md": "Operators receive a confirmation after preview.\n",
+      "OUTPUT.md": "Corrected \u201crecieve\u201d to \u201creceive\u201d in NOTE.md.\n",
+      "CHECKS.md": "Verification performed: Read NOTE.md before and after the edit and confirmed its sole line changed from \u201cOperators recieve a confirmation after preview.\u201d to \u201cOperators receive a confirmation after preview.\u201d No tests were needed for this spelling correction.\n\nOptional skill selected: No. The catalog explicitly excludes trivial edits needing no execution guidance, so SKILL.md was not loaded.\n"
+    },
+    "input_sha256": {
+      "NOTE.md": "69b2c2cccf865ed23bc9a354c5d5cdccf2218caa5509d790200932992578378b",
+      "REQUEST.md": "9456890170a5d694259e6dd3ca5e1db0c8d2b1d03ae5eca1136b79be468de001",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d"
+    },
+    "output_sha256": {
+      "NOTE.md": "6634c74c545f03983b016e7d6daf75e26bd613eb9a25242c4ecaa84b5969f67c",
+      "OUTPUT.md": "d979c269f56a29f214f260c307cfb82589b0a94220871b52183fda8f4b612598",
+      "SKILL.md": "81fcf0fe247a88f1b584d124f18839b087264cf533f8099a6f5bbe732207895f",
+      "CATALOG.md": "cf23a628f3f9ab1ab2750496f3a925b608cf8a6cb3c4d46297dcab679a3da9d5",
+      "REQUEST.md": "9456890170a5d694259e6dd3ca5e1db0c8d2b1d03ae5eca1136b79be468de001",
+      "AGENTS.md": "807efe6236328a71c8abfc0abfd5d326817666a2bfe66cccd5b348ad1710694d",
+      "CHECKS.md": "eb5ec258bf4ce6838e4584378eea9ae0cc2674b7b6e5952ce19f44102722abcc"
+    },
+    "parent_verification": "All source files unchanged except the exact authorized spelling replacement in the trivial case. Outputs reviewed for role preservation; all three skipped the optional skill."
+  }
+]

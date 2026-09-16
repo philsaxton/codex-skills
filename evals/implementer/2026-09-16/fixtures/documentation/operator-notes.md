@@ -1,0 +1,1 @@
+Two recent operators previewed staging.yaml before submitting a release. They usually did this in the staging environment first. One asked whether previews can replace the release review for small changes; no owner decision is recorded. Most status checks finished in under a minute, but one took several minutes.

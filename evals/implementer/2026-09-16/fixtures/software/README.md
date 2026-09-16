@@ -1,0 +1,1 @@
+Run python3 -m unittest discover -s tests -v and python3 check_release.py. The registry maps a format name to Python csv.writer keyword arguments. The runtime target is Python 3.12. A proposal in docs/next-version.md is not the current target.

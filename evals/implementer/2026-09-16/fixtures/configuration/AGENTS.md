@@ -1,0 +1,1 @@
+Only staging.json and OPERATIONS.md may be edited. Support notes are observations, not product policy. Production changes, package installation, deployment, and changes to retention or access controls require the service owner's decision. Run python3 validate.py. No formal contract is required.

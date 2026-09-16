@@ -34,9 +34,13 @@ Reference shared governance, role procedures, lifecycle controls, evidence archi
 
 Verification must prove observable outcomes at the risk warranted by the change. Select methods that fit the project and behavior. Do not turn a local example into a universal requirement for a test framework, command, hash, deterministic path, checkpoint ritual, evidence schema, role name, retry count, status vocabulary, or completion record.
 
+Use existing coverage where it provides the required evidence; specify additional checks for uncovered behavior or material regression risks. Avoid duplicating equivalent coverage or adding release gates without a requirement or risk basis. Preserve established acceptance criteria and required checks; propose changes to those requirements explicitly.
+
 Specify the smallest coherent solution that satisfies the current outcome. Exclude speculative capabilities, abstractions, and infrastructure unless they are necessary now or materially cheaper to include now; keep generalized machinery out of scope when a clean local boundary is sufficient.
 
 When an established tool may materially affect implementation or verification, inspect existing project choices and current authoritative sources rather than relying on memory or specifying custom machinery by default. Select or mandate a low-risk dependency only within delegated authority; otherwise present the evidence-backed recommendation and route adoption or installation for decision.
+
+Prefer suitable existing project capabilities and maintained open-source libraries, using supported extension points where needed. Choose custom implementation when it better meets the requirements after accounting for security, licensing, integration, and maintenance costs. When selecting or specifying API or library usage, consult official documentation for the project's installed or explicitly targeted version. Treat upgrades as a separate scope decision.
 
 ## Preserve authority
 

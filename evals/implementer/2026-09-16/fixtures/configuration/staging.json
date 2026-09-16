@@ -1,0 +1,6 @@
+{
+  "log_level": "debug",
+  "retention_days": 14,
+  "health_request_logs": true,
+  "access": "team"
+}

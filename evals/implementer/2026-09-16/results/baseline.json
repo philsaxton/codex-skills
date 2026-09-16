@@ -1,0 +1,165 @@
+[
+  {
+    "agent": "/root/baseline_software",
+    "case": "software",
+    "input_sha256": {
+      "AGENTS.md": "ced98f48a0b9798df0c08ce1683a0e6974adb4fadf0a35c324d6b18a4eea09fd",
+      "README.md": "d1ed57192c9b018fc40752310c0e77071b26f38be1f4adbe17d5ca685eb90ed7",
+      "REQUEST.md": "5236ca825cb82a876149b8e6a228e2f32aa12b5f90d434b0d9c55245dcc239a8",
+      "check_release.py": "9b7967dc270d04321553273507b43dcaa386ac272e407ed7875685a935591458",
+      "docs/next-version.md": "4642387bb0d7892238b3d3c3803e8d0fc5f2cec88be43fd1f81b2c9e5415c4b2",
+      "export.py": "3c8a702bea81d55b17851544e61080d4e1d12e8cd5d15b2c3a5ebbc9ccc0e968",
+      "notes.txt": "2e5c7aca8e38c4e38b4ea011164b8afc1d0fcf39add759fa52f4cad8b8c18f21",
+      "tests/test_export.py": "024db8c7b95df39e919a561b61b735ce6ebcfa42a59f0faecd32da653a9b89af"
+    },
+    "output_sha256": {
+      "AGENTS.md": "ced98f48a0b9798df0c08ce1683a0e6974adb4fadf0a35c324d6b18a4eea09fd",
+      "CHECKS.md": "f8e7e22911c4127896b8266072f3c0ccda68bd23525779e9ea41a41dd9970d69",
+      "HANDOFF.md": "fe4890b8efbace610d153c4ec4eb6bd56fec251b6972d1a112e7010e747d2c18",
+      "README.md": "d1ed57192c9b018fc40752310c0e77071b26f38be1f4adbe17d5ca685eb90ed7",
+      "REQUEST.md": "5236ca825cb82a876149b8e6a228e2f32aa12b5f90d434b0d9c55245dcc239a8",
+      "check_release.py": "9b7967dc270d04321553273507b43dcaa386ac272e407ed7875685a935591458",
+      "docs/next-version.md": "4642387bb0d7892238b3d3c3803e8d0fc5f2cec88be43fd1f81b2c9e5415c4b2",
+      "export.py": "8a30b17ab0e69a6728a99742848fe778bca65d3ef12ea31df7247fe13bb7ef03",
+      "notes.txt": "2e5c7aca8e38c4e38b4ea011164b8afc1d0fcf39add759fa52f4cad8b8c18f21",
+      "tests/test_export.py": "024db8c7b95df39e919a561b61b735ce6ebcfa42a59f0faecd32da653a9b89af"
+    },
+    "changed_files": {
+      "CHECKS.md": "All commands ran in `/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/software`.\n\n| Command | Actual outcome |\n| --- | --- |\n| `pwd && ls -la && cat AGENTS.md && cat REQUEST.md` | Exit 0; confirmed isolated directory, scope, and required checks. |\n| `cat README.md export.py tests/test_export.py check_release.py && rg --files docs && cat docs/*` | Exit 0; inspected registry, existing tests, release check, and future-only runtime proposal. |\n| `python3 --version` | Exit 0; Python 3.12.2. |\n| `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v` | Exit 0; all 3 tests passed: `test_csv_bytes`, `test_formats_round_trip`, `test_unknown_format`. |\n| `python3 check_release.py` | Exit 77; `UNAVAILABLE: release credentials are not present in this isolated fixture; no release check was performed.` |\n\nRead-only documentation lookup: opened https://docs.python.org/3.12/library/csv.html successfully; verified writer formatting parameters and QUOTE_MINIMAL semantics.\n\nEdits used the patch tool: added only the TSV registry entry in `export.py`, plus these two evaluation handoff records. Existing test coverage exercises tabs, commas, quotes, embedded LF newlines, empty values, Unicode, unchanged CSV bytes, and unknown-format rejection. No additional tests were necessary for this registration-only change.\n\nRelease verification is unavailable, not passed. Independent maintainer acceptance has not occurred.\n",
+      "HANDOFF.md": "EX-2 is implemented in `export.py`: the existing format registry now accepts `tsv`, using tabs between fields and LF row endings. Existing CSV registration and writer behavior are unchanged. Delimiters, quotes, and embedded LF newlines retain the standard writer's quoting behavior, consistent with the [Python 3.12 csv documentation](https://docs.python.org/3.12/library/csv.html#csv.QUOTE_MINIMAL).\n\nAll three existing tests passed on Python 3.12.2, covering CSV bytes, CSV/TSV round trips, and unknown formats. No runtime requirements or tests were changed.\n\nThe required release check exited 77: release credentials are unavailable, so no release check was performed. Independent maintainer acceptance and release verification remain outstanding; this handoff supplies implementation evidence, not acceptance or release approval.\n\nFiles changed: `export.py`; added evaluation records `HANDOFF.md` and `CHECKS.md`.\n",
+      "export.py": "import csv\nimport io\n\nFORMATS = {\n    \"csv\": {\"delimiter\": \",\", \"lineterminator\": \"\\n\"},\n    \"tsv\": {\"delimiter\": \"\\t\", \"lineterminator\": \"\\n\"},\n}\n\ndef export(rows, format=\"csv\"):\n    out = io.StringIO(newline=\"\")\n    csv.writer(out, **FORMATS[format]).writerows(rows)\n    return out.getvalue()\n"
+    },
+    "patch": "--- before/export.py\n+++ after/export.py\n@@ -1,7 +1,10 @@\n import csv\n import io\n \n-FORMATS = {\"csv\": {\"delimiter\": \",\", \"lineterminator\": \"\\n\"}}\n+FORMATS = {\n+    \"csv\": {\"delimiter\": \",\", \"lineterminator\": \"\\n\"},\n+    \"tsv\": {\"delimiter\": \"\\t\", \"lineterminator\": \"\\n\"},\n+}\n \n def export(rows, format=\"csv\"):\n     out = io.StringIO(newline=\"\")\n",
+    "parent_verification": [
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "test_csv_bytes (test_export.ExportTests.test_csv_bytes) ... ok\ntest_formats_round_trip (test_export.ExportTests.test_formats_round_trip) ... ok\ntest_unknown_format (test_export.ExportTests.test_unknown_format) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n"
+      },
+      {
+        "command": [
+          "python3",
+          "check_release.py"
+        ],
+        "exit_code": 77,
+        "stdout": "UNAVAILABLE: release credentials are not present in this isolated fixture; no release check was performed.\n",
+        "stderr": ""
+      }
+    ],
+    "preservation": "All non-authorized fixture files byte-identical; no removed files."
+  },
+  {
+    "agent": "/root/baseline_configuration",
+    "case": "configuration",
+    "input_sha256": {
+      "AGENTS.md": "e8d8a745a16c50f7136e28de955c368b09740b86d5aa919ee12cf18f28d92498",
+      "OPERATIONS.md": "20adb571b15881b76e847e449c7f8d3c1b4c7dec5ef9e10a50da86065c0384f5",
+      "REQUEST.md": "5906e02f431b11da5bb136d3ee37354fa69df23c510e3aa325e02ce5f646ebd2",
+      "production.json": "0517fd75f22f912877148ad13966db39bd95c822d144783435d38826c9fb3a6d",
+      "staging.json": "a7172babecc0c56c2122f425fcdcb9f339c1f2c1b89dcb32caab02be8e0de2dd",
+      "support-notes.md": "5a6310d6e3dabb473313885df6b68e301e3caa51d4ea1430b7e12a5f00a02033",
+      "validate.py": "af7540035609a39d66fe22483cccdbdbccbd8f3891ca2386a334eeab9916a26b"
+    },
+    "output_sha256": {
+      "AGENTS.md": "e8d8a745a16c50f7136e28de955c368b09740b86d5aa919ee12cf18f28d92498",
+      "CHECKS.md": "bc9472d80ba67ef1b72b937879df61f3dc6c9997dccbb75cd5710d48307ff66a",
+      "HANDOFF.md": "ed6ffa236d0951a9a7dd637eb720044affa111cd462b3da82557048714cc3fc8",
+      "OPERATIONS.md": "6c89bb8db26bb5dffea68ac6d4d4393b66762e33a7810d60d3a78dda698c189a",
+      "REQUEST.md": "5906e02f431b11da5bb136d3ee37354fa69df23c510e3aa325e02ce5f646ebd2",
+      "production.json": "0517fd75f22f912877148ad13966db39bd95c822d144783435d38826c9fb3a6d",
+      "staging.json": "93b00b61cabd7e070707c399034ae131dd02215d23f2a03a8a84e283a9e5dddc",
+      "support-notes.md": "5a6310d6e3dabb473313885df6b68e301e3caa51d4ea1430b7e12a5f00a02033",
+      "validate.py": "af7540035609a39d66fe22483cccdbdbccbd8f3891ca2386a334eeab9916a26b"
+    },
+    "changed_files": {
+      "CHECKS.md": "# Checks\n\nAll commands ran in `/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/configuration`.\n\n- `pwd && ls -la && cat AGENTS.md && cat REQUEST.md` — exit 0; confirmed the task directory, allowed edit scope, and request.\n- `cat staging.json production.json support-notes.md OPERATIONS.md validate.py` — exit 0; reviewed the configurations, observations, operator note, and validator.\n- `python3 validate.py` — exit 0 after the edits; output: `configuration loads; schema valid`.\n\nEdits used the patch tool. No installations or deployments were performed. The validator checks JSON loading and field validity; runtime log volume was not measured.\n",
+      "HANDOFF.md": "Changed staging logging from `debug` to `info` in `staging.json` to reduce request trace noise, following the support team's normal investigation level. Updated `OPERATIONS.md` to explain the setting.\n\nHealth request logs remain enabled because they support connectivity investigations and no filtering rule is agreed. Retention, access controls, and production configuration are unchanged.\n\nValidation passed: `python3 validate.py` reported `configuration loads; schema valid`. Runtime log volume was not measured; nothing was deployed.\n\nChanged files: `staging.json`, `OPERATIONS.md`. Evaluation records: `HANDOFF.md`, `CHECKS.md`.\n",
+      "OPERATIONS.md": "# Staging logs\n\nStaging logs at info level to reduce debug request trace noise while supporting routine incident investigations. Health request logs remain enabled because they help connectivity investigations and no filtering rule has been agreed. Retention remains 14 days and access remains team-scoped; changes to either require the service owner's decision.\n",
+      "staging.json": "{\n  \"log_level\": \"info\",\n  \"retention_days\": 14,\n  \"health_request_logs\": true,\n  \"access\": \"team\"\n}\n"
+    },
+    "patch": "--- before/staging.json\n+++ after/staging.json\n@@ -1,5 +1,5 @@\n {\n-  \"log_level\": \"debug\",\n+  \"log_level\": \"info\",\n   \"retention_days\": 14,\n   \"health_request_logs\": true,\n   \"access\": \"team\"\n--- before/OPERATIONS.md\n+++ after/OPERATIONS.md\n@@ -1,3 +1,3 @@\n # Staging logs\n \n-Staging currently emits debug request traces. Retention is 14 days and access is team-scoped.\n+Staging logs at info level to reduce debug request trace noise while supporting routine incident investigations. Health request logs remain enabled because they help connectivity investigations and no filtering rule has been agreed. Retention remains 14 days and access remains team-scoped; changes to either require the service owner's decision.\n",
+    "parent_verification": [
+      {
+        "command": [
+          "python3",
+          "validate.py"
+        ],
+        "exit_code": 0,
+        "stdout": "configuration loads; schema valid\n",
+        "stderr": ""
+      },
+      {
+        "check": "Only log level changed in staging settings; production and sources preserved",
+        "passed": true
+      }
+    ],
+    "preservation": "All non-authorized fixture files byte-identical; no removed files."
+  },
+  {
+    "agent": "/root/baseline_documentation",
+    "case": "documentation",
+    "input_sha256": {
+      "AGENTS.md": "135ba6dc59e5c6d3a1d1c2308d7e83de99dfb3a2f306502b1cf2f58a9e540cf4",
+      "POLICY.md": "c97061b961025e1c940dbbf42e088551b0546c25b503c2cea6c42f973cc0be5e",
+      "QUICKSTART.md": "549f12516003f9abd762db9cc2e80b9129d6b015803416735601f7694ccf6f7a",
+      "REQUEST.md": "6e362eef7b42255503e8f1ef9c0b4328348ea1a6813e662053da46ce5a2ce360",
+      "cli-help.txt": "0523ed8e9c7644888e1da041df4794c846df30c7c7c96d48f15b80f9cfd5728f",
+      "operator-notes.md": "6286dcd85d0897adf879f3425e36340b89c312b676578c10958107f2ce4f5b54"
+    },
+    "output_sha256": {
+      "AGENTS.md": "135ba6dc59e5c6d3a1d1c2308d7e83de99dfb3a2f306502b1cf2f58a9e540cf4",
+      "CHECKS.md": "e102ab4bcb31a88c7a68717e581ea1f94b758758c0757c4c48ab4fc6b73bd2c9",
+      "HANDOFF.md": "99bb91b885b0f43a4224864154d8d493128f268c9343ef200ca7f2efcfdca799",
+      "POLICY.md": "c97061b961025e1c940dbbf42e088551b0546c25b503c2cea6c42f973cc0be5e",
+      "QUICKSTART.md": "15ccdc8297bdebe8018c82054d412c435179db0804499dac2bba01e49a5c1e28",
+      "REQUEST.md": "6e362eef7b42255503e8f1ef9c0b4328348ea1a6813e662053da46ce5a2ce360",
+      "cli-help.txt": "0523ed8e9c7644888e1da041df4794c846df30c7c7c96d48f15b80f9cfd5728f",
+      "operator-notes.md": "6286dcd85d0897adf879f3425e36340b89c312b676578c10958107f2ce4f5b54"
+    },
+    "changed_files": {
+      "CHECKS.md": "# Commands and outcomes\n\nAll commands ran in `/Users/phil-mac/Projects/skills-ws/tmp/implementer-eval-20260916/baseline/documentation`.\n\n1. `pwd; ls -la; cat AGENTS.md; cat REQUEST.md` — exit 0. Confirmed the isolated directory, requested quickstart refresh, allowed edit scope, authoritative CLI help, policy constraints, and required checks.\n2. `cat QUICKSTART.md POLICY.md cli-help.txt operator-notes.md` — exit 0. Read all source documents. Confirmed unsupported legacy dry-run syntax, required approval ID, and observational staging/timing notes.\n3. The following verification command exited 0:\n\n```sh\npython3 - <<'PY'\nfrom pathlib import Path\nimport re\nquickstart = Path('QUICKSTART.md').read_text()\nhelp_text = Path('cli-help.txt').read_text()\nexamples = re.findall(r'```sh\\n(.*?)\\n```', quickstart, re.S)\n# Numbered-list code blocks are indented, so normalize them first.\nexamples = re.findall(r'```sh\\n(.*?)\\n\\s*```', quickstart, re.S)\nnormalized = [example.strip().replace('staging.yaml', 'PATH').replace('APPROVAL_ID', 'ID') for example in examples]\nassert len(normalized) == 3, normalized\nfor command in normalized:\n    assert command in [line.strip() for line in help_text.splitlines()], command\n    print('PASS: supported example:', command)\nlinks = re.findall(r'\\[[^\\]]+\\]\\(([^)]+)\\)', quickstart)\nassert links, 'Expected a policy link'\nfor link in links:\n    assert Path(link).is_file(), link\n    print('PASS: local Markdown link:', link)\nassert Path('POLICY.md').read_text() == '# Release policy\\n\\nEvery apply requires release-owner approval. A preview is useful evidence but does not replace approval. No standard timeout or mandatory staging-first rollout order is defined.\\n'\nprint('PASS: release policy unchanged')\nPY\n```\n\nActual output:\n\n```text\nPASS: supported example: opsctl preview --config PATH\nPASS: supported example: opsctl apply --config PATH --approval ID\nPASS: supported example: opsctl status\nPASS: local Markdown link: POLICY.md\nPASS: release policy unchanged\n```\n\nEdits used the patch tool: one patch updated `QUICKSTART.md`; one added the authorized evaluation records `HANDOFF.md` and `CHECKS.md`. Both completed successfully. No opsctl commands, installations, or deployments were run. No external documentation was needed because the supplied CLI help is authoritative.\n",
+      "HANDOFF.md": "Updated `QUICKSTART.md` for a first-time operator with supported opsctl 2.4 preview, approval, apply, and status steps. It explains configuration and approval-ID placeholders and distinguishes recent operator observations from release policy.\n\nAll three executable examples match `cli-help.txt`; the local policy link resolves. `POLICY.md` is unchanged. No deployment or installation was performed.\n\nFiles changed: `QUICKSTART.md`. Evaluation records added: `HANDOFF.md` and `CHECKS.md`.\n",
+      "QUICKSTART.md": "# Operator quickstart\n\nUse an existing configuration file and replace `staging.yaml` below with its path if needed. These examples use the supported opsctl 2.4 syntax.\n\n1. Preview the configuration without changing the service:\n\n   ```sh\n   opsctl preview --config staging.yaml\n   ```\n\n   The old `--dry-run` option is unsupported. Review the preview before submitting the release for approval.\n\n2. Obtain release-owner approval and its approval ID. Every apply requires approval; a successful preview does not replace it. See the [release policy](POLICY.md).\n\n3. Apply the configuration with that approval ID. Replace `APPROVAL_ID` with the actual ID:\n\n   ```sh\n   opsctl apply --config staging.yaml --approval APPROVAL_ID\n   ```\n\n4. Check the service status:\n\n   ```sh\n   opsctl status\n   ```\n\nRecent operators commonly previewed in staging first, but the release policy does not require a staging-first rollout. Status checks often finished in under a minute, while one took several minutes; these observations are not a timeout guarantee, and no standard timeout is defined.\n"
+    },
+    "patch": "--- before/QUICKSTART.md\n+++ after/QUICKSTART.md\n@@ -1,7 +1,27 @@\n # Operator quickstart\n \n-Validate with `opsctl --dry-run staging.yaml`.\n+Use an existing configuration file and replace `staging.yaml` below with its path if needed. These examples use the supported opsctl 2.4 syntax.\n \n-Apply with `opsctl apply --config staging.yaml`.\n+1. Preview the configuration without changing the service:\n \n-Check `opsctl status`. See [release policy](POLICY.md).\n+   ```sh\n+   opsctl preview --config staging.yaml\n+   ```\n+\n+   The old `--dry-run` option is unsupported. Review the preview before submitting the release for approval.\n+\n+2. Obtain release-owner approval and its approval ID. Every apply requires approval; a successful preview does not replace it. See the [release policy](POLICY.md).\n+\n+3. Apply the configuration with that approval ID. Replace `APPROVAL_ID` with the actual ID:\n+\n+   ```sh\n+   opsctl apply --config staging.yaml --approval APPROVAL_ID\n+   ```\n+\n+4. Check the service status:\n+\n+   ```sh\n+   opsctl status\n+   ```\n+\n+Recent operators commonly previewed in staging first, but the release policy does not require a staging-first rollout. Status checks often finished in under a minute, while one took several minutes; these observations are not a timeout guarantee, and no standard timeout is defined.\n",
+    "parent_verification": [
+      {
+        "check": "Three command examples satisfy the supplied help grammar; all local links resolve; policy preserved",
+        "passed": true,
+        "commands": [
+          [
+            "opsctl",
+            "preview",
+            "--config",
+            "staging.yaml"
+          ],
+          [
+            "opsctl",
+            "apply",
+            "--config",
+            "staging.yaml",
+            "--approval",
+            "APPROVAL_ID"
+          ],
+          [
+            "opsctl",
+            "status"
+          ]
+        ],
+        "links": [
+          "POLICY.md"
+        ]
+      }
+    ],
+    "preservation": "All non-authorized fixture files byte-identical; no removed files."
+  }
+]

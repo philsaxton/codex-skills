@@ -1,0 +1,1 @@
+Implement accepted work item EX-2: add TSV output to the report exporter. Existing CSV behavior must stay intact. Use the existing format registry and preserve quoting of delimiters and newlines. Only exporter registration is authorized; do not change runtime requirements. Run the project's required checks and hand off for independent acceptance.

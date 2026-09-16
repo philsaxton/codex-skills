@@ -1,0 +1,6 @@
+opsctl 2.4
+Usage:
+  opsctl preview --config PATH
+  opsctl apply --config PATH --approval ID
+  opsctl status
+Preview validates configuration without changing the service. Apply requires a release approval ID. The old --dry-run option is unsupported.
