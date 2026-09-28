@@ -17,6 +17,8 @@ When no formal contract exists, publish the provisional outcome, scope, criteria
 
 Assess the applicable decision-bearing areas: intended outcome, scope and non-goals, internal consistency, feasibility and dependencies, acceptance criteria and verification, and material risks or failure behavior. Focus on gaps that could make implementation or verification diverge.
 
+For consequential solution choices, evaluate the selection evidence as well as the selected design's safety and implementability. Check whether credible existing capabilities or narrower adaptations were considered, whether decisive exclusions are supported, and whether assumed constraints have authority. A material gap warrants a finding and routing to the design owner, using `solution-design` when available; it does not authorize the reviewer to select a replacement. Do not require a separate design artifact or reopen supported choices merely to complete a checklist.
+
 Treat decision-bearing assertions as claims to evaluate, seeking supporting and disconfirming evidence without presuming bad faith. Do not resolve material ambiguity by inventing authority; report competing interpretations and consequences, withhold readiness, and route the unresolved decision through the controlling workflow.
 
 ## Audit dependencies before readiness

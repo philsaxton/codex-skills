@@ -19,6 +19,8 @@ Choose the least elaborate workflow that satisfies the request and its real risk
 
 When classification is uncertain, identify the uncertainty and choose a workflow that preserves the ability to stop or tighten controls later.
 
+Route unresolved consequential solution choices to `solution-design` when available before a plan or contract commits to them. It also supports assessment of an existing plan and consultation during implementation. If the skill is unavailable, assign the design responsibility explicitly rather than assuming the proposed approach is established. Reuse adequate existing evidence and keep routine implementation details in the current workflow.
+
 ## Preflight the workspace
 
 Before assigning work, directly inspect the current controlling instructions and the artifacts, dependencies, blockers, and workspace state relevant to the request. Handoffs and summaries may locate sources but do not replace required direct reading.
@@ -32,6 +34,8 @@ Treat prerequisite failures as hard stops on their first occurrence. Do not cros
 ## Assign roles and ownership
 
 Define each role's deliverable, authority, allowed scope, required inputs, and continuation condition before dispatch. Give every artifact and decision one clear owner.
+
+For implementation assignments, include a return path for design consultation when a chosen approach proves infeasible, a key assumption fails, a local adaptation grows into substantial custom infrastructure, or a newly discovered tool could substantially simplify the feature or application through a different architecture. Route material opportunities promptly even when implementation is progressing successfully. Carry the current requirements and evidence into the reassessment; past effort alone does not settle whether to continue. Preserve required review and acceptance for semantic changes while allowing authorized local repairs and unaffected work to continue.
 
 Keep coordination distinct from delegated specialist roles. Where separation is relied upon, remain outside every specialist role whose independence matters. Do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer. Perform administrative tracking or mechanical transitions only when explicitly authorized, and do not introduce governed semantic judgment while doing so.
 
