@@ -27,6 +27,8 @@ Before assigning work, directly inspect the current controlling instructions and
 
 Inventory pre-existing and concurrent work before editing. Preserve changes outside the assignment and record any overlap that affects isolation or ownership. When version control is available, confirm the active branch or worktree and its current state before relying on it.
 
+Where repository instructions designate a checkout for the integration branch, record that branch-to-worktree mapping when assigning isolated work. Put new feature work in branch-specific worktrees when possible. If active feature work already occupies the designated checkout, preserve it and defer integration until that checkout is available. Do not switch a feature worktree to the integration branch just to merge.
+
 Use isolation in proportion to risk. Separate contexts or workspaces when independent reasoning must be demonstrated, concurrent edits may collide, or one role must not inherit another's conclusions. Parallelize only work with independent inputs and non-overlapping outputs; serialize shared files, contracts, interfaces, migrations, or unresolved dependencies.
 
 Treat prerequisite failures as hard stops on their first occurrence. Do not cross a gate when a mandatory source is inaccessible, required independence is unavailable, safe workspace preservation cannot be established, controlling approval is absent or stale, or required evidence cannot be established safely.
@@ -75,3 +77,5 @@ Do not infer approval or treat implementation alone as completion. Where indepen
 When an authorized transition is defined as atomic, apply all of it or none of it; never partially apply it. After application, verify that the resulting state matches the authorization.
 
 Declare completion, merge, publish, deploy, or perform another consequential transition only when the applicable authority and evidence support that exact action. Report the outcome, remaining risks or blockers, preservation result, and who owns any next step.
+
+Before closing work that used linked worktrees, recheck any designated integration checkout. If the mapping has drifted, restore it only after checking affected worktrees for changes and tasks that still rely on their current branches. Otherwise leave the work intact and report the exact branch and path that need reconciliation.

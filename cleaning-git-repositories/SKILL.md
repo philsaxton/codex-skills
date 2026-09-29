@@ -13,6 +13,8 @@ AGENTS.md remains authoritative. Read the repository's controlling instructions 
 
 Identify the integration branch and protected branches from reliable repository configuration or explicit user direction. Stop and ask when multiple integration branches or authoritative remotes remain plausible.
 
+Record the primary worktree and any checkout designated by repository instructions for the integration branch. Flag a branch-to-worktree mismatch even when no worktree or branch is eligible for deletion; placement alone is never deletion proof.
+
 Fetch and prune remote-tracking metadata only when the request and environment permit network access. If freshness cannot be established, disclose that limitation and do not draw remote-dependent conclusions from stale refs.
 
 Resolve this skill's own directory, then create a read-only plan:
@@ -47,6 +49,10 @@ Repeat `--protect <protected-branch>` exactly as for `plan`. Supply the reposito
 The helper revalidates repository identity, integration commit, protected branches, the complete action set, branch tips, and worktree state. It removes worktrees before branches, uses `git branch -d`, and never force-deletes or mutates a remote.
 
 If repository state changes, stop acting on the stale plan. Report completed actions before generating a fresh plan for what remains.
+
+## Restore checkout placement
+
+When cleanup includes restoring a repository's declared checkout layout, handle it separately from branch or worktree deletion. Inspect both affected worktrees for changes, locks, active writers, and tasks that rely on their current branches. An active feature task in the designated checkout is a reason to defer restoration, even if Git reports a clean working tree. If neither checkout is in use and both can switch safely, release the integration branch from the linked worktree, then switch the designated checkout to that branch and verify the resulting mapping. Preserve all branch refs and uncommitted work. Do not auto-stash, reset, force a checkout, or remove a host-managed worktree to make restoration possible. If either checkout is in use or cannot switch safely, leave it in place and report the exact paths, branches, and blocker. Regenerate any cleanup plan after a branch switch.
 
 ## Route uncertain items to the human
 
