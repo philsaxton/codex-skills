@@ -1,0 +1,85 @@
+{
+  "applications": [
+    {
+      "bundle": {
+        "path": "evidence/source.json",
+        "sha256": "8418a13a4ed8dc4e23d7cdb378ab9c900ce513c690d1d7433f46ff55fac980ef"
+      },
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "id": "sample",
+      "path": "apps/sample",
+      "ref": "refs/heads/reviewed-work",
+      "repository": "example/synthetic",
+      "tree": "d66c9ff10f50caf70560e01e6596b9fe05a83848"
+    }
+  ],
+  "development": {
+    "files": [],
+    "git": [],
+    "inputs": [],
+    "report_parents": [],
+    "skills": [
+      "review-skill"
+    ],
+    "tools": [
+      "python"
+    ]
+  },
+  "governance": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "2c2bf4d8963446cb9335d0cca8f2bf942013158064d503fb96433761a7d5a821"
+    }
+  ],
+  "groups": [
+    {
+      "id": "build",
+      "optional": false,
+      "recipe": "build",
+      "requires": {
+        "files": [],
+        "git": [],
+        "inputs": [],
+        "report_parents": [],
+        "skills": [],
+        "tools": []
+      }
+    }
+  ],
+  "id": "scope-like",
+  "inputs": [],
+  "private_manifest": null,
+  "recipes": [
+    {
+      "commands": [
+        "python3 -m unittest"
+      ],
+      "id": "build",
+      "path": "recipe.md",
+      "sha256": "4db9dafcab9d288fcd2276dcf67671ab9df62c35d9c7b83e6f860a300c0bca7c"
+    }
+  ],
+  "skills": [
+    {
+      "id": "review-skill",
+      "resources": [
+        {
+          "path": "SKILL.md",
+          "sha256": "958265046a4d0fd0ed74e2c3f60b081ff828b64c633c36ccd300409164b23c5e"
+        },
+        {
+          "path": "references/review.md",
+          "sha256": "7d9be75d4b10c523c756de4158e9c1bf80b54a83447053aa5ccd137223d13573"
+        }
+      ],
+      "sha256": "958265046a4d0fd0ed74e2c3f60b081ff828b64c633c36ccd300409164b23c5e"
+    }
+  ],
+  "tools": [
+    {
+      "id": "python",
+      "version": "3.12.0"
+    }
+  ],
+  "version": 1
+}

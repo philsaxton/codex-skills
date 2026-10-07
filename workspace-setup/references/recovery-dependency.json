@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "release": "garage-rebuild-20261006-reviewed+20261007-entry-budget",
+  "modules": {
+    "garage_rebuild.py": "8c0914a2830900989e090c9e904196167a1abd73d8cff3ac47013376a5daf0ef",
+    "garage_workspace.py": "a25aa51f3cb986a2736bd9a833db0f396a3d72d3c41ed2cba55ada4c731c6fc8"
+  }
+}

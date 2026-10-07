@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cloud workspace readiness v1",
+  "description": "Default root is profile. Host input uses #/$defs/host and private input uses #/$defs/privateManifest. The helper additionally enforces cross-references, identifier uniqueness, containment, exact hashes and freshness; see cloud.md.",
+  "$ref": "#/$defs/profile",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "oid": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\u0000]*$"},
+    "path": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)(?!.*[\\\\\u0000-\u001f\u007f])(?!.*[/]$).+$"},
+    "time": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"},
+    "ids": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "file": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "files": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/file"}},
+    "git": {
+      "type": "object", "additionalProperties": false, "required": ["app", "head", "commits", "complete_history"],
+      "properties": {
+        "app": {"$ref": "#/$defs/id"}, "head": {"type": "boolean"}, "complete_history": {"type": "boolean"},
+        "commits": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/oid"}}
+      }
+    },
+    "requirements": {
+      "type": "object", "additionalProperties": false,
+      "required": ["skills", "tools", "inputs", "git", "files", "report_parents"],
+      "properties": {
+        "skills": {"$ref": "#/$defs/ids"}, "tools": {"$ref": "#/$defs/ids"}, "inputs": {"$ref": "#/$defs/ids"},
+        "git": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/git"}},
+        "files": {"$ref": "#/$defs/files"},
+        "report_parents": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    },
+    "application": {
+      "type": "object", "additionalProperties": false, "required": ["id", "path", "repository", "ref", "commit", "tree", "bundle"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/path"},
+        "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+        "ref": {"type": "string", "pattern": "^refs/(heads/[A-Za-z0-9_./-]+|pull/[1-9][0-9]*/head)$"},
+        "commit": {"$ref": "#/$defs/oid"}, "tree": {"$ref": "#/$defs/oid"}, "bundle": {"$ref": "#/$defs/file"}
+      }
+    },
+    "skill": {
+      "type": "object", "additionalProperties": false, "required": ["id", "sha256", "resources"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "sha256": {"$ref": "#/$defs/sha256"}, "resources": {"$ref": "#/$defs/files"}}
+    },
+    "tool": {
+      "type": "object", "additionalProperties": false, "required": ["id", "version"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/text"}}
+    },
+    "recipe": {
+      "type": "object", "additionalProperties": false, "required": ["id", "path", "sha256", "commands"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"},
+        "commands": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/text"}}
+      }
+    },
+    "privateReference": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "sha256_file"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"}, "sha256_file": {"$ref": "#/$defs/path"}}
+    },
+    "group": {
+      "type": "object", "additionalProperties": false, "required": ["id", "optional", "recipe", "requires"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "optional": {"type": "boolean"}, "recipe": {"$ref": "#/$defs/id"},
+        "requires": {"$ref": "#/$defs/requirements"}
+      }
+    },
+    "profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["version", "id", "governance", "applications", "skills", "tools", "inputs", "private_manifest", "recipes", "development", "groups"],
+      "properties": {
+        "version": {"type": "integer", "const": 1}, "id": {"$ref": "#/$defs/id"},
+        "governance": {"$ref": "#/$defs/files", "minItems": 1},
+        "applications": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/application"}},
+        "skills": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/skill"}},
+        "tools": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/tool"}}, "inputs": {"$ref": "#/$defs/ids"},
+        "private_manifest": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/privateReference"}]},
+        "recipes": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/recipe"}},
+        "development": {"$ref": "#/$defs/requirements"},
+        "groups": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/group"}}
+      }
+    },
+    "observedResource": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "readable"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"}, "readable": {"type": "boolean"}}
+    },
+    "observedSkill": {
+      "type": "object", "additionalProperties": false, "required": ["id", "registered", "sha256", "resources"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "registered": {"type": "boolean"}, "sha256": {"$ref": "#/$defs/sha256"},
+        "resources": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/observedResource"}}
+      }
+    },
+    "observedTool": {
+      "type": "object", "additionalProperties": false, "required": ["id", "version", "available"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/text"}, "available": {"type": "boolean"}}
+    },
+    "host": {
+      "type": "object", "additionalProperties": false,
+      "required": ["version", "profile_sha256", "workspace", "context", "observed_at", "expires_at", "skills", "tools"],
+      "properties": {
+        "version": {"type": "integer", "const": 1}, "profile_sha256": {"$ref": "#/$defs/sha256"},
+        "workspace": {"$ref": "#/$defs/text"}, "context": {"$ref": "#/$defs/id"},
+        "observed_at": {"$ref": "#/$defs/time"}, "expires_at": {"$ref": "#/$defs/time"},
+        "skills": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/observedSkill"}},
+        "tools": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/observedTool"}}
+      }
+    },
+    "privateInput": {
+      "type": "object", "additionalProperties": false, "required": ["id", "path", "sha256", "size"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 0, "maximum": 2147483648}
+      }
+    },
+    "privateManifest": {
+      "type": "object", "additionalProperties": false, "required": ["version", "profile_id", "inputs"],
+      "properties": {
+        "version": {"type": "integer", "const": 1}, "profile_id": {"$ref": "#/$defs/id"},
+        "inputs": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/privateInput"}}
+      }
+    }
+  }
+}
