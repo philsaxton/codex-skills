@@ -18,6 +18,9 @@ VERSION = 2
 BUNDLE_NAME = ".garage-source-bundle.json"
 MAX_BUNDLE_BYTES = 128 * 1024 * 1024
 MAX_BLOB_BYTES = 32 * 1024 * 1024
+# Count path occurrences, including directories and symlinks, across every
+# selected checkpoint in a bundle. Shared Git objects do not share this budget.
+MAX_EXPANDED_ENTRIES = 10_000
 BASE_REPO_KEYS = {"path", "origin", "base_branch", "checkout", "branches", "ignored_exclusions"}
 
 
@@ -277,7 +280,9 @@ def validate_virtual_links(entries):
             resolve(entry["path"])
 
 
-def validate_source_objects(item):
+def validate_source_objects(item, *, entry_limit=MAX_EXPANDED_ENTRIES):
+    core.need(type(entry_limit) is int and 0 <= entry_limit <= MAX_EXPANDED_ENTRIES,
+              "invalid expanded source entry limit")
     core.fields(item, {"repository", "requested_commit", "retrieved_at", "commit", "trees", "blobs"})
     repository_name(item["repository"])
     requested = oid(item["requested_commit"])
@@ -326,6 +331,9 @@ def validate_source_objects(item):
         core.need(tree_id in trees, "missing tree object")
         used_trees.add(tree_id)
         for entry in trees[tree_id]["tree"]:
+            # Refuse before allocating another expanded path, entry or byte-map
+            # key. A small shared-object DAG can otherwise expand exponentially.
+            core.need(len(entries) < entry_limit, "expanded source entry limit exceeded")
             path = prefix + entry["path"]
             mode, child = entry["mode"], entry["sha"]
             if mode == "040000":
@@ -356,11 +364,13 @@ def validate_bundle(bundle, manifest):
     expected = {(r["github_repository"], b["commit"]) for r in manifest["repositories"] for b in r["branches"]}
     expected_refs = {(r["github_repository"], b["remote_ref"]) for r in manifest["repositories"] for b in r["branches"]}
     sources = {}
+    remaining_entries = MAX_EXPANDED_ENTRIES
     for item in bundle["snapshots"]:
         core.need(isinstance(item, dict), "invalid checkpoint entry")
         key = (item.get("repository"), item.get("requested_commit"))
         core.need(key in expected and key not in sources, "checkpoint inventory mismatch")
-        sources[key] = validate_source_objects(item)
+        sources[key] = validate_source_objects(item, entry_limit=remaining_entries)
+        remaining_entries -= len(sources[key]["entries"])
     core.need(set(sources) == expected, "checkpoint inventory missing requested commits")
     refs = {}
     for ref in bundle["references"]:

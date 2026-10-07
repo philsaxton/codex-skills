@@ -520,13 +520,14 @@ runpy.run_path(script, run_name='__main__')
         self.assertEqual(code, 0, report)
         self.assertEqual(before, inventory(moved))
 
-    def test_preserved_recovery_harness_loads_all_original_tests(self):
+    def test_bundled_recovery_harness_loads_original_and_regression_tests(self):
         result = subprocess.run([sys.executable, str(ROOT / "tests/run_recovery_tests.py"), "--list"],
                                 capture_output=True, text=True, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         names = result.stdout.splitlines()
-        self.assertEqual(len(names), 79)
-        self.assertEqual(len(set(names)), 79)
+        self.assertEqual(len(names), 89)
+        self.assertEqual(len(set(names)), 89)
+        self.assertEqual(sum(not name.startswith("test_source_expansion.") for name in names), 79)
 
 
 if __name__ == "__main__":
