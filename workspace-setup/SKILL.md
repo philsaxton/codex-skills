@@ -1,6 +1,6 @@
 ---
 name: workspace-setup
-description: Set up an agent workspace (the garage) around independent application repositories, including local scratch and worktree locations, or reorganize existing work to separate application code, generated artifacts, and agent support. Use for workspace setup and domain separation, not routine feature work or Git branch/worktree cleanup.
+description: Set up an agent workspace (the garage), reorganize existing work, or recover a cloud workspace and check its development prerequisites. Keep application code, artifacts, and agent support separate. Use for workspace setup, not routine feature work, ongoing backups, or Git cleanup.
 ---
 
 # Set up the garage
@@ -13,6 +13,7 @@ Read the request and applicable instructions. Inspect the starting directory, in
 
 - **New workspace or additive setup:** Follow the setup steps below when existing work can remain in place.
 - **Existing content needs separation:** Read [refactoring guidance](references/refactoring.md) before planning or applying moves, index changes, or path rewiring. For governed projects, use that guidance to authorize the governance transition and development pause as one scoped migration amendment. Existing files alone do not authorize a migration. A planning request produces a plan, not a migration.
+- **Cloud setup or recovery:** Read [cloud setup guidance](references/cloud.md) to recover the selected checkpoint and check source, host, input, and test-group prerequisites. Reuse an organized garage; do not run the empty scaffold or restructure it. The helper is read-only and does not run setup or tests.
 - **Already organized:** Verify the relevant boundaries and fill only requested gaps. Do not rebuild a working garage or initiate restructuring during an ordinary application task.
 
 Before creating a new workspace directory, settle its name and location with the user. Reuse an explicitly supplied destination; otherwise ask what to call the workspace and whether any application-directory renaming is desired as part of this setup. “Garage” is a metaphor, not an automatic directory suffix. Preserve existing names unless a rename is requested; do not rename repositories, branches, remotes or product identities merely because a local folder name changes. Record chosen source/destination names in the migration map before copying or creating paths.
