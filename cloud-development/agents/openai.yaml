@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage cloud development"
+  short_description: "Keep cloud work recoverable with verified checkpoints"
+  default_prompt: "Use $cloud-development to checkpoint this cloud work and prepare a recovery handoff."
