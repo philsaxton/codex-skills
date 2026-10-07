@@ -237,6 +237,8 @@ class GarageTests(unittest.TestCase):
 
     def test_case_collision_refused(self):
         (self.source / "scripts/Notes").write_text("one")
+        if (self.source / "scripts/notes").exists():
+            self.skipTest("test filesystem aliases Notes/notes; distinct case names required")
         (self.source / "scripts/notes").write_text("two")
         result = self.export(ok=False)
         self.assertIn("collision", result.stderr)
@@ -305,6 +307,8 @@ class GarageTests(unittest.TestCase):
 
     def test_implicit_ancestor_case_collision_refused(self):
         (self.source / "Foo").mkdir()
+        if (self.source / "foo").exists():
+            self.skipTest("test filesystem aliases Foo/foo; distinct case names required")
         (self.source / "foo").mkdir()
         (self.source / "Foo/bar").write_text("first")
         (self.source / "foo/baz").write_text("second")
