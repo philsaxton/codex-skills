@@ -47,9 +47,9 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
 | Implementer | Available implementation skills suited to the task. |
-| Final reviewer | Available completed-work review skills suited to the deliverable. |
+| Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
-Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; use appropriate completed-work review guidance for final review. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
+Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
 
 ### Select skills and dispatch
 

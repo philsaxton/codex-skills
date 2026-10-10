@@ -62,6 +62,14 @@ Both proposed prompts used the guide and carried selected skills with package-re
 
 This is one assignment-preparation observation covering two cases in the same context. It supports the guide's use in those proposals, not actual worker execution, compact-format behavior, or general reliability. Earlier live trials were not repeated. Skill Creator validation, reference resolution, and whitespace checks passed. The three companion role skills remain unchanged. The exact request, complete response, frozen inputs, hashes, and check receipt are retained under the existing evidence directory's `task-contract-guide/` subdirectory.
 
+## Shipped verifier menu update
+
+After `verifier` became available on application `main` at `d147b1f97ecc4d0376c6429312e0ef8be9aa51db`, the user requested it as a named final-reviewer skill. The menu now names `verifier`, and the shared guidance limits that choice to completed application behavior while retaining other review skills for other deliverables. Pre-implementation review remains with `contract-reviewer`. The verifier's conditional `verification-method-author` handoff stays inside the verifier skill.
+
+Coordinator SHA-256: `d20608fdd08cfb1dcc8dcdfd481fc4c3228b5515c695bd52c2b792d7a1b2e313`. Direct inspection of the shipped verifier and its companion confirmed their scope and ownership boundaries. Skill Creator validation and whitespace checks passed. The selected source revision, skill snapshots, and check receipt are retained under the existing evidence directory's `verifier-menu/` subdirectory. This is a scope and handoff consistency check; no behavioral trial was rerun for the new default. The original fixture catalog intentionally does not supply `verifier`, so its earlier routing outcomes do not test selection of this newly named skill.
+
+The coordinator work remains on its feature branch; the source skills were inspected on `main` without merging branches, copying them into the feature source, or changing installed links. Normal dispatch still resolves each named skill from the available catalog or configured locations and handles availability gaps explicitly.
+
 ## Limits
 
 There was one live trial per coordinator variant and one extension trial. Most boundary coverage is assignment preparation rather than execution of those assignments. Child read lists are self-reports; concrete outcomes and role-specific review behavior corroborate application of the supplied guidance, but the caller did not independently audit every tool call. Fresh conversation contexts share a filesystem and rely on instructed read boundaries. Automatic startup discovery, robustness across models or projects, and real implementation performance remain untested. No installed skills, active links, support pins, merges, or publication were changed by this work.
