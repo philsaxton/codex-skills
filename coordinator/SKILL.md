@@ -37,6 +37,28 @@ Treat prerequisite failures as hard stops on their first occurrence. Do not cros
 
 Define each role's deliverable, authority, allowed scope, required inputs, and continuation condition before dispatch. Give every artifact and decision one clear owner.
 
+### Role menu
+
+A role defines responsibility and authority; skills supply methods. Use this menu as a starting point, refined by project instructions and the actual assignment. Select only roles the work needs. Each role can use several skills, and a skill can support several roles. The menu lists direct role assignments. Keep guidance for invoking other skills in the skill that requires it.
+
+| Role | Skills |
+|---|---|
+| Solution designer | `solution-design` |
+| Contract author | `contract-author` |
+| Contract reviewer | `contract-reviewer` |
+| Implementer | Available implementation skills suited to the task. |
+| Final reviewer | Available completed-work review skills suited to the deliverable. |
+
+Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; use appropriate completed-work review guidance for final review. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
+
+### Select skills and dispatch
+
+Resolve matching skills from the available catalog or explicitly configured locations. Check their descriptions and boundaries, reading selected guidance as needed to settle fit. Treat menu entries as selection guidance, not proof of availability. Do not guess paths or assume a skill is available to a child because the parent used it.
+
+Use the task-contract guide below to carry the selected skills and their reading instructions into the subagent's starting prompt. Do not assume the parent's loaded instructions transfer. Reassess selection when the assignment or evidence changes, preserving fresh contexts where independent judgment is required.
+
+If an optional skill is unavailable, state the gap and assign the responsibility explicitly. Block only affected work when a skill is required by the user or controlling instructions. Skill selection does not expand the role's authority: resolve conflicting guidance through those instructions and route incompatible responsibilities to their owners. Preserve required separation between design, authorship, implementation, review, and approval.
+
 For implementation assignments, include a return path for design consultation when a chosen approach proves infeasible, a key assumption fails, a local adaptation grows into substantial custom infrastructure, or a newly discovered tool could substantially simplify the feature or application through a different architecture. Route material opportunities promptly even when implementation is progressing successfully. Carry the current requirements and evidence into the reassessment; past effort alone does not settle whether to continue. Preserve required review and acceptance for semantic changes while allowing authorized local repairs and unaffected work to continue.
 
 Keep coordination distinct from delegated specialist roles. Where separation is relied upon, remain outside every specialist role whose independence matters. Do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer. Perform administrative tracking or mechanical transitions only when explicitly authorized, and do not introduce governed semantic judgment while doing so.
@@ -51,14 +73,52 @@ If work reveals a materially different requirement, pause that path and route th
 
 ## Make evidence-aware handoffs
 
-A handoff should let the recipient independently establish the current state. Include, as applicable:
+A handoff should let the recipient independently establish the current state. Use a structured task contract for starting prompts and substantive reassignments. Keep it proportional: combine or omit inapplicable fields, use a short task name when no ID exists, and follow a project's required format. This guide does not require a separate document or delegation for work that can stay in the current context.
 
-- the objective, role, scope, ownership boundary, and precise continuation condition;
-- controlling sources that must be read directly;
-- current artifact locations and version identities when stale or mismatched inputs are plausible;
-- workspace and preservation facts, dependencies, and concurrent assignments;
-- relevant checks, results, findings, and evidence locations;
-- unresolved assumptions, risks, blockers, and decisions requiring authority.
+A task contract carries the authorized assignment into a handoff. Ground it in controlling instructions and any accepted specification; preserve the governing workflow's requirements for specification, review, and approval.
+
+```text
+TASK
+Existing ID or short task name.
+
+OWNER / ROLE
+Assigned role, responsible worker, and the result it owns.
+
+OBJECTIVE
+Concrete outcome and why it is needed.
+
+SKILLS
+Each selected skill's name, resolved location, and purpose; conditional triggers
+and availability gaps. Read and apply selected skills before the relevant work.
+
+CONTEXT / INPUTS
+Controlling instructions and authoritative artifacts to read directly, with
+locations and versions when relevant. Include current evidence and open assumptions.
+
+SCOPE / AUTHORITY
+Allowed artifacts, actions, and decisions; workspace and branch when relevant.
+
+DO NOT TOUCH
+Excluded areas, concurrent work to preserve, and decisions owned by others.
+
+DEPENDENCIES
+Required inputs or prior work, their owners and current status, and any gate
+that must be satisfied before dependent work begins.
+
+EXPECTED OUTPUT
+Deliverable, changed files when applicable, observed checks and evidence locations,
+remaining assumptions, open risks, and unresolved findings.
+
+DONE WHEN
+Observable criteria for this assignment and the required supporting evidence.
+Distinguish returning work for review from authority to accept or release it.
+
+RETURN TO COORDINATOR WHEN
+Specific blockers, failed assumptions, scope conflicts, or design questions
+that exceed this worker's authority; identify any unaffected work that can continue.
+```
+
+Make scope limits and completion criteria concrete enough for the worker to act and the next role to verify. Carry existing criteria forward without weakening or inventing requirements. Mark missing authoritative inputs as gaps and preserve their gates.
 
 Distinguish observed evidence from inference and from unverified claims. Preserve adverse findings and their dispositions so later roles can assess the full history.
 
