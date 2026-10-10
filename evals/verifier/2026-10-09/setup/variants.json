@@ -1,0 +1,66 @@
+{
+  "cli": {
+    "good": {},
+    "wrong-total": {
+      "replace": [
+        {
+          "file": "report.py",
+          "old": "total = sum((row[\"amount\"] for row in paid), Decimal(\"0.00\"))",
+          "new": "total = sum((row[\"amount\"] for row in rows), Decimal(\"0.00\"))"
+        }
+      ]
+    }
+  },
+  "http": {
+    "good": {},
+    "discount-regression": {
+      "replace": [
+        {
+          "file": "server.py",
+          "old": "discount = 10 if quantity >= 3 else 0",
+          "new": "discount = 10 if quantity >= 4 else 0"
+        }
+      ]
+    },
+    "route-change": {
+      "replace": [
+        {
+          "file": "api.json",
+          "old": "/v1/quote",
+          "new": "/api/quote"
+        }
+      ]
+    },
+    "route-and-regression": {
+      "replace": [
+        {
+          "file": "api.json",
+          "old": "/v1/quote",
+          "new": "/api/quote"
+        },
+        {
+          "file": "server.py",
+          "old": "discount = 10 if quantity >= 3 else 0",
+          "new": "discount = 10 if quantity >= 4 else 0"
+        }
+      ]
+    },
+    "missing-catalog": {
+      "remove": [
+        "data/catalog.json"
+      ]
+    }
+  },
+  "browser": {
+    "good": {},
+    "persistence-regression": {
+      "replace": [
+        {
+          "file": "app.js",
+          "old": "  saved = { emailReceipts: checkbox.checked };\n  localStorage.setItem(KEY, JSON.stringify(saved));",
+          "new": "  localStorage.setItem(KEY, JSON.stringify(saved));\n  saved = { emailReceipts: checkbox.checked };"
+        }
+      ]
+    }
+  }
+}

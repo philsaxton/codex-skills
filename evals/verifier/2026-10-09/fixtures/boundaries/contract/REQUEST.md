@@ -1,0 +1,1 @@
+Review CONTRACT.md for unclear or conflicting requirements before implementation. Return the issues that would prevent a clear acceptance decision. Do not implement, run an application, or change the contract.

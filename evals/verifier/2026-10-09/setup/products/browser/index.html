@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Receipt preferences</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">SHOP SETTINGS</p>
+    <h1>Receipt preferences</h1>
+    <p>Choose how you receive receipts for your purchases.</p>
+    <label class="option"><input id="email-receipts" type="checkbox"> Email receipts</label>
+    <div class="actions">
+      <button id="save" type="button">Save</button>
+      <button id="cancel" type="button">Cancel</button>
+      <button id="defaults" type="button">Restore defaults</button>
+    </div>
+    <section aria-label="Saved preference">
+      <h2>Saved preference</h2>
+      <p id="preview">Email receipts: Off</p>
+    </section>
+    <p id="status" role="status" aria-live="polite"></p>
+  </main>
+</body>
+</html>

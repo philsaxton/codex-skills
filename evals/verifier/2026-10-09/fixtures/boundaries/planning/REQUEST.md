@@ -1,0 +1,1 @@
+Planning only: outline two approaches to adding CSV export to a small notes application. Discuss the main tradeoffs and what we need to decide next. Do not implement, run an application, or edit files.
