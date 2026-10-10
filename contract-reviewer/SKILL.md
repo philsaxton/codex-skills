@@ -21,6 +21,14 @@ For consequential solution choices, evaluate the selection evidence as well as t
 
 Treat decision-bearing assertions as claims to evaluate, seeking supporting and disconfirming evidence without presuming bad faith. Do not resolve material ambiguity by inventing authority; report competing interpretations and consequences, withhold readiness, and route the unresolved decision through the controlling workflow.
 
+## Investigate verification feasibility
+
+Inspect existing tests, scripts, and documented procedures first. Use available CLI tools and focused checks within the assignment's permissions to determine whether proposed criteria can be observed. Reuse adequate coverage.
+
+When a demonstrated gap requires a reusable verification script, fixture, or manual procedure, use `verification-method-author` when available. Supply the criteria and their proposed or inferred status, the gap, relevant application state, existing methods, and allowed edit scope. Apply it in the reviewer context when permitted; route any separate assignment through the caller. Limit changes to authorized verification artifacts. A read-only review permits investigation and a method proposal, not file edits. Method work does not authorize contract changes, product implementation, installation, or external actions.
+
+Assess the method and its validation evidence before relying on it for the readiness judgment. Distinguish method validation from evidence that an implementation satisfies the contract. Identify unrun procedures and unavailable controls as drafts or validation gaps; a future implementation's absence does not by itself make the contract unready. Preserve unresolved requirement choices for their owner. If the supporting skill is unavailable, continue supported investigation and report the remaining method work and its effect on readiness.
+
 ## Audit dependencies before readiness
 
 Audit every proposed work item before judging topology or readiness, including items with no stated edge; continue the audit despite other findings, recording unavailable evidence or unresolved prerequisites rather than inventing them.
