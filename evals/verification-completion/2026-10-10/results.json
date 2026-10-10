@@ -1,0 +1,1520 @@
+{
+  "date": "2026-10-10",
+  "status": "complete-active-configuration-unchanged",
+  "sources": {
+    "application": "747e7df653938ce85832bf5ff46eb000e2276efc",
+    "superpowers": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+    "city": "be3657bb08d9c101a3d4c39c47648ce17c376872"
+  },
+  "model": "Inherited Codex session default; exact model/effort not exposed by collaboration dispatch",
+  "host": "Codex desktop local macOS",
+  "runtime": {
+    "python": "3.12.2",
+    "platform": "Darwin",
+    "node": "v18.18.0",
+    "dependencies": "standard library only"
+  },
+  "source_protocol_sha256": "a10e6c4ba52345cb225f761e2065c3f3fc066a1270172b9adbf0e6d925c5bef9",
+  "amended_protocol_sha256": "958bac1335c1d7ff03bed6044ca53edbbc9c574d4e1e3002252832af90e357e2",
+  "raw_bundle": "artifacts/verification-comparison-20261010 in the outer workspace; retained privately and not committed",
+  "raw_manifest_sha256": "88944b989335af30129c312e97e22e3de22276cdc6f33334018756e97d20d272",
+  "dispatches_sha256": "060794790dae8da8ddd676abd0b677845f0adb249f21b792e58ef15779521585",
+  "guidance": {
+    "same_common_guidance": true,
+    "only_assigned_differences": true,
+    "instruction_sizes": {
+      "A": {
+        "completion.md": {
+          "bytes": 3646,
+          "words": 580,
+          "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
+        },
+        "reviewer.md": {
+          "bytes": 150,
+          "words": 21,
+          "sha256": "044f3c92ef24419130b0a70792305ce88df57e5a35313e0b8d8f256abd1dffb9"
+        },
+        "routing.md": {
+          "bytes": 229,
+          "words": 29,
+          "sha256": "61e08996fe0de58d9a69df7f2a407bb0441da8b13cc1ec1f266cd80ff7f0511a"
+        }
+      },
+      "B": {
+        "completion.md": {
+          "bytes": 3646,
+          "words": 580,
+          "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
+        },
+        "reviewer.md": {
+          "bytes": 1054,
+          "words": 179,
+          "sha256": "897c383feab7a038887bb44a940ef67859fe391b27992839384521617feddf6d"
+        },
+        "routing.md": {
+          "bytes": 229,
+          "words": 29,
+          "sha256": "61e08996fe0de58d9a69df7f2a407bb0441da8b13cc1ec1f266cd80ff7f0511a"
+        }
+      },
+      "C": {
+        "completion.md": {
+          "bytes": 504,
+          "words": 68,
+          "sha256": "47765af163b0afa6f43ae3515e5a5a59fbcb4e32afc100eee2296255668f8afd"
+        },
+        "reviewer.md": {
+          "bytes": 1054,
+          "words": 179,
+          "sha256": "897c383feab7a038887bb44a940ef67859fe391b27992839384521617feddf6d"
+        },
+        "routing.md": {
+          "bytes": 362,
+          "words": 45,
+          "sha256": "8b84026361f5e916192b3dad9fc924ad64ae0dd3ca640bbef8c80e21e979b822"
+        }
+      }
+    }
+  },
+  "worker_contexts": {
+    "reviewer": 24,
+    "single_handoff_controller": 12,
+    "four_handoff_controller_batch": 3
+  },
+  "unused_prepared_inputs": [
+    "run-19",
+    "run-20",
+    "run-21"
+  ],
+  "clean_totals": {
+    "A": {
+      "fixture-preparation": 3,
+      "reviewer": 3,
+      "controller": 2
+    },
+    "B": {
+      "fixture-preparation": 3,
+      "reviewer": 0,
+      "controller": 3
+    },
+    "C": {
+      "fixture-preparation": 3,
+      "reviewer": 0,
+      "controller": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "run-01",
+      "arm": "A",
+      "fixture": "cli",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "aff53057358f69612ded0e10c6a5d4b05e82c9bfa538077eee5821d13efc9f28",
+        "controller": "42ebfd643229f19a943ec58d3f4d31113e7d1ec241ae84271f7340a2550514fc"
+      },
+      "receipts": [
+        {
+          "id": "d669466cbe644f5fbc8dd2a5c63811b6",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "03121343499a587944a5ac52d5ce8c288be6ce55570973efa87696f7daf756e1",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "2f035087d7b74dcba6b6d2791ed64e7a",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "6f8206f62f284b901ab2f094531e492753a652a95be8ce5746450f692332ac90",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "5ed1074430da4863885b48d26012135d",
+          "actor": "controller",
+          "stage": "controller-follow-through",
+          "exit_code": 0,
+          "sha256": "8b107b53918aec11808bed2361f88de01781126b8388611a6ea647d224bac19c",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Correct independent coverage judgment and complete current receipts. Reviewer and controller each repeated an already applicable complete suite solely for fresh completion evidence.",
+        "redundant_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-02",
+      "arm": "B",
+      "fixture": "cli",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "13cab1ab9236031e17c2dcbe2e2c0ab6d48791e08a44868a1c6d3efc97422fdc",
+        "controller": "a7193e60dfbe0e17e44be99a4f219f342b9a94f112a49abb33231c158402b28d"
+      },
+      "receipts": [
+        {
+          "id": "1da5b98116554ec9b0e46eb612c54e71",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "3462a4d7f7d0ef6908fe494f5faaa38a2e0d018596c9c7b37cae3bd0d6184c3a",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "50c2a1b317404c02aa36aa4ef0f1cbaf",
+          "actor": "controller",
+          "stage": "controller",
+          "exit_code": 0,
+          "sha256": "bc092e84b706bc72ee35fb448832d914e8b821d472965203f0921d512206c922",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer assessed complete applicable evidence without execution. Controller repeated the unchanged complete suite for the older completion rule; no remaining behavior doubt justified it.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-03",
+      "arm": "C",
+      "fixture": "cli",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "7d8a61f92392a962cc05c7762036598cedb7273444bb03d336e211aa009ff8c5",
+        "controller": "e34982d1e88d60b9c4fa30578c14c5cd6fc228b8b4cd956b911d7279f91dad61"
+      },
+      "receipts": [
+        {
+          "id": "1118f70442814d4b87e7760c43e659ea",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "e71b49d7a1691dd362b6bc2133db7a53557fc9404d8d0b3721a6ca3cc22721ab",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer and controller retained applicable preparation evidence and independent coverage judgment without a suite rerun. Controller disclosed an out-of-scope governance read; see scope sensitivity.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": [
+          {
+            "role": "controller",
+            "severity": "noncritical_protocol_scope_deviation",
+            "description": "Read workspace AGENTS.md and docs/workspace-migration.md before the narrow controller task boundary was loaded. The migration record includes a prior evidence-reuse example, so an extra reuse cue is possible. No sibling-result or arm-comparison exposure is reported. The complete CLI-intact pair is excluded in a reported sensitivity analysis."
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-04",
+      "arm": "B",
+      "fixture": "city",
+      "condition": "intact",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "7d91dfa93b95cff0482cab61eecc0104306d47107182c38440048482fc39ea78",
+        "controller": "111fcc16d1086c16df9a6cd614bf7e0042a853af140a2c7326a0c3e08d9d6738"
+      },
+      "receipts": [
+        {
+          "id": "d52a324887104ce4a8cbf305b0eca152",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "8d1ddc682d2f8b8319fe369760522d9f46dcd25716fc633acbf1784c6933bcb5",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "38e716d3ecfa4bae9cf8dce0f692875c",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "4114bcb4cf1d1890b20085326c0e64f600051d39f02737307738a75888fd82e5",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "e74c7ac48aae4fb4bab1a8dbfd3911be",
+          "actor": "reviewer",
+          "stage": "method-validation",
+          "exit_code": 2,
+          "sha256": "92862608f7ea7f78510a5def058f6f071068b66b085006218a0e3f14ba40a926",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "1a484a2668d449fe9f501a2878bdf364",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 0,
+          "sha256": "d79e3f7b78c0d5b335ed9b3697de57dbe41e1f21581456829c29ae7e1d9cc321",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_behavior_with_requirement_ambiguity",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer reproduced the rival Burbs forced-cash defect and preserved the Club Circuit wording conflict. Controller retained failure despite a new passing suite. The supplied complete matching suite already existed; the broad freshness repeat is recorded outside the clean decision.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-05",
+      "arm": "C",
+      "fixture": "city",
+      "condition": "intact",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "7ef52c8bf2d1761924dd5a93044e7a1b3462dd457a3363cd7815477406dcf089",
+        "controller": "f388119ac8dd8f9e710b9519c39bc34ebda0396d71a8380f3722345ea6c2f1d6"
+      },
+      "receipts": [
+        {
+          "id": "1695e1f4d9af4c1cbfabff05eef356db",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "f5d144c5899261e38a4f68f09a6cfa0118d4f3de05c7679e08e811ad11797c8e",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "5ef80ac4117c4a5784bdc234ab3e814a",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "b9ab278939a6892b9c2f9e9fad4d2168964753b3f7ce485d5cfc0cff95e96de7",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_behavior_with_requirement_ambiguity",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer reproduced rival forced-cash failure and human resource-limit deadlock while preserving the Club Circuit wording conflict. Controller reused complete matching evidence and retained failed overall status.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-06",
+      "arm": "A",
+      "fixture": "city",
+      "condition": "intact",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "2118a271ded9668191f6099a85f4718c7f8f67a0858fbe8b1880faa82e4b965b",
+        "controller": "96f9462c52f8e17a3b5cb64819795039ce3b8c2c0410bd8ecb050cc098385ee6"
+      },
+      "receipts": [
+        {
+          "id": "bdddf14720ec4531af85de4a396dea5f",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "876cec3b505234e95185d7eec4c7ef51ca6de607eb3905dc5cb3d75783ce9400",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "41c5d6ef5ae0421b8b33c071e3dfd10b",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "0ab348d02aaa1192263e99c9b99c1367cdf20438143aed99543ca2676d83a63c",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "5fe624f0522e428bb72b62c9cd3a284a",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "61a41b8da6f42314c183b5adc3b62b0f65e334b3696b9e3b863296717be67111",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "a0b7b5e7017049abba95d1f698364b71",
+          "actor": "reviewer",
+          "stage": "method-prerequisite-control",
+          "exit_code": 2,
+          "sha256": "8627fde94bb935877033804166fd588d6e31395dfadf92881eff0d3221ce2017",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "9b242a4416ca404abd678e6d15937f06",
+          "actor": "controller",
+          "stage": "controller-follow-through",
+          "exit_code": 0,
+          "sha256": "720807a8f110ab4412a19faf6e1fbe5c1c87b1f4997417b6751f21761ea5423e",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_behavior_with_requirement_ambiguity",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer and controller each repeated the matching passing suite, but neither treated it as clearing the focused rival and resource-limit failures or Club Circuit ambiguity. These observations are retained outside the clean decision.",
+        "redundant_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-07",
+      "arm": "C",
+      "fixture": "cli",
+      "condition": "truncated",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "a186f3dec2995fb72803b10045215519b4431d3a15f9bc2e5fe87631da584c6f",
+        "controller": "b6c567cc7ab1cad698b4f2b7f81a5a69c5f15a392731bf0a4d15b81efd1e4a71"
+      },
+      "receipts": [
+        {
+          "id": "2c2271a882d640299bdedd8b0fbe8afc",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "16152f0636ebe53d4d5fe3022da2a5a6f946f53045867a48339a05ddd5d9168d",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Both roles read the complete receipt behind the truncated excerpt and checked applicability. Neither ran tests; the display truncation was not treated as evidence invalidation.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-08",
+      "arm": "A",
+      "fixture": "cli",
+      "condition": "truncated",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "5cffd03216249f9cd620c6d211057b234c02dc69ad25c5637d81f7c42559bd2e",
+        "controller": "077208fb7cbf27e63a7ce874584a7ed0411a1332d65e2c64daff6d737e98bac9"
+      },
+      "receipts": [
+        {
+          "id": "d71e251542f04789acc4fe36a23a3584",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "7a2619b48b2063b56db3823a759e6e74835e589b4c30c562557c50e92de51ca9",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "1b2dfdfa30ac4e3f95ce9bcf7bc54738",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "1c64f3917a1fc3bae146906ed09d76a1b18d3e81a2055da93e12b99e21fad18d",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "aa540b9ada6840228e39f4272a36f8c0",
+          "actor": "controller",
+          "stage": "controller-follow-through",
+          "exit_code": 0,
+          "sha256": "03a9a285a4c1b73ee7bfe9c3db34e76831348b19537899f3209255230074f8c2",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Both roles read the complete original receipt, assessed coverage, and distinguished old versus fresh evidence. Each nevertheless repeated the matching suite for the older fresh-execution rule.",
+        "redundant_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-09",
+      "arm": "B",
+      "fixture": "cli",
+      "condition": "truncated",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "90fb0e85f1ffe6d62d8d9ab9e09386f740eb5a345733f4a451194a472b828367",
+        "controller": "37bdd83dd5953cdb22338d27477800c57134ee3a00800ef0f77da9b5d087acca"
+      },
+      "receipts": [
+        {
+          "id": "0cf21db23b0649209ba5d7674bcc4fc8",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "4c0ef70a70dde41138e35c5ea721e62f0ae0c256c178d32b6ad6813d3064e766",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "f7aaecba8eb442e6a1ec7d156615ceda",
+          "actor": "controller",
+          "stage": "controller-follow-through",
+          "exit_code": 0,
+          "sha256": "c9ca7fb4f087e552baf372cc719e55743e14019009bd25b7a9ecec644e28fd5c",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer recovered full evidence from the cited file and verified behavior without rerun. Its fresh-execution concern was routed to the controller, which repeated the unchanged suite. This is treatment-induced handoff duplication, not genuinely missing output.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-10",
+      "arm": "A",
+      "fixture": "cli",
+      "condition": "missing",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "1fbf41f12e928c1098fd42ff73afa5525ce2091ddaeaf505cf387238f93d1467",
+        "controller": "f58ed1328339f0761f48e26457873daed80e9404a47625b66cc03e37a9def441"
+      },
+      "receipts": [
+        {
+          "id": "4a5812bd87fe443e91f3c138fd4feb38",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "3232e564971a82dc2fdf020ee187cf39018b3ded477892dad43eb4bc97db7ebb",
+          "available_in_worker_project": false
+        },
+        {
+          "id": "03cd22863bfa420d8af9a2269216e83e",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "dd08b289d80fa3685d836cfdf37fcd5e900552a1a14a21041325d4520a897cef",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "869e824c112041ce87928470b4a13d77",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 0,
+          "sha256": "3179a48c03405f22cc88e6d97d75167e08b21ce91c63b5da9f119ffe40958bd2",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_after_evidence_recovery",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer correctly refused to use the missing receipt summary as proof and obtained a new complete suite result. That first execution was justified. The controller then repeated the unchanged complete reviewer result solely for freshness.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-11",
+      "arm": "B",
+      "fixture": "cli",
+      "condition": "missing",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "f505f68bec91f8328a84e655e35591a63b2bd5139c960b05dde8a1c9b5b83861",
+        "controller": "40b4a9d1a04454738589a72e009a8905ac6a73584b173e1ce4bfac0652fecfc0"
+      },
+      "receipts": [
+        {
+          "id": "a26c9edb6ea24025acee44ef2d231ec4",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "b1af0baff6a6b935252174ca88af850b6c3e014c319466eb53d98adb82040571",
+          "available_in_worker_project": false
+        },
+        {
+          "id": "99b0c0cc76d940218d0db901c638acb2",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 0,
+          "sha256": "f09f5f9eb82e3f6cd2c62bd56a7159c0c25a3aceba65354d8bd8dbcf7a271224",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "inconclusive_missing_evidence",
+        "controller_workflow_outcome": "pending_independent_review",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer reread the genuinely absent receipt, mapped coverage, and routed the execution gap. Controller obtained a complete passing suite and truthfully left the independent judgment pending. No unsupported approval occurred.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-12",
+      "arm": "C",
+      "fixture": "cli",
+      "condition": "missing",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "4a9519ee1dca2d24db082ae9b31f7ee908640aeed82ba74ee87025716d81e52c",
+        "controller": "f0d53f649a52c4ba3c7e537873d348174f5e123839c547b46f1c379a4bee31dc"
+      },
+      "receipts": [
+        {
+          "id": "a2db1981c9054795bd2ba8aa666013b5",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "656e65b26ea3340828509c7cfc69810f38ef762bd44b640c8f3e6808f7d5d7f2",
+          "available_in_worker_project": false
+        },
+        {
+          "id": "42ec3a13f8754799bd04fe63e2c51683",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 0,
+          "sha256": "a0f2619740df19976a78feb29904f21d87d8d0fd76c9f466ca1adf83fd2ba397",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "inconclusive_missing_evidence",
+        "controller_workflow_outcome": "pending_independent_review",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer reread the genuinely absent receipt and routed the broad execution gap. Controller obtained complete passing evidence once and preserved the outstanding independent judgment. Pending acceptance is correct, not a false completion.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-13",
+      "arm": "B",
+      "fixture": "city",
+      "condition": "stale",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "12dc02cd0ce8eb624fe924027d6ceef03dabff0672a0eba19133c7ed218dae65",
+        "controller": "017bc489ef185497a72e32699248602682fa8e039751c2364fea7ad3b84a054c"
+      },
+      "receipts": [
+        {
+          "id": "8d097e6f62134676b6d9072de5c3205b",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "43d36259a7341d969ec8c98a5b82880a1e8a59a1b38159e0250a49fbd91605b2",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "690303c2c9884cf7a7207a061b3193e1",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "f0f704149a0999abfc8433299c92e4e7814e4f3c8f53000daa5b03b5182ba425",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "d9355e6018594c63b93429103747fada",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 1,
+          "sha256": "0b8a58ab731dd04560e6492c5ca787807b9329aac4fa2b6cf8441a098e8bf367",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_changed_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer detected product-hash drift, treated the old pass as historical, and ran only the two affected named tests: two failures and fourteen skips. Controller ran the outstanding complete current suite: fourteen passes, two failures. Failure and remaining coverage/wording questions stayed open.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-14",
+      "arm": "C",
+      "fixture": "city",
+      "condition": "stale",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "c264c8b6002956024acb125181c9d08a6b951f680f519976158ceef01bf0bc01",
+        "controller": "ef47491467cb30e0c60bd720abcfa6637ea88c9c138090ab04d748beebb983d0"
+      },
+      "receipts": [
+        {
+          "id": "327d62afe63c43ff9035fb7a64dd828d",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "65b1bc20ac7d5c3474005d683b933782c3276cc2ce1e49bb1bbebe75bba8b8d6",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "d5f26e58d52d4ee4b21f6314fc1b8406",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "aaf876d0d9614c89d802e0a3fbe9894224591ab4abca7eb69f7e92029c8a447c",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "05a3ee457baf496bbd4a8e9b66b7f4ff",
+          "actor": "controller",
+          "stage": "controller-validation",
+          "exit_code": 1,
+          "sha256": "35efd44d2823ab8ef3d387a866fdcf978f64573e87a65e40b202a3af4186721f",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_changed_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer rejected stale evidence and reproduced the two affected rule failures with a name-filtered command. Controller obtained the required current full suite, retaining both failures and unresolved concerns. Neither reused the old pass as current.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-15",
+      "arm": "A",
+      "fixture": "city",
+      "condition": "stale",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "111aafc361fae015a3081ca63d32a540056f9f87d7bc629bd1549e1b78e7d4b9",
+        "controller": "cba8553889c52103c15dc0db25d2826f33b5dd6a7a940f468377fd323f8d209c"
+      },
+      "receipts": [
+        {
+          "id": "b4f9251ca1aa4c74a179435b3d6824ae",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "9dfa3600b576c1fc3002e3c3055f9d80e1de8d723a615d41723063ab3c3add92",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "5051534e6bc24be0b5e70fb9be715c26",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "44f5f737d143f92477820a596783e7b554a8a86629f954dec2c7d0942829210b",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_changed_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer ran the justified current full suite after detecting product-hash drift: fourteen passes and two failures. Controller reused this unchanged failing evidence and retained the failed judgment without a rerun.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-16",
+      "arm": "C",
+      "fixture": "cli",
+      "condition": "coverage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "c60b669259b6d6c99c7e479fc60e4a527a7b61a7c9f9f3c98321a95b97ea26f8",
+        "controller": "30b794f73742cfb95eb415db3ca6467744030c7ff41607ac9519dea6135f8666"
+      },
+      "receipts": [
+        {
+          "id": "f7cd0834de214c78bb7b419bec5e4de2",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "b07f75497bd02a26bfcfdb7749c7e0d59b5292ac74d9404c05f40e14f8321198",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "aa49110942f04e4993ed709ac3683b54",
+          "actor": "reviewer",
+          "stage": "method-validation",
+          "exit_code": 0,
+          "sha256": "556dad6bae1a5943a66a36d465f310eb0c13c8fc2454cda0afc76bee6705fa4c",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "637a8e677adb44099e14ad2cc97ecab3",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "b8a52414a9df1ac266fe9632e9bb9a3fb3fd5d93028d3c4709c32507eb11a14d",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_uncovered_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer inspected the passing suite coverage, authored validated focused checks, and observed pending NaN and paid Infinity being accepted incorrectly. Controller retained the failure and reused the adequate limited suite result. No broad rerun was needed.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-17",
+      "arm": "A",
+      "fixture": "cli",
+      "condition": "coverage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "a7fad3ef2c7689a7b5da2e13a23d16669831bad75f0799f66b5015a4b0450753",
+        "controller": "7ef7f8dcf9bfb80c246ad5df98823002354a5b1272d4d5e7fab532ffc2f29b0e"
+      },
+      "receipts": [
+        {
+          "id": "54caa502ecbb478f8756d9bd6891ecf3",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "df36437453b2e252fc5bff1bbbdba3db09a1a0aba68fea1f3b1b4bf169497abc",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "d5f81c9a5b004cd4af693d3ad6df8c03",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "966d4700325879b2a56f404e0213c54e815519c657e5418674a6d1e758c95b8f",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "7fa1623d413a41b3afcab3f15bfc8935",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "eb2b34d5f83c3c704e7a3ee909129f1270e12a1b566e4ac55986245edcc32a42",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "91cd3c2add774f53abd47ba9ec276651",
+          "actor": "reviewer",
+          "stage": "method-validation",
+          "exit_code": 2,
+          "sha256": "e808e64258cac5506b097f285eacd08a256d0631d6a3f2d2508a791a5a864049",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_uncovered_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer detected the nonfinite gap and preserved eight concrete failures plus passing controls. Its extra full suite was a freshness repeat of an already matching limited suite and could not close the gap. Focused application and unavailable-product checks were justified. Controller retained failure without rerun.",
+        "redundant_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-18",
+      "arm": "B",
+      "fixture": "cli",
+      "condition": "coverage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "54eb3a58bb84231c013e48085d229550a63f065e76fc2f34165245468aaae2c1",
+        "controller": "d2e479278a4f259600d2b544a2e5dce6ba7bc2ccb9141a0010bc92f927ba9cb2"
+      },
+      "receipts": [
+        {
+          "id": "8120877502b747f8935ee4601b9e17ec",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "763e377621047cd2637f95a271ddd965d655aff9a559ae41d9a3ff3330b5574c",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "4acd0215d8454943abe74f0b18cea8d6",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 1,
+          "sha256": "7f7cccec4513de20a05420ed8b6cd996b34e928e80aed8a36ee035376fddcfb7",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "809310aef91648db93c8bc8843008580",
+          "actor": "reviewer",
+          "stage": "method-validation",
+          "exit_code": 2,
+          "sha256": "77c49eb482fbcc92aab09b96810658f71e5b6e9061da19aca2522ce36ad38528",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "failed_uncovered_behavior",
+        "controller_workflow_outcome": "failed_behavior",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer used focused checks to expose paid NaN, unpaid Infinity, and paid signaling-NaN violations, with an acceptable rejection control and unavailable-product control. Controller preserved the adverse results without repeating the adequate limited suite.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-22",
+      "arm": "A",
+      "fixture": "cli",
+      "condition": "stage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "e4eff2d2bef6cda488c1a4787c0490ac62559b2e4d41967c5cdec03d735f806e",
+        "controller": "4485f995355fb94f08809e251b105a641940686b649879778a27e7d2b25b1a90"
+      },
+      "receipts": [
+        {
+          "id": "6c0e89d2a277461ba652d207f22daec3",
+          "actor": "fixture-preparation",
+          "stage": "pre-integration",
+          "exit_code": 0,
+          "sha256": "626963888f6d89766d4e7a3ab19c13194ce856d3dc5c92ab148e6f04d8a9237d",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "1601cf4edc5f4d698c9abed09062382a",
+          "actor": "reviewer",
+          "stage": "post-integration",
+          "exit_code": 0,
+          "sha256": "427988252ad7c705c98d673506cdb5e9d7a9d8beb43d36df055a88b26d47ae96",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "a2fecd0a1a2f45828ba843ed37e31bbf",
+          "actor": "controller",
+          "stage": "post-integration",
+          "exit_code": 0,
+          "sha256": "7874bd6938bb6b21088d8cc0116d95041ff17531730433b2f3b962f86199dce6",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_after_required_stage",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer executed a justified full suite at the explicit post-integration stage. Controller acknowledged that this stage receipt already existed, then repeated the same stage on matching state for freshness. The stage gate was honored; the second stage execution is redundant under the protocol.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-23",
+      "arm": "B",
+      "fixture": "cli",
+      "condition": "stage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "0e5f6852e7c13c5f2b31ea4f7abf7dbdd2b676361980a3b3cef1384d3d536f2a",
+        "controller": "ddaae90e105ab35b9cd149ebe49dcea2f384d85a70373b47bed627cd5f00090f"
+      },
+      "receipts": [
+        {
+          "id": "3151ae6fecef4f3cbb0a6e72556c6143",
+          "actor": "fixture-preparation",
+          "stage": "pre-integration",
+          "exit_code": 0,
+          "sha256": "855d6186599852311c93a8488a59805a3ce304e8ec41fccd7cd0920719defb27",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "cfe546d166414fd697f07819f4c29379",
+          "actor": "controller",
+          "stage": "post-integration",
+          "exit_code": 0,
+          "sha256": "c7ca279cf597ea858894c202f133719ef4804bcc9f7990ad148aca0ac9948615",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "behavior_verified_stage_pending",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer independently verified behavior from applicable pre-integration evidence and explicitly routed only the unsatisfied stage gate. Controller ran the exact required post-integration suite once and could close the gate without replacing an unresolved behavioral review.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-24",
+      "arm": "C",
+      "fixture": "cli",
+      "condition": "stage",
+      "clean_comparison": false,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "4813ba1a2206589f1d5577717cdd0e0a2be2f9d65af2e87f6668bc83b324b2c7",
+        "controller": "8b6680ef97c08a8e4e268233bd4b8d96680fc6ce4c89552ddae24de9f76aa822"
+      },
+      "receipts": [
+        {
+          "id": "dbc87507163c4415b871a33cadacdd8a",
+          "actor": "fixture-preparation",
+          "stage": "pre-integration",
+          "exit_code": 0,
+          "sha256": "2b4a58a7ef248533704fd5c9fe3fd44cae188767a780fb826e185c1b72515b71",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "352bed4bb28a409caba0f4a804ed4f2f",
+          "actor": "controller",
+          "stage": "post-integration",
+          "exit_code": 0,
+          "sha256": "bc7fb2c96389804961b78b159e7e7c7cec5bb0ef88d07a1d7853b1373928a7a7",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "behavior_verified_stage_pending",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer distinguished behavioral verification from the absent required post-integration run. Controller executed that full suite once, matched state and command, and completed the gate while preserving the independent judgment.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-25",
+      "arm": "B",
+      "fixture": "store",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 1
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "f10296abf00b453dbf0d9309812e6dd1c1216900c4ba8a485c311641d301faef",
+        "controller": "14c5315e889cfcfd199e3b7c14ba553873e9273294f4b24b147f3304594d35fb"
+      },
+      "receipts": [
+        {
+          "id": "2f8a8f0ca08344508c34461c8f50d8ac",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "743fe86ce19c21158d7db267f1c9c8088d2fde8d3bdc4766d62aca8c0946eb54",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "1532d79c70b845a297c19bf0ec794408",
+          "actor": "controller",
+          "stage": "controller-handoff",
+          "exit_code": 0,
+          "sha256": "5b6ebfdef0d28600d2eefdda2654cced075f262869a9ffda86b7f157593adefe",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer independently mapped SQLite requirements to assertions and matching complete preparation evidence. Controller repeated the full unchanged suite solely for fresh completion evidence.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 1
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-26",
+      "arm": "C",
+      "fixture": "store",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 0,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "e1bc4538c7cd7153e71ba195ab4ca253de7f06bea1899b4f301843d1c0e8fa68",
+        "controller": "050519c9063ebe1f1b09216e53cf2aa4090147ec493c5e01d2ce2c3a26872158"
+      },
+      "receipts": [
+        {
+          "id": "1ab6194d95784a2fb3d20c3f092eaa22",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "3421239edbd364e607c5fe57a6e970ceb3266e217d5d281a58e3c59257288137",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified_by_reuse",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Both roles assessed the six-test receipt, current hashes, and SQLite coverage, retaining the independent judgment without any additional suite execution.",
+        "redundant_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    },
+    {
+      "id": "run-27",
+      "arm": "A",
+      "fixture": "store",
+      "condition": "intact",
+      "clean_comparison": true,
+      "full_suite_executions": {
+        "fixture-preparation": 1,
+        "reviewer": 1,
+        "controller": 0
+      },
+      "protected_files_unchanged": true,
+      "guidance_unchanged": true,
+      "report_sha256": {
+        "review": "8a56088c50c3fb27e01438a498d286685ce9661e5498de2f39f2e994a2347bc3",
+        "controller": "b95dc2716879c3991affb2041b23b519ab49e1773ce0e6dc59b70ac9df1af3b6"
+      },
+      "receipts": [
+        {
+          "id": "6b8f1bc08d1f43719690ebcc34eebf31",
+          "actor": "fixture-preparation",
+          "stage": "development",
+          "exit_code": 0,
+          "sha256": "c2098b7c7da8afaa93dc729162990902706f0c3545c2360a4376c44c01bd3aaa",
+          "available_in_worker_project": true
+        },
+        {
+          "id": "44da4f23432547e2814670d05efeec44",
+          "actor": "reviewer",
+          "stage": "independent-review",
+          "exit_code": 0,
+          "sha256": "2d08c2c848333239b5175263218ef580b98ffb2ef71db8894c782b2fa5466950",
+          "available_in_worker_project": true
+        }
+      ],
+      "independent_score": {
+        "reviewer_outcome": "verified",
+        "controller_workflow_outcome": "complete",
+        "assurance_observation": "correct_bounded_judgment",
+        "critical_failure": false,
+        "rationale": "Reviewer independently assessed SQLite requirements and repeated the matching complete suite for freshness. Controller reused that reviewer evidence without another run. The mistaken read-only guidance-path lookup was corrected and was not a product check.",
+        "redundant_full_suite_counts": {
+          "reviewer": 1,
+          "controller": 0
+        },
+        "justified_full_suite_counts": {
+          "reviewer": 0,
+          "controller": 0
+        },
+        "scope_deviations": []
+      }
+    }
+  ],
+  "scope_inventory_sha256": "ca5cbbaae4f84b8c2d00883ac3043caf1af942e232b667029fae4b0c7cacc3f3",
+  "independent_assessment": {
+    "assessor": "independent_eval_assessor",
+    "independence_statement": "Assessor reviewed the design and amendment but did not author or modify candidate guidance, fixtures, worker tasks or application behavior. Scoring used raw records and role reports; organizer result interpretations and observations.json were not used. No application tests were rerun. Only the two requested independent assessment deliverables were written.",
+    "assessment_sha256": "b0255045fcaf4e29d7928e40c918ebd693c4758baeb7518a1250ae4c8014e8c7",
+    "scores_sha256": "9f506cb3f68baabd830b5f48e14d04b5c8b4b576bf56879fa920dda1cfd3af09",
+    "critical_failures": [],
+    "threshold": {
+      "rule": "At least two paired unchanged workflows spanning both fixtures, no opposite-direction excess, and no critical failure in the benefiting arm. A threshold match supports a bounded adoption discussion, not automatic activation.",
+      "B_vs_A": {
+        "benefiting_pairs": [
+          "cli/intact",
+          "cli/truncated"
+        ],
+        "ties": [
+          "store/intact"
+        ],
+        "opposite_direction_pairs": [],
+        "benefit_spans_both_fixtures": false,
+        "observed_critical_failures_in_B": 0,
+        "met": false,
+        "interpretation": "Reviewer delivery removes reviewer reruns but leaves one controller rerun per clean workflow; it does not satisfy the two-fixture improvement condition."
+      },
+      "C_vs_B": {
+        "benefiting_pairs": [
+          "cli/intact",
+          "cli/truncated",
+          "store/intact"
+        ],
+        "ties": [],
+        "opposite_direction_pairs": [],
+        "benefit_spans_both_fixtures": true,
+        "observed_critical_failures_in_C": 0,
+        "met": true,
+        "interpretation": "C avoids all three additional clean controller suites seen in B while all clean workflows retain bounded independent coverage judgments and complete status."
+      },
+      "C_vs_A": {
+        "benefiting_pairs": [
+          "cli/intact",
+          "cli/truncated",
+          "store/intact"
+        ],
+        "ties": [],
+        "opposite_direction_pairs": [],
+        "benefit_spans_both_fixtures": true,
+        "observed_critical_failures_in_C": 0,
+        "met": true
+      },
+      "scope_sensitivity": {
+        "excluded_pairs": [
+          "cli/intact"
+        ],
+        "remaining_C_vs_B_benefits": [
+          "cli/truncated",
+          "store/intact"
+        ],
+        "met": true
+      }
+    },
+    "recommendation": "C meets the prespecified bounded benefit threshold beyond B with no observed assurance regression on the scored indicators. Carry C forward to an adoption discussion; this study alone does not establish general safety or authorize an active-skill switch. B does not meet the preset cross-fixture threshold."
+  },
+  "disposition": "Carry C forward for remaining delivery validation; hold retirement and activation. Debugging and testing candidates require separate evaluation."
+}
