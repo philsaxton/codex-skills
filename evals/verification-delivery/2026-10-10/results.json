@@ -1,0 +1,1415 @@
+{
+  "runtime": {
+    "cli_version": "codex-cli 0.160.0",
+    "configured_model": "gpt-6.1-sol",
+    "configured_reasoning_effort": "max",
+    "override": false,
+    "source": "only named nonsecret top-level config keys read locally; per-request model response not exposed in JSONL"
+  },
+  "scoring": "Independent assessment is in assessment.md and results.md; this file records observations only.",
+  "cases": [
+    {
+      "case": "B01",
+      "initial_head": "7b60529a02bfec12cd42506cc977026c8876529b",
+      "cli_runs": [
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 317.2563053749036,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "493552b86f6c4a2a6657c310b8028af27a1585b95c270f081bbc5a8bb0adf40e",
+          "events_sha256": "a62798d91770252cd0fd6f982da6c0ac5556179fe2b2dc844c7c55a5eab2d30d",
+          "final_sha256": "f140c608c8aa1ecbb2353304c27757cbecf75cf62defc5113a548291adc457f2",
+          "completed_item_counts": {
+            "agent_message": 6,
+            "command_execution": 23,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 416139,
+              "cached_input_tokens": 366336,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 12401,
+              "reasoning_output_tokens": 6519
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "reviewer.md": {
+          "sha256": "22a3d7c3ad25b9457544d986de82ff044ce2c0ea8ef83840c4c7d6627a38236a",
+          "words": 1259
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:08.552548+00:00"
+        },
+        {
+          "actor": "reviewer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "tests.test_receipt.ReceiptTests.test_committed_order_receipt",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:31:07.501660+00:00"
+        }
+      ],
+      "receipts": {
+        "2eb55f85161f49b1993a52e9dcbf785b.json": "753e719acad8af8ee2e607a2d5539997660d99760c6b2d8ad91d1175d87266ec",
+        "862ea8e7ded44c6e85dcda737c9013fc.json": "cf3ed3d03ebbdab27a306df3bdf78b7c9db5241098aabb45909f38c1ba2819fe",
+        "e4951e654e824a2d97a02ed3640479e4.json": "7f95e998eeb1469fb0f5df2321f67109047f33694948c0b738635c35a3c8d069",
+        "e5a5dea3826a4ca79a3d02d1d8155b99.json": "c1051cae0f763921e8c2f8afb7edf6010a7156c223410891cf0f02f041b74a6d",
+        "reviewer-archive-receipt.json": "eba09d260266a84e4680aced23aa938e04cd60e3accdfb80d5e8eedb41685277",
+        "reviewer-archive-run.json": "15cae0eb7bb9bf7e73f086566a41f72a3a0dcec03fb950d41d14daece0bbca7e",
+        "reviewer-integrity.json": "9ea7773fc776edb68268871085b87e4691694a2d1633d4ef2f8d1a92ba2c8fab",
+        "reviewer-state.json": "5708273a2d6448cf4bc177e85c47fc603be92800aa48bda5f20be53fd159074b"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "596d297d2f65daee93a5dd8f1fe9fd8c3a5811f065860ca001c835020e5d5a3f"
+    },
+    {
+      "case": "B02",
+      "initial_head": "224d99e16c4c5b4e21d92c886b817d6acce7c5e4",
+      "cli_runs": [
+        {
+          "role": "controller",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 268.5155105830636,
+          "prompt_sha256": "f4191141f16c838cc8aee0304de4bdb341917e8531423b20eb9ae67fc7973361",
+          "task_sha256": "47064d163b70a680bf0feec2f996c63a540ee993baede5fa6cd8729b92e5738a",
+          "events_sha256": "26e506e768ff6aa0eb7f4e2f49ca370255ef9bee6f4922de94194359eee8f8b9",
+          "final_sha256": "c848a34eaaf49f3946e5c66d75826e356ab6a03f84efff1929ece7b01cbd6ec0",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 16,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 400298,
+              "cached_input_tokens": 332928,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 9899,
+              "reasoning_output_tokens": 3675
+            }
+          ]
+        },
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 369.7307284169365,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "493552b86f6c4a2a6657c310b8028af27a1585b95c270f081bbc5a8bb0adf40e",
+          "events_sha256": "7a42159d8678b7173f3c729e4f97f2844a662f16531b30e4dfd6bb71b54757c7",
+          "final_sha256": "c4ecb2f87374ffcf34ae1c411bdbe469f49718e113aa785efb007457c3045ff5",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 25,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 399971,
+              "cached_input_tokens": 352512,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 11814,
+              "reasoning_output_tokens": 5172
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "controller.md": {
+          "sha256": "1f2690c502e884c3360d62642136cd8b5d670c70a84bb1121a4854e5325c40e3",
+          "words": 933
+        },
+        "reviewer.md": {
+          "sha256": "623e37a8b85b978d4f016a1055ff3bb91acd627d7bef56dbeac6f9ee115b11a7",
+          "words": 1180
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:09.764976+00:00"
+        },
+        {
+          "actor": "reviewer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "tests.test_receipt.ReceiptTests.test_committed_order_receipt",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:37:43.330275+00:00"
+        }
+      ],
+      "receipts": {
+        "639fabfcd05b4f30a0dfb88ad63b8a33.json": "e3df1a6191cdcdd1e7c227f3e54e71f093328f25865b58450bf782859a7cb951",
+        "c32e6e3bdde54e42bca256a79f3e269f.json": "596f9e2586c87dfe0d4754f1bf1d08c8a2d627671e5b1dce9c40f2782d7c8143",
+        "controller-preservation.json": "1e227ef23fa62bb7355ad46a9c499eccdaf4528c4bda5a5f2e0a7e970b0205dc",
+        "controller-state.json": "2586ad594da120929d766ee7de1a71bcedeb5bfd1f7d9a58a0c372df5c6243ec",
+        "d24a7ae4e9ad4ea39b5bed9326d1e8a3.json": "afe8190c97614b618d733dcff779662e6c6fd0deed6e31a4a0a9cde5449d3fae",
+        "e1b13412ea804211b180b66c0047a340.json": "19273d097c647e3fdc3eba717a82587593c6c38870106d57a5df9b2b8c060472",
+        "e90fd64ef1d54e489d84c539ceba2cff.json": "0f758be44649eed4b933096b85dcc32ee9c41a0713b7d1eb9eced7157e74dccd",
+        "reviewer-archive.json": "fb0d90bc8fe5dfd8e3151a07b0f1cf646393476f719eb48d67b312813045e2a0",
+        "reviewer-preservation.json": "222b0c43cae4ed7f8344d171a1d853834432ab6b1d25a7ac0eb8dc79066a420f",
+        "reviewer-state.json": "99b53b0a55c5ecfe1ff55e2ff90c6f0e0ed8406da17aed77e7fa50abc9bba402"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "9e0ed95de70a45b274ea3db5a29c91fc7428048b5cb03749e8a4e743e0b60799"
+    },
+    {
+      "case": "B03",
+      "initial_head": "343847a78492e9e011e6e4b973078a577a895a58",
+      "cli_runs": [
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 310.39822495821863,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "493552b86f6c4a2a6657c310b8028af27a1585b95c270f081bbc5a8bb0adf40e",
+          "events_sha256": "30f05a33b5a59e46eb4964a05551e81f83ce47ea9df4f320da03a7a1c6651c2e",
+          "final_sha256": "7113683cf7918983be818fc38544602b2673fb81f14497999760e3e9367db2bd",
+          "completed_item_counts": {
+            "agent_message": 6,
+            "command_execution": 17,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 386924,
+              "cached_input_tokens": 339456,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 12184,
+              "reasoning_output_tokens": 5545
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "reviewer.md": {
+          "sha256": "1e3075bde761d4c805ce2c59420217284f76c1bd7518d92de2bbe7520084c91d",
+          "words": 1291
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:11.006202+00:00"
+        },
+        {
+          "actor": "reviewer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "tests.test_receipt.ReceiptTests.test_committed_order_receipt",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:42:24.735914+00:00"
+        }
+      ],
+      "receipts": {
+        "4c6752e1b9be49c2ae684c2bc0c85e98.json": "afca6fc5a095d9374e0600b2df9041d19ea6e4d97793c5bb11ad73adadfc44fe",
+        "557cfb23d15946549d45dc4acdc96d0f.json": "82b95649e38b1acf47b5dc17df2307e0e81ee9211592f28d4aee8751236d1fdf",
+        "5b8f82c5d79a4f389f1be66212df2082.json": "50a06938501bed41665bed4f9d360a96c710ce205e2efe992ec9aefedf51d01e",
+        "e39f2e7b71094b3299646ba70d1d0315.json": "bc13f38e14283dfb18c9d32e2ec52a7523ed9c39222d47f208b22a2c276a2215",
+        "reviewer-runtime.json": "00903a286cbd915dab7a16ac6a27acffb3414eafc81f4742ab83e644f437fbea"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "80d98665f62777b5aaa7f5d0ead871134e665ad0aeca6395ee560072409df238"
+    },
+    {
+      "case": "B04",
+      "initial_head": "2a8aad2eeee408a971327f79f1b6616301bf369f",
+      "cli_runs": [
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 374.65376862487756,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "493552b86f6c4a2a6657c310b8028af27a1585b95c270f081bbc5a8bb0adf40e",
+          "events_sha256": "80ecd26c7fcf68fa98812f98bae1a630f7f9f57d6c90720d64020c364124bdd4",
+          "final_sha256": "09a3b8aef49df05ee5dd902f32e6d8dbbfd5dc74c769630c937abc5158365c09",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 30,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 414716,
+              "cached_input_tokens": 363264,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 12348,
+              "reasoning_output_tokens": 6550
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "reviewer.md": {
+          "sha256": "88fe9277995d60bcd10942deae11b54e9e908f85984634ec910b128b893c1d92",
+          "words": 1293
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:12.341924+00:00"
+        },
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "tests.test_receipt.ReceiptTests.test_committed_order_receipt",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:16:13.437177+00:00"
+        }
+      ],
+      "receipts": {
+        "1d918112d53f443abba3045ac2656ccf.json": "4f0b7ab571f52ebfeed245132a45118bb19f7c7e3237503a617d8972c4a12fe2",
+        "2042ec9b45e043d59319c0017ba39d2e.json": "394fefa6b3fdf44379024af9d175cc6ee7c39849e938d4e3d519f84f7ee0dd52",
+        "20de4be0631a48b6a8f124ac52b6c8b1.json": "9124b0e2ac4f294ed425a17a3f7d0b4aff55f7a06d68de249b3389bf441ad455",
+        "94a388a0632c469ab7765ddc225820e0.json": "ce6e5b2dcaf34294cd0ded0752bb03cd359460dd595a15a9612be92e1b85c04a",
+        "cb3535a762614e6ebf5a94901524484c.json": "9d9bfd926c12d2f73a267cfb39964246d789494ec52741be3be063aad60b8f5e",
+        "d528b273d5714272b7d813505e8262b3.json": "588b2b1f1ee85fb085696830c1f35340753debbc9e4a4630688593437ef19271",
+        "reviewer-state.json": "35e34b26a46433ea663ff5b921c98bd14b11e3b296b71750ce200ef7ce512cb5"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "62c07f150841bb7f726c4f447187d1745beeecc445daafb05ed24bd5ef18f010"
+    },
+    {
+      "case": "B05",
+      "initial_head": "166b08210af5ee9839b934a57f4a95dbba55b4bf",
+      "cli_runs": [
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 373.8326994997915,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "1cbefa851486b3ba61ff775fe54642df33b4416101b26d7aa5c7f847e6d85325",
+          "events_sha256": "38b2f0121886bcbee910ea57a15ae57225602e30939a4e8d54408eaa747f9fcb",
+          "final_sha256": "8f25ea44c78fb55fce7b91acc8b1e43d134ae9d5656940302fcef35b7e77daaa",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 16,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 312528,
+              "cached_input_tokens": 270208,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 12294,
+              "reasoning_output_tokens": 5841
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "reviewer.md": {
+          "sha256": "14da4ca90cc5d65ff683b36ef9f5a987c3a049eaa775095a31a759738981a0f4",
+          "words": 1067
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:13.955763+00:00"
+        }
+      ],
+      "receipts": {
+        "14e31bb610404099815dc4e494e575c5.json": "289c6521826d7d4fc380a713cdcacb68725fc7a0457148693a404d647adf93b8",
+        "1635112735fe4b31823bfb23d43f80a4.json": "c661cd7c0c3c0e42a8244a0a2aa6290b355fba106b07188755ba3de6bfc77eb6",
+        "3d2dba1a36fb44e48e0043992385cf88.json": "777311ebd07564a98904cd21457fd2cb7d53c35a6ab8622466d4ecafce3e1dab",
+        "7492274d2a1c4939bdb210633e8c350a.json": "8dab6cb6a9ff3595a470d101fe7f23ac3050109c6afbb36fbc97989cdeb9523c",
+        "reviewer-current.json": "aa49fb03eef353a1c3a47ee3b261d9845aeda651e4aa4ee44be9836436b2cf8f"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "20ff6bf412580190aed4b775387db3f25d5e98458639135a7c4d8e48b8a06503"
+    },
+    {
+      "case": "B06",
+      "initial_head": "d6bafe621439b036870e6e88899b7c546448b885",
+      "cli_runs": [
+        {
+          "role": "editor",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 172.14814425003715,
+          "prompt_sha256": "7d8963dd93a8c412588b8f753f0700d7227b419bffed39f84284d6f3ae1d37ed",
+          "task_sha256": "5dc2f85f44170e84660215091cf80024d8e50cd5e91b4af67f855fb72fa84519",
+          "events_sha256": "a286f64972021034394c2d5369ec18faa9c10692e042aad1022ee3f64f38c509",
+          "final_sha256": "56d1b517481abf3f65b08fb18540e450af26c5db6861d443d15054b1c3a3274c",
+          "completed_item_counts": {
+            "agent_message": 3,
+            "command_execution": 12,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 159290,
+              "cached_input_tokens": 148480,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 4081,
+              "reasoning_output_tokens": 2658
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "editor.md": {
+          "sha256": "bcd166350410a59fe148a934c3dfb7be517c3ac17aa5f6144bbbf32927219ef7",
+          "words": 117
+        }
+      },
+      "test_invocations": [],
+      "receipts": {},
+      "guidance_mismatches": []
+    },
+    {
+      "case": "B07",
+      "initial_head": "1a93c08e0465a38b6c3f95014cc75ba6dda31df8",
+      "cli_runs": [
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 247.12906808312982,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "8156b636503e13bf482c47b718fa7888e7b074fad244e1eccc8d45eeaa31702f",
+          "events_sha256": "0a7a0c8f2c61dca397b9d6927575520b0c93eed906e57ebfc47373d59f57981d",
+          "final_sha256": "4e5a9e1fa4f8facb4fdadfdbfb921092de7e750a40977e2ab721dd1dfebe7e88",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 20,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 243574,
+              "cached_input_tokens": 208384,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 9334,
+              "reasoning_output_tokens": 4274
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "reviewer.md": {
+          "sha256": "c626d27f5a6aff63e95a8df99b27ace18131c2aaaeb1d12590ef1d9c15d0c6e9",
+          "words": 1074
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:15.201033+00:00"
+        }
+      ],
+      "receipts": {
+        "7843fd597cf7480db23210b9e34157fc.json": "decb1a8468f5bebf7d7c395d8ed9228bc20107b875685e3e2952b92488eb9ca8",
+        "95dbc9d9751c4e28b8eac54a23823ba5.json": "dedf36f8d56ec3e7954ed6d102278602eab36229002c5e54dae67dda93a20b7d",
+        "e56165128d4b49238c43bc166b11b4be.json": "4cbadbccdc62eea63116d1cd88986ec497ae0940fa7fceed8594d522998d6566",
+        "reviewer-invalid-json.json": "ce97a1781ad14390f0f69fe6c8d16853a6caa047f7a7ab41e71e8f5ef4237202",
+        "reviewer-state.json": "5d05e10175fb1a3424d8b0eca6cf232b0841d9c14065e978d6143754250dfa3d"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "8543285d4ab0d5feabc45dfdf00e50bb7d26958521b3a4bee5fbc1248fc318e9"
+    },
+    {
+      "case": "D01",
+      "initial_head": "770452ef338e37c54b2a50b2f052fe82412909b7",
+      "cli_runs": [],
+      "reports": {
+        "implementer.md": {
+          "sha256": "6e5653e5855b29f17530b1437ad6db6b2f9535357abbca46fe05ebe8a7e6e81f",
+          "words": 607
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:33:43.810365+00:00"
+        },
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:33:52.091924+00:00"
+        }
+      ],
+      "receipts": {
+        "054deef5d78b42aa9bc8a4ab142b0929.json": "632d35a98f4c84194652294c4a15de98d4a5ea0a9d9eb9109439166f1ebcffac",
+        "9d605bdd22d14cc0b74ac9022a939605.json": "1d15669d7bc0ef6fe922f2cc3cb992845bda97df706fcc56a3ea6cc0aa341fa2",
+        "e80f4583bdb940f0aaf78674f2d99697.json": "28f578a1379867ed6222eaf424eeaaa28627294c561756b5833006942f18f3da"
+      },
+      "guidance_mismatches": [],
+      "native_dispatch": {
+        "case": "D01",
+        "role": "implementer",
+        "fork_turns": "none",
+        "model": "inherited default; no override",
+        "delivery": "explicit project/rule/skill paths",
+        "prepared_utc": "2026-10-11T01:28:18.843112+00:00",
+        "status": "completed",
+        "report": "project/reports/implementer.md",
+        "native_event_export": "not exposed by collaboration tools; inspect command receipts, artifact edits and guidance record where retained",
+        "prompt_sha256": "21dacb453abf629c046858f163936323119d8888cbe299b734de3ab62255a686"
+      },
+      "test_invocations_sha256": "e778e110f0f8f0926f4aa82a6d11f681491a4cd390c0e54afb32cbda5ff0a688"
+    },
+    {
+      "case": "P01",
+      "initial_head": "fbf2814a0e11b7fc4467487124f6f28d4cae2eb9",
+      "cli_runs": [
+        {
+          "role": "controller",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 232.37401383393444,
+          "prompt_sha256": "f4191141f16c838cc8aee0304de4bdb341917e8531423b20eb9ae67fc7973361",
+          "task_sha256": "e59a23ba34e74127630f2aa98d68ae52778e88aa4705ab52557e3b48722b0c21",
+          "events_sha256": "a595946acc9eb0208b53f86dd0eac4aae4f1cf6a0c78353c16b429ac0c6ad107",
+          "final_sha256": "a2a71ee066b5a41c210930f6433797fefa2678c26fbf67e9c438cc7721d9016f",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 21,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 269864,
+              "cached_input_tokens": 235392,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 8259,
+              "reasoning_output_tokens": 3107
+            }
+          ]
+        },
+        {
+          "role": "implementer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 304.03094612504356,
+          "prompt_sha256": "572733ea6c76454f6360791cbf31879f47df0d76d9144b374f59b0269cf3f9ae",
+          "task_sha256": "6afae134068ca619fc76e82f7dcb063c01c1bbf4d8c7de42177336a845a7be10",
+          "events_sha256": "3b0e6ca2a24b60ffb296c978c7e3b04e5f9d5bdbb4110354b850fb16265719b3",
+          "final_sha256": "d9fa0395019c2475afdf08ed5be6851606d02eddf79d540ce69f45661cae7804",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 25,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 572656,
+              "cached_input_tokens": 526592,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 7589,
+              "reasoning_output_tokens": 4501
+            }
+          ]
+        },
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 241.28680966701359,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "2b569d99f596ed6f1cf353643acbc891af5b0afa061f0d926a7ad5b1085c6775",
+          "events_sha256": "4fec070e7789bba3c5954a13d31f1beac092bfdcb0ec80523f5db5ddcd7c4671",
+          "final_sha256": "c55ef9b83ab62223e0aa03fd633016b5e5e4363c0c666f60236f5cb457bf8172",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 16,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 261562,
+              "cached_input_tokens": 221440,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 7620,
+              "reasoning_output_tokens": 3026
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "controller.md": {
+          "sha256": "2c6ae297e9e6b7d173d15cda52f536a4832f439d5df8b0f4c7f9eb018881f549",
+          "words": 532
+        },
+        "implementer.md": {
+          "sha256": "9cbafddc73644d359b49d1020a5d5116033b2c2269948dc01f3c252d88581c9c",
+          "words": 394
+        },
+        "reviewer.md": {
+          "sha256": "d68196f0674c398d20c1aa41d3777002e49ea8ea74195bc4d25c8e11c05f9bc7",
+          "words": 855
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_report.py",
+            "-k",
+            "invalid_amount",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:17:26.651855+00:00"
+        },
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:17:41.120299+00:00"
+        }
+      ],
+      "receipts": {
+        "31f306d4d74c47a690a2625db25b6f84.json": "9425b6391ac010e168cf5aa4d8c4e44db1c069ccae93ec658c945429f02ce7f4",
+        "75dffce8778941288d1394680556f4be.json": "acfaecb64bf64b666038263697e3fefa08aa3043739e7c0c0a8f910623dfeab5",
+        "fd83f084895c4fa18793d70a845c3a3f.json": "ab14017c6880687e9d2125481d97f7e87ab06e50b49235b9ebe7a88b29386bb0"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "dbc9497b16600dd36a4a6156ab6029aca7911da3f963c6f8797a24b33a704c84"
+    },
+    {
+      "case": "P02",
+      "initial_head": "7dfb26e4531f322e0b3d12670461d3f6299ba3fd",
+      "cli_runs": [
+        {
+          "role": "controller",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 271.61677495902404,
+          "prompt_sha256": "f4191141f16c838cc8aee0304de4bdb341917e8531423b20eb9ae67fc7973361",
+          "task_sha256": "e59a23ba34e74127630f2aa98d68ae52778e88aa4705ab52557e3b48722b0c21",
+          "events_sha256": "2d520e7aba52d3e573e8b98b551ca43c44164e24feeafa355370ab6c3ea4fc30",
+          "final_sha256": "38dc2f11ac0e11647e77163cec8f0f9c58f2a59e51329adfde1c9d03539aeaaf",
+          "completed_item_counts": {
+            "agent_message": 6,
+            "command_execution": 18,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 549244,
+              "cached_input_tokens": 504576,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 10413,
+              "reasoning_output_tokens": 3957
+            }
+          ]
+        },
+        {
+          "role": "controller-after-merge",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 311.2985969169531,
+          "prompt_sha256": "cd59d8bd9d58d058066ebea8ac5c10eab5ccfcfaad58229c60b778f77859aaaa",
+          "task_sha256": "8c8a7b216d113638d1cde06b77b7d07e80aff7102a34ce3f330ee60f0934fd01",
+          "events_sha256": "633faf4116ff26c44a1827db6ec280003b90853c796c149b5b95133b02ab8d6d",
+          "final_sha256": "3134523200361b851d26ba221a74ed3796eb7ad5f04fdead5fc44aaf66cb0157",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 25,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 605362,
+              "cached_input_tokens": 544640,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 9733,
+              "reasoning_output_tokens": 2525
+            }
+          ]
+        },
+        {
+          "role": "implementer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 292.8672345841769,
+          "prompt_sha256": "572733ea6c76454f6360791cbf31879f47df0d76d9144b374f59b0269cf3f9ae",
+          "task_sha256": "6afae134068ca619fc76e82f7dcb063c01c1bbf4d8c7de42177336a845a7be10",
+          "events_sha256": "3abda0fe40d17666e6e43937ae0d35aaf4679db4da8870dadb08df8b496d6e59",
+          "final_sha256": "387bba7905a2b3823b8d3d96c6125bc824ac9a0a953197df7326e0b75120cd12",
+          "completed_item_counts": {
+            "agent_message": 7,
+            "command_execution": 19,
+            "file_change": 4
+          },
+          "usage": [
+            {
+              "input_tokens": 485168,
+              "cached_input_tokens": 433152,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 9796,
+              "reasoning_output_tokens": 5281
+            }
+          ]
+        },
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 302.6492969170213,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "2b569d99f596ed6f1cf353643acbc891af5b0afa061f0d926a7ad5b1085c6775",
+          "events_sha256": "fb1516ccefc72a588e20d42afa5d7d858b342e9a555de2e7b9c9366b6dc29ad1",
+          "final_sha256": "8e50547dbdecb409d6cd9fd88424a547f902144ada724d0bef09bf56f58a6889",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 19,
+            "file_change": 1
+          },
+          "usage": [
+            {
+              "input_tokens": 284573,
+              "cached_input_tokens": 246272,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 7772,
+              "reasoning_output_tokens": 2722
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "controller-after-merge.md": {
+          "sha256": "688a8f13f21d1dce2ab8f147ea8c3d47baf22fe093ab0d3d4169ac724cdffad0",
+          "words": 705
+        },
+        "controller.md": {
+          "sha256": "abc56235b1e6f55445b2d1cd74c30d3025d3c6c92c5b6e4c9b3d7341436efeea",
+          "words": 716
+        },
+        "implementer.md": {
+          "sha256": "025d2ce275f9df31a1664cd0f07af92c4de83d94349d0b72f5e4d5e972bc1138",
+          "words": 528
+        },
+        "reviewer.md": {
+          "sha256": "41f0a56077bf77d8c7a93c70ce8eab8ee06d3ed3c2c680649223cc53d5591918",
+          "words": 1212
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:17:09.056155+00:00"
+        },
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_store.py",
+            "-k",
+            "duplicate",
+            "-v"
+          ],
+          "full_suite_pattern": false,
+          "utc": "2026-10-11T01:17:26.285727+00:00"
+        },
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:17:39.972394+00:00"
+        },
+        {
+          "actor": "controller-after-merge",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:38:11.823060+00:00"
+        }
+      ],
+      "receipts": {
+        "234247fea80749bbb7680c0b330aab7b.json": "9545b626a5b0c7bcb5e4c8b50b20d767e806c31199b50fe9ded0bce8ab377ad1",
+        "6b06a3206d2b4b34a71dbd66f2617c81.json": "09dafad069f70c04550421fda3a76182a578180ea5f90bd52449e9d31d56210a",
+        "70292b5b249b45c5bebd09933b82d793.json": "5a42240c5e2d37762d892388f71693a274d9526762ce6bf7ba499a5bc9e0f4aa",
+        "87b0b212934e4397ad63de385607464a.json": "b1ae6674f36934952f4dec178f30ceb20768c03019ba836023deda9d97206ca2",
+        "a6c67985bb124ffb883820a20813c81e.json": "1ac30edb7db5c02202bbbf477a79f26117dbb3662ea2039b4faa52a2f4756b82",
+        "abb862b592b3429d8c92bb7d46130a55.json": "bb430e6bb4126d4d8b2276e3f0aeb772067e8db532387871eb2e023021711b8a",
+        "controller-after-merge-preflight.json": "52037c2e16586799459ef61b81ddbe0723308ee40ab2caa05b32cf942041b571",
+        "controller-after-merge-state.json": "cbb9ec42a271111cbc3f26e3929830a9301bc914c079b56a743d756b19c1b65a",
+        "controller-preflight.json": "0b6c237eabd012dbdf0d188acccf29e735e8c8d68ccf45c4e82a52c9a6655011",
+        "controller-state.json": "aa4078c063332293217f9b986e506ab0f9d632f2d73f641f3a880d664c05951b",
+        "controller-transition.json": "b7ff4ea6dd91311a6170ce28b981bc2f5c01147a9afca1d782c9b75976695790",
+        "implementer-state.json": "a4ba0f70f92844a54acee089319e60e70cd9fe8bd82b56bf6426f7daeb4b75cc",
+        "organizer-merge.json": "641c6a96327b4d177c1216655dbdc8f89dc47af20278e20db04ea96023bedd65",
+        "reviewer-state.json": "66e0da8194b35115865cbd1bcc46fe840a0b3412d7c2ba1663c3db2b39a73372"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "6d470c6f41f98bc26b707fd2131cd1e1368c685ff676da4ed0b2bbf9240f5120"
+    },
+    {
+      "case": "P03",
+      "initial_head": "ee927716ec932251a21a20e25fd830b99ad1452d",
+      "cli_runs": [
+        {
+          "role": "controller",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 216.89655625005253,
+          "prompt_sha256": "f4191141f16c838cc8aee0304de4bdb341917e8531423b20eb9ae67fc7973361",
+          "task_sha256": "e59a23ba34e74127630f2aa98d68ae52778e88aa4705ab52557e3b48722b0c21",
+          "events_sha256": "710b843590ba590c1aff33ff8d8c7a274fa17c9503053383002fa1c9ddad738c",
+          "final_sha256": "8db6c6bfff600a9ce36fb9bcbffe6dbdbc07091a87ca3895f4525025c49217d4",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 24,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 266414,
+              "cached_input_tokens": 226816,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 7564,
+              "reasoning_output_tokens": 2790
+            }
+          ]
+        },
+        {
+          "role": "implementer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 287.24766750005074,
+          "prompt_sha256": "572733ea6c76454f6360791cbf31879f47df0d76d9144b374f59b0269cf3f9ae",
+          "task_sha256": "6afae134068ca619fc76e82f7dcb063c01c1bbf4d8c7de42177336a845a7be10",
+          "events_sha256": "de157b82636aff660699d0ca0b2df6e45b75a341290e27cc1a36e9d7542d2c96",
+          "final_sha256": "1225a00e9e50bcbbdc9a68bb3ffb74301998f13afcf3d37aa6ccb1918f6f1bd2",
+          "completed_item_counts": {
+            "agent_message": 6,
+            "command_execution": 32,
+            "file_change": 5
+          },
+          "usage": [
+            {
+              "input_tokens": 481944,
+              "cached_input_tokens": 444288,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 9677,
+              "reasoning_output_tokens": 5590
+            }
+          ]
+        },
+        {
+          "role": "reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 221.9718939170707,
+          "prompt_sha256": "f4ced7f8234d0ccc2740d5f3a0524f996fd8138fff6ecceda8fb1b533667becc",
+          "task_sha256": "2b569d99f596ed6f1cf353643acbc891af5b0afa061f0d926a7ad5b1085c6775",
+          "events_sha256": "f92997b4370605bd81b06d86404f9b00bcd168dee70795441616d44b797f0d1e",
+          "final_sha256": "648cccc33dfdd51e01d54859b7a861e8c258378462425cfb85b0adee2d92a5a8",
+          "completed_item_counts": {
+            "agent_message": 4,
+            "command_execution": 13,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 280510,
+              "cached_input_tokens": 249088,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 5938,
+              "reasoning_output_tokens": 1748
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "controller.md": {
+          "sha256": "b28f37fe5cef73eb01987d99f93f14ecc9dcdbddc432544f465b8725672af57f",
+          "words": 573
+        },
+        "implementer.md": {
+          "sha256": "76af3badbfa45b883aa735f99dc324b5c191f1058da57838490dfb9e40c816e9",
+          "words": 501
+        },
+        "reviewer.md": {
+          "sha256": "a0160fe4e1ed1b3ace9c559fdeb7e35a2fbb0ed77e181c22b89b83efa7ea5fff",
+          "words": 1010
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:17:51.706692+00:00"
+        },
+        {
+          "actor": "implementer",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:18:02.745439+00:00"
+        }
+      ],
+      "receipts": {
+        "2379ad585a994461862c1c92a7510588.json": "7b08be7723f4554d1c6cde1f7363a201c1058aafd12c2752fbcc89ce82e48e2f",
+        "44ebebac88aa4d439c826c9f769a9261.json": "467912b0a979298ae2630afbbefa435aafe7738b2e826fd2bb712c20405b5c6a",
+        "66a24c65e551403fa177e611e474d96d.json": "59469f407c75817fd371677dbdf01a4284352898f6ada0c5e64a892dbe97cfdf",
+        "bddc1dfaf9d74c0fa3f77377b57f9c62.json": "c4b9b9220b38435ad92455b9681fc319f00c4aa2efcc630cc4239c372a738c9d",
+        "controller-final.json": "881258ff0cf9fc2f5a21958df1c73d159d5cf22e0b46c0d5b5947619f08f8c81",
+        "controller-state.json": "c397781f681e544ff25a24e4b7d12867b101e09ea3288af834dcc99ef2558c9d",
+        "implementation-commit.json": "9ae426eba809871d7ec20d95d9fbdff8778d5cb7240500e03a27744c2399855c",
+        "implementation-state.json": "b1347542a411b3be26f22bde62f5d382685d0b9fd37850bc94a9582bb0bcc780",
+        "reviewer-state.json": "772d4a40eaf70d792082471692225b387ac0b00cd97f47513a5e2f2187fcd999"
+      },
+      "guidance_mismatches": [],
+      "test_invocations_sha256": "d84008bb64fe6680d7cc2a6314fcc9c8cc11911143f468fb0adbc60313f466a9"
+    },
+    {
+      "case": "R01",
+      "initial_head": "47592724319030bac7c9d4ddae9b1880872e2e91",
+      "cli_runs": [
+        {
+          "role": "editor",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 119.51089441706426,
+          "prompt_sha256": "7d8963dd93a8c412588b8f753f0700d7227b419bffed39f84284d6f3ae1d37ed",
+          "task_sha256": "adb57e6956f07bc05f7f0046b1de52a9a69967820d5ee0cdbf52dc4b86e4d7c2",
+          "events_sha256": "1352917ddeb69bea4b25abb109951e74d2635dd274cf14483a0c01a97b9718fb",
+          "final_sha256": "2bda196797f11ea835cf2b565c92d40ff41b24c8cd7866b5471242034d2a94c7",
+          "completed_item_counts": {
+            "agent_message": 3,
+            "command_execution": 13,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 154460,
+              "cached_input_tokens": 144768,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 2738,
+              "reasoning_output_tokens": 1447
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "editor.md": {
+          "sha256": "05974708d23896f8224e45a014f55a2563330321b02d3e0c6d70c4326af04b8d",
+          "words": 178
+        }
+      },
+      "test_invocations": [],
+      "receipts": {},
+      "guidance_mismatches": []
+    },
+    {
+      "case": "R02",
+      "initial_head": "3f172cb4a9d2cae41ea80dc83393f717bdd3bcc4",
+      "cli_runs": [
+        {
+          "role": "author",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 352.24164241715334,
+          "prompt_sha256": "9af2b342836e1624921d3befbb5c46382810e95b7688d16cfc7505b031ab20b8",
+          "task_sha256": "7ba4ce0c2fb2bb5830bb16311dcf7c0de908eea7d80991253236a73dba0860f0",
+          "events_sha256": "51847383c01f970613c736eddda8436ba3d87ae07b204bdea42baebd9b311031",
+          "final_sha256": "49a047ff1ca9b9ebfb85adea6e4578e7c4ff1c0be9f67b9d7064fff4275c422b",
+          "completed_item_counts": {
+            "agent_message": 6,
+            "command_execution": 16,
+            "file_change": 4
+          },
+          "usage": [
+            {
+              "input_tokens": 344589,
+              "cached_input_tokens": 315136,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 13496,
+              "reasoning_output_tokens": 7714
+            }
+          ]
+        },
+        {
+          "role": "contract-reviewer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 318.53721966710873,
+          "prompt_sha256": "c11eaa6ffbc3f672515e0ed75f9a060efd5fa3b7103b3a58e74f4209adfca3c7",
+          "task_sha256": "be76321ffe5bafcb37c7d7a2f05b16d7a1d589a1d50d33e80a9486e254817d7e",
+          "events_sha256": "8aa097c1dfea719fcb1c343984d62e474b545393eb694336af6b313f6cc57c5b",
+          "final_sha256": "b6aad741d3fe8f2249b0150f8f19f4494a5e912d379d45b5c27a328999d72592",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 21,
+            "file_change": 3
+          },
+          "usage": [
+            {
+              "input_tokens": 262849,
+              "cached_input_tokens": 231936,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 11663,
+              "reasoning_output_tokens": 6091
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "author.md": {
+          "sha256": "3e22d4719cc58b50edc9b43464b9625c186be9de080335f5b0e2815e49f7c5fd",
+          "words": 604
+        },
+        "contract-reviewer.md": {
+          "sha256": "0cfa4c5f8da9817009bcdbd0f783744d5be6b9342615afda8cdf73e9d53ae5be",
+          "words": 1743
+        }
+      },
+      "test_invocations": [],
+      "receipts": {},
+      "guidance_mismatches": []
+    },
+    {
+      "case": "R04",
+      "initial_head": "7f532beb33b588449efbed6b1ecc066e3f698d46",
+      "cli_runs": [
+        {
+          "role": "designer",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 247.73458795784973,
+          "prompt_sha256": "44f7d2f972bd106f3859ad5ecd615f11926b6e578a764731c9ae6ea14eec2da0",
+          "task_sha256": "cb047cc2cfd70b15f12a4289a2a4245e0dc72efafe372afc4a52e5a6c73ed672",
+          "events_sha256": "604d9cb6b53f6db9f0d01d40aff66c2a13691c0751e7a8438cceac63ecdbf418",
+          "final_sha256": "164f8aafedd9048c7b44750f43e4efcbbd4e71cd928e692d4492a0844d12f373",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 13,
+            "file_change": 2
+          },
+          "usage": [
+            {
+              "input_tokens": 258166,
+              "cached_input_tokens": 231040,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 8587,
+              "reasoning_output_tokens": 3183
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "designer.md": {
+          "sha256": "a166d80c4389c2a2b41e771c89d3249c544b2718d71d08e15e101b5965d40347",
+          "words": 1053
+        }
+      },
+      "test_invocations": [],
+      "receipts": {
+        "designer-delivery-check.json": "c5238adc367b8b52d4552a5b325bb86353607633967a7c8b33359af962550232",
+        "designer-probe.json": "7713cce54fa97920b2f2d244a07ef843ba52a5852e0713b8b88289bba1392e2f"
+      },
+      "guidance_mismatches": []
+    },
+    {
+      "case": "R05",
+      "initial_head": "863a76220dc4b257e71dc7a5029828779497f24b",
+      "cli_runs": [
+        {
+          "role": "method-author",
+          "exit_code": 0,
+          "timeout": false,
+          "elapsed_seconds": 367.21335183409974,
+          "prompt_sha256": "e0c868270c9e8e2c8ecbbafa6501c83ac39461788858208d5472928fe3caf665",
+          "task_sha256": "a1f62d18aeb8ee6d00cb1a6b3b7cb5404364898f23a338e03d0790379dcf690a",
+          "events_sha256": "d205325a23a03d35d09343743f68f4a31ceead9f133e59ba0d839321694effd9",
+          "final_sha256": "fb9f33ecd4ca4161acca634b8c985e41628e9186fa40caf63dd9ca39327790fa",
+          "completed_item_counts": {
+            "agent_message": 5,
+            "command_execution": 14,
+            "file_change": 5
+          },
+          "usage": [
+            {
+              "input_tokens": 357871,
+              "cached_input_tokens": 326912,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 14730,
+              "reasoning_output_tokens": 6416
+            }
+          ]
+        }
+      ],
+      "reports": {
+        "method-author.md": {
+          "sha256": "779d5aed498bbd67e776bdb119b48a02e645add1efb046356eac2485d4d3c451",
+          "words": 708
+        }
+      },
+      "test_invocations": [],
+      "receipts": {
+        "result-method-red/inputs/empty-file.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result-method-red/inputs/empty-object.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "result-method-red/inputs/invalid-encoding.json": "b88c193009c22360a2a1e815905a7ea5f0b091647e5eaaff56a0cd90e22598b7",
+        "result-method-red/inputs/invalid-json-infinity.json": "d39c694d5825ada67a89cfe28d41c940c3f1cc180f96f88a8ed321e21df328ab",
+        "result-method-red/inputs/invalid-json-nan.json": "00bc4c444f2508210732d8e431231dfbd0e0475e85fe760632466c6a08d0824c",
+        "result-method-red/inputs/invalid-json-negative-infinity.json": "1b2accb849a9fdefc402e264e1b197bf9587a66f0af6182da9d9e3407c2a127f",
+        "result-method-red/inputs/large-integers.json": "308448b97a67a483e02d256cc069e3267ef90d48a19068748c3b2742d2b33d78",
+        "result-method-red/inputs/malformed-json.json": "7e1652c7390e0e5006b969c657cc583beff1455afd03df8377b3ea121f93f8b7",
+        "result-method-red/inputs/missing-paid_count.json": "5da41c92d861e8065ac06d0d23b245c08075934286b025d7a54c6bf827008d44",
+        "result-method-red/inputs/missing-paid_total_cents.json": "cda985183040de33e3231c57d4bd8414b1b99fa82f4883bcd4ab3635defe6fa9",
+        "result-method-red/inputs/paid_count-array.json": "ae7d13d7f5fe178fc618a48858c6e19714d547feca980e9e96957479cd89ac5d",
+        "result-method-red/inputs/paid_count-exponent.json": "1b8a8c442ac3a7b569157f9cf972dd1ad0da40da8a3ddabd7a3095564afde2f4",
+        "result-method-red/inputs/paid_count-false.json": "d6366421f08909397b951903c9766d054e8b4684f7e60b904e9b3c952bde9fb6",
+        "result-method-red/inputs/paid_count-float.json": "c59b852ce561908daa83e5fc21f9cbda54ad149ee143620f1976adb26d8059d9",
+        "result-method-red/inputs/paid_count-negative.json": "a19d8265646d58e91ab401243e069bcaa22594c1333e5a786ff0f6947f53a01d",
+        "result-method-red/inputs/paid_count-null.json": "19a6bb3c65fe5a39352ccd12621a70bf111a6c867ea5202848848a704536c691",
+        "result-method-red/inputs/paid_count-object.json": "b16bb334ae26b3a0d667c00c8a3d2350f92ec8b66ecd047c98aa2166d9245124",
+        "result-method-red/inputs/paid_count-string.json": "0d676db593fb781aeff9f7dfec286df59ff8ee9ffa6ebd9db22a5a2bd42683b5",
+        "result-method-red/inputs/paid_count-true.json": "1147d273d00c259378f0166e4ce01e195215cf398d067e1d8a933067d0409399",
+        "result-method-red/inputs/paid_count-whole-float.json": "3e008a19ce49397c0a8118c8c82158830ecf44e005cbf035d802fee0fbb7d9b0",
+        "result-method-red/inputs/paid_total_cents-array.json": "0ec6d9125d91af07e9a3bed8e771c5b6ab3f7218ec12035a6b5e44ac04de42c8",
+        "result-method-red/inputs/paid_total_cents-exponent.json": "ef3b961d652aa86972d2805f33324691f577ad8769dafe6eb5945b7fdc956bf7",
+        "result-method-red/inputs/paid_total_cents-false.json": "76c6691195dcd1df4e441737e2234c50c0a7a2bc1786ad45e778c243c79e79d2",
+        "result-method-red/inputs/paid_total_cents-float.json": "38ed8b037981bdb8cc4e26f9a9956503dd7dcf1b976fa2b9aeda0b4543ee474a",
+        "result-method-red/inputs/paid_total_cents-negative.json": "1c482d543c0c759d1804f0c974ab76f9a34851332e2597e178249be44e652dfa",
+        "result-method-red/inputs/paid_total_cents-null.json": "10181bd2ebac4d694c15fb16265658a4c7861aaa29489cd88857e3c9d007324e",
+        "result-method-red/inputs/paid_total_cents-object.json": "a4a4f564e7d4c8b88c34913a2471dc93821e71c8e6219243d848a09b2fff3ddf",
+        "result-method-red/inputs/paid_total_cents-string.json": "8f587d82b8b53cc40fbff6123db546ddfa60986d4858c05c7cf439f7ec016172",
+        "result-method-red/inputs/paid_total_cents-true.json": "dca75b5913d1f025b7ebb201b585135ff8bb776627282fee4b8ef8f9c4e81059",
+        "result-method-red/inputs/paid_total_cents-whole-float.json": "7cfc6e892c0d177c1db3498a75831e5bf2325c147a70d1435cf89b211ebc54f9",
+        "result-method-red/inputs/permission-denied.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-red/inputs/positive-integers.json": "534fac782e6ab6eb973aa5e5bc4d895a899f8900778d0bec747f17772072c883",
+        "result-method-red/inputs/top-level-array.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "result-method-red/inputs/top-level-boolean.json": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "result-method-red/inputs/top-level-null.json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "result-method-red/inputs/top-level-number.json": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "result-method-red/inputs/top-level-string.json": "3491337573000235960ad0689fabc5fc85f50d5718f2a62c9f46fbe3047f2a55",
+        "result-method-red/inputs/trailing-content.json": "b203c502a7538b68577641253d379a5c368e9b2cacb92a6f914420fea2e02f6c",
+        "result-method-red/inputs/unrelated-keys.json": "d44f1bbab79564c3d26bb5e50b9b82c12948603cdd923c10de347d20a6f9c92e",
+        "result-method-red/inputs/zero-boundary.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-red/results.json": "2825e6053929b7413a8b490dd27df7528704588db39ec6cab166d7f081fa50cc",
+        "result-method-red-final/inputs/empty-file.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result-method-red-final/inputs/empty-object.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "result-method-red-final/inputs/invalid-encoding.json": "b88c193009c22360a2a1e815905a7ea5f0b091647e5eaaff56a0cd90e22598b7",
+        "result-method-red-final/inputs/invalid-json-infinity.json": "d39c694d5825ada67a89cfe28d41c940c3f1cc180f96f88a8ed321e21df328ab",
+        "result-method-red-final/inputs/invalid-json-nan.json": "00bc4c444f2508210732d8e431231dfbd0e0475e85fe760632466c6a08d0824c",
+        "result-method-red-final/inputs/invalid-json-negative-infinity.json": "1b2accb849a9fdefc402e264e1b197bf9587a66f0af6182da9d9e3407c2a127f",
+        "result-method-red-final/inputs/large-integers.json": "308448b97a67a483e02d256cc069e3267ef90d48a19068748c3b2742d2b33d78",
+        "result-method-red-final/inputs/long-integer.json": "5e9d526685f5b3ad1b1e85fa20bdc46bafb49dca75c17c2fa2153e2d3db4cd73",
+        "result-method-red-final/inputs/malformed-json.json": "7e1652c7390e0e5006b969c657cc583beff1455afd03df8377b3ea121f93f8b7",
+        "result-method-red-final/inputs/missing-paid_count.json": "5da41c92d861e8065ac06d0d23b245c08075934286b025d7a54c6bf827008d44",
+        "result-method-red-final/inputs/missing-paid_total_cents.json": "cda985183040de33e3231c57d4bd8414b1b99fa82f4883bcd4ab3635defe6fa9",
+        "result-method-red-final/inputs/paid_count-array.json": "ae7d13d7f5fe178fc618a48858c6e19714d547feca980e9e96957479cd89ac5d",
+        "result-method-red-final/inputs/paid_count-exponent.json": "1b8a8c442ac3a7b569157f9cf972dd1ad0da40da8a3ddabd7a3095564afde2f4",
+        "result-method-red-final/inputs/paid_count-false.json": "d6366421f08909397b951903c9766d054e8b4684f7e60b904e9b3c952bde9fb6",
+        "result-method-red-final/inputs/paid_count-float.json": "c59b852ce561908daa83e5fc21f9cbda54ad149ee143620f1976adb26d8059d9",
+        "result-method-red-final/inputs/paid_count-negative.json": "a19d8265646d58e91ab401243e069bcaa22594c1333e5a786ff0f6947f53a01d",
+        "result-method-red-final/inputs/paid_count-null.json": "19a6bb3c65fe5a39352ccd12621a70bf111a6c867ea5202848848a704536c691",
+        "result-method-red-final/inputs/paid_count-object.json": "b16bb334ae26b3a0d667c00c8a3d2350f92ec8b66ecd047c98aa2166d9245124",
+        "result-method-red-final/inputs/paid_count-string.json": "0d676db593fb781aeff9f7dfec286df59ff8ee9ffa6ebd9db22a5a2bd42683b5",
+        "result-method-red-final/inputs/paid_count-true.json": "1147d273d00c259378f0166e4ce01e195215cf398d067e1d8a933067d0409399",
+        "result-method-red-final/inputs/paid_count-whole-float.json": "3e008a19ce49397c0a8118c8c82158830ecf44e005cbf035d802fee0fbb7d9b0",
+        "result-method-red-final/inputs/paid_total_cents-array.json": "0ec6d9125d91af07e9a3bed8e771c5b6ab3f7218ec12035a6b5e44ac04de42c8",
+        "result-method-red-final/inputs/paid_total_cents-exponent.json": "ef3b961d652aa86972d2805f33324691f577ad8769dafe6eb5945b7fdc956bf7",
+        "result-method-red-final/inputs/paid_total_cents-false.json": "76c6691195dcd1df4e441737e2234c50c0a7a2bc1786ad45e778c243c79e79d2",
+        "result-method-red-final/inputs/paid_total_cents-float.json": "38ed8b037981bdb8cc4e26f9a9956503dd7dcf1b976fa2b9aeda0b4543ee474a",
+        "result-method-red-final/inputs/paid_total_cents-negative.json": "1c482d543c0c759d1804f0c974ab76f9a34851332e2597e178249be44e652dfa",
+        "result-method-red-final/inputs/paid_total_cents-null.json": "10181bd2ebac4d694c15fb16265658a4c7861aaa29489cd88857e3c9d007324e",
+        "result-method-red-final/inputs/paid_total_cents-object.json": "a4a4f564e7d4c8b88c34913a2471dc93821e71c8e6219243d848a09b2fff3ddf",
+        "result-method-red-final/inputs/paid_total_cents-string.json": "8f587d82b8b53cc40fbff6123db546ddfa60986d4858c05c7cf439f7ec016172",
+        "result-method-red-final/inputs/paid_total_cents-true.json": "dca75b5913d1f025b7ebb201b585135ff8bb776627282fee4b8ef8f9c4e81059",
+        "result-method-red-final/inputs/paid_total_cents-whole-float.json": "7cfc6e892c0d177c1db3498a75831e5bf2325c147a70d1435cf89b211ebc54f9",
+        "result-method-red-final/inputs/permission-denied.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-red-final/inputs/positive-integers.json": "534fac782e6ab6eb973aa5e5bc4d895a899f8900778d0bec747f17772072c883",
+        "result-method-red-final/inputs/top-level-array.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "result-method-red-final/inputs/top-level-boolean.json": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "result-method-red-final/inputs/top-level-null.json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "result-method-red-final/inputs/top-level-number.json": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "result-method-red-final/inputs/top-level-string.json": "3491337573000235960ad0689fabc5fc85f50d5718f2a62c9f46fbe3047f2a55",
+        "result-method-red-final/inputs/trailing-content.json": "b203c502a7538b68577641253d379a5c368e9b2cacb92a6f914420fea2e02f6c",
+        "result-method-red-final/inputs/unrelated-keys.json": "d44f1bbab79564c3d26bb5e50b9b82c12948603cdd923c10de347d20a6f9c92e",
+        "result-method-red-final/inputs/zero-boundary.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-red-final/results.json": "3f0c657ad5434e9fe9a8f524d129a1d5181f2f1872662a02ec55cf052ee48fc6",
+        "result-method-validation/handoff-audit.json": "7699215d7a5750499a097b778c1322503379cd0274efce12a1a8dacd25a477fd",
+        "result-method-validation/inputs/empty-file.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result-method-validation/inputs/empty-object.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "result-method-validation/inputs/invalid-encoding.json": "b88c193009c22360a2a1e815905a7ea5f0b091647e5eaaff56a0cd90e22598b7",
+        "result-method-validation/inputs/invalid-json-infinity.json": "d39c694d5825ada67a89cfe28d41c940c3f1cc180f96f88a8ed321e21df328ab",
+        "result-method-validation/inputs/invalid-json-nan.json": "00bc4c444f2508210732d8e431231dfbd0e0475e85fe760632466c6a08d0824c",
+        "result-method-validation/inputs/invalid-json-negative-infinity.json": "1b2accb849a9fdefc402e264e1b197bf9587a66f0af6182da9d9e3407c2a127f",
+        "result-method-validation/inputs/large-integers.json": "308448b97a67a483e02d256cc069e3267ef90d48a19068748c3b2742d2b33d78",
+        "result-method-validation/inputs/long-integer.json": "5e9d526685f5b3ad1b1e85fa20bdc46bafb49dca75c17c2fa2153e2d3db4cd73",
+        "result-method-validation/inputs/malformed-json.json": "7e1652c7390e0e5006b969c657cc583beff1455afd03df8377b3ea121f93f8b7",
+        "result-method-validation/inputs/missing-paid_count.json": "5da41c92d861e8065ac06d0d23b245c08075934286b025d7a54c6bf827008d44",
+        "result-method-validation/inputs/missing-paid_total_cents.json": "cda985183040de33e3231c57d4bd8414b1b99fa82f4883bcd4ab3635defe6fa9",
+        "result-method-validation/inputs/paid_count-array.json": "ae7d13d7f5fe178fc618a48858c6e19714d547feca980e9e96957479cd89ac5d",
+        "result-method-validation/inputs/paid_count-exponent.json": "1b8a8c442ac3a7b569157f9cf972dd1ad0da40da8a3ddabd7a3095564afde2f4",
+        "result-method-validation/inputs/paid_count-false.json": "d6366421f08909397b951903c9766d054e8b4684f7e60b904e9b3c952bde9fb6",
+        "result-method-validation/inputs/paid_count-float.json": "c59b852ce561908daa83e5fc21f9cbda54ad149ee143620f1976adb26d8059d9",
+        "result-method-validation/inputs/paid_count-negative.json": "a19d8265646d58e91ab401243e069bcaa22594c1333e5a786ff0f6947f53a01d",
+        "result-method-validation/inputs/paid_count-null.json": "19a6bb3c65fe5a39352ccd12621a70bf111a6c867ea5202848848a704536c691",
+        "result-method-validation/inputs/paid_count-object.json": "b16bb334ae26b3a0d667c00c8a3d2350f92ec8b66ecd047c98aa2166d9245124",
+        "result-method-validation/inputs/paid_count-string.json": "0d676db593fb781aeff9f7dfec286df59ff8ee9ffa6ebd9db22a5a2bd42683b5",
+        "result-method-validation/inputs/paid_count-true.json": "1147d273d00c259378f0166e4ce01e195215cf398d067e1d8a933067d0409399",
+        "result-method-validation/inputs/paid_count-whole-float.json": "3e008a19ce49397c0a8118c8c82158830ecf44e005cbf035d802fee0fbb7d9b0",
+        "result-method-validation/inputs/paid_total_cents-array.json": "0ec6d9125d91af07e9a3bed8e771c5b6ab3f7218ec12035a6b5e44ac04de42c8",
+        "result-method-validation/inputs/paid_total_cents-exponent.json": "ef3b961d652aa86972d2805f33324691f577ad8769dafe6eb5945b7fdc956bf7",
+        "result-method-validation/inputs/paid_total_cents-false.json": "76c6691195dcd1df4e441737e2234c50c0a7a2bc1786ad45e778c243c79e79d2",
+        "result-method-validation/inputs/paid_total_cents-float.json": "38ed8b037981bdb8cc4e26f9a9956503dd7dcf1b976fa2b9aeda0b4543ee474a",
+        "result-method-validation/inputs/paid_total_cents-negative.json": "1c482d543c0c759d1804f0c974ab76f9a34851332e2597e178249be44e652dfa",
+        "result-method-validation/inputs/paid_total_cents-null.json": "10181bd2ebac4d694c15fb16265658a4c7861aaa29489cd88857e3c9d007324e",
+        "result-method-validation/inputs/paid_total_cents-object.json": "a4a4f564e7d4c8b88c34913a2471dc93821e71c8e6219243d848a09b2fff3ddf",
+        "result-method-validation/inputs/paid_total_cents-string.json": "8f587d82b8b53cc40fbff6123db546ddfa60986d4858c05c7cf439f7ec016172",
+        "result-method-validation/inputs/paid_total_cents-true.json": "dca75b5913d1f025b7ebb201b585135ff8bb776627282fee4b8ef8f9c4e81059",
+        "result-method-validation/inputs/paid_total_cents-whole-float.json": "7cfc6e892c0d177c1db3498a75831e5bf2325c147a70d1435cf89b211ebc54f9",
+        "result-method-validation/inputs/permission-denied.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-validation/inputs/positive-integers.json": "534fac782e6ab6eb973aa5e5bc4d895a899f8900778d0bec747f17772072c883",
+        "result-method-validation/inputs/top-level-array.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "result-method-validation/inputs/top-level-boolean.json": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "result-method-validation/inputs/top-level-null.json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "result-method-validation/inputs/top-level-number.json": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "result-method-validation/inputs/top-level-string.json": "3491337573000235960ad0689fabc5fc85f50d5718f2a62c9f46fbe3047f2a55",
+        "result-method-validation/inputs/trailing-content.json": "b203c502a7538b68577641253d379a5c368e9b2cacb92a6f914420fea2e02f6c",
+        "result-method-validation/inputs/unrelated-keys.json": "d44f1bbab79564c3d26bb5e50b9b82c12948603cdd923c10de347d20a6f9c92e",
+        "result-method-validation/inputs/zero-boundary.json": "4140dce0a307081b9e48e48aa1bee0b23f046330cc088d0455f0e016c35b5f7e",
+        "result-method-validation/results.json": "67c145a0a6e0338803a8a19583d191a471101f0ddccdc1843bb8e77b957fbbb3"
+      },
+      "guidance_mismatches": []
+    },
+    {
+      "case": "R06",
+      "initial_head": "388f26522494fccc6a3f370093f14101050849cc",
+      "cli_runs": [],
+      "reports": {
+        "diagnostician.md": {
+          "sha256": "532993fbf77b901dd7bb3aa1787e07bacd85e53b0cedfc8160e9b260249e752f",
+          "words": 878
+        }
+      },
+      "test_invocations": [
+        {
+          "actor": "preparation",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:16:16.386204+00:00"
+        },
+        {
+          "actor": "diagnostician",
+          "command": [
+            "Python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "full_suite_pattern": true,
+          "utc": "2026-10-11T01:29:53.888308+00:00"
+        }
+      ],
+      "receipts": {
+        "03f433981e5e4b229fb9113c0cc1fe3f.json": "78839a8f8e2eb8cb2eaa4ebf311ed4731a4d35c37ddbef032be8fa91657a9569",
+        "0dab24b8d7ab46f79d5efb118f009234.json": "b9adf880b6d03b4c51732bc199c1617c42cf2fc5416d279b6c9981aa791da6ff",
+        "228c9e041a674e879cc3625632769d49.json": "531df9a6b0c45cda46ed5d4b4d0dd1e1522dae5ee0112315158f8a95eb4b7159",
+        "2d69fd4142eb4cbdb603a357842fd25f.json": "f0eee26efcb3e6871591391051f4b380d6587395bef5c0f4be7b0b94251a4a81",
+        "829b40a5a5b5473988f8448db7c60f01.json": "4a0b54c748b83d06c3753cde46318e2ec5e244e71a52ab356c7443a3068d9fe8",
+        "8700609e6022425e8645af4c63980a87.json": "1576aa6a675c77b3ef1d95f29697c523448d09a6b81d65711c1923f4253c9e32",
+        "87a09cfc3018402ea849524681ae5c45.json": "2d2fdc979b64b43b6e09cbd66f37aee39a99d925d67bfb581ff25c7766a955a4",
+        "8bab51e82e3e41f298fe652ec319c7d6.json": "92ffa18a7777fe42dbb9757613190ba4f9ad8871c49951f0d74b56b2634e418e",
+        "9e0807c0dac245b5bd0f866ca8822606.json": "7b881b2102a3a9196f53079cd555c371ccbd7add82fba0cab08fd22700646c78",
+        "a488eb61102447fa869c2065ea2279f5.json": "c32f8c705cf7cdda9e835d5d8757bb9663b58546552cb8144c86a5fe3e5de88a",
+        "diagnosis-current-source-receipt.json": "6e68b2e8e0766b40f3cebc58cc1a7e129d11c493f40f7f303860a912d86d0ab1",
+        "diagnosis-existing-archive-receipt.json": "90f06499bcb79edc208ee2d91dca4cf95938ec663a034e3da528de9383f91420",
+        "fb51d29db1ed4116be67fc3f9fdd24f2.json": "37f05bed4da277b37453d9a2239da9e8c7df20b2d8588527fbc6524278e2ae5c"
+      },
+      "guidance_mismatches": [],
+      "native_dispatch": {
+        "case": "R06",
+        "role": "diagnostician",
+        "fork_turns": "none",
+        "model": "inherited default; no override",
+        "delivery": "explicit project/rule/skill paths",
+        "prepared_utc": "2026-10-11T01:28:18.842094+00:00",
+        "status": "completed",
+        "report": "project/reports/diagnostician.md",
+        "native_event_export": "not exposed by collaboration tools; inspect command receipts, artifact edits and guidance record where retained",
+        "prompt_sha256": "e93d5c00016927dc0a3e76e9965c50ea00b20bb63c6cb3a84367a8887682ae8e"
+      },
+      "test_invocations_sha256": "7cdd7515bf9bece63fbb8c2b5138fa7e658abcd0d35cdcacc9ab0bfad5045e5f"
+    }
+  ]
+}

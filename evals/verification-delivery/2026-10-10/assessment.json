@@ -1,0 +1,642 @@
+{
+  "assessment_status": "final",
+  "assessed_utc": "2026-10-11T02:01:11.169313+00:00",
+  "protocol_sha256": "163089715e19a69819c372ad1d4d3de571aa5aaaee43dc7224d0ac0ed77f6b64",
+  "assessor_independence": {
+    "candidate_author": false,
+    "fixture_author": false,
+    "trial_worker": false,
+    "reran_application_suites": false,
+    "protocol_critique_before_dispatch": true
+  },
+  "disposition": "bounded_cli_delivery_supported_activation_and_migration_hold_with_local_review_shortcoming",
+  "deciding_workflows": {
+    "unassisted_passes": 2,
+    "assisted_completions": 1,
+    "full_suites_including_red_and_stage_runs": 6,
+    "handoff_only_full_suite_reruns": 0
+  },
+  "pending_cases": [],
+  "critical_failures_observed": 0,
+  "guidance_and_selected_links_match_manifest": true,
+  "active_integrity": "Before/during/after recorded statuses, pins and selections match; final three vendor status fields are clean. Snapshot evidence only; no independent live City inspection.",
+  "discovery_limit": "Natural-prompt real CLI reads and role selection observed. Initial injected instruction/catalog payload not exported. No desktop automatic-discovery claim.",
+  "native_trace_limit": "R06 has retained guidance-read command receipt. D01 guidance reads are report-only. Native collaboration event export unavailable.",
+  "cases": [
+    {
+      "case": "P01",
+      "roles": [
+        "implementer",
+        "reviewer",
+        "controller"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {
+        "implementer": 1
+      },
+      "worker_focused_suite_runs": 1,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Actual repair using existing adequate tests; shortened display resolved by reading intact complete receipt; reviewer/controller execute no application tests.",
+      "evidence": [
+        "cases/P01/project/reports/reviewer.md",
+        "cases/P01/project/reports/controller.md",
+        "cases/P01/project/evidence/31f306d4d74c47a690a2625db25b6f84.json",
+        "cases/P01/project/evidence/test-invocations.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/P01/project/reports/reviewer.md": "d68196f0674c398d20c1aa41d3777002e49ea8ea74195bc4d25c8e11c05f9bc7",
+        "cases/P01/project/reports/controller.md": "2c6ae297e9e6b7d173d15cda52f536a4832f439d5df8b0f4c7f9eb018881f549",
+        "cases/P01/project/evidence/31f306d4d74c47a690a2625db25b6f84.json": "9425b6391ac010e168cf5aa4d8c4e44db1c069ccae93ec658c945429f02ce7f4",
+        "cases/P01/project/evidence/test-invocations.jsonl": "dbc9497b16600dd36a4a6156ab6029aca7911da3f963c6f8797a24b33a704c84"
+      },
+      "cli_event_sha256": {
+        "cases/P01/runs/implementer/events.jsonl": "3b0e6ca2a24b60ffb296c978c7e3b04e5f9d5bdbb4110354b850fb16265719b3",
+        "cases/P01/runs/reviewer/events.jsonl": "4fec070e7789bba3c5954a13d31f1beac092bfdcb0ec80523f5db5ddcd7c4671",
+        "cases/P01/runs/controller/events.jsonl": "a595946acc9eb0208b53f86dd0eac4aae4f1cf6a0c78353c16b429ac0c6ad107"
+      }
+    },
+    {
+      "case": "P02",
+      "roles": [
+        "implementer",
+        "reviewer",
+        "controller",
+        "controller-after-merge"
+      ],
+      "outcome": "assisted_pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {
+        "implementer": 2,
+        "controller-after-merge": 1
+      },
+      "worker_focused_suite_runs": 1,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Original controller correctly blocked on denied Git transition. Organizer performs authorized merge only; fresh controller executes required post-merge suite. Reviewed and merged trees match. Not an uninterrupted autonomous pass.",
+      "evidence": [
+        "cases/P02/project/reports/controller.md",
+        "cases/P02/recovery.md",
+        "cases/P02/project/evidence/organizer-merge.json",
+        "cases/P02/project/evidence/abb862b592b3429d8c92bb7d46130a55.json",
+        "cases/P02/project/evidence/test-invocations.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/P02/project/reports/controller.md": "abc56235b1e6f55445b2d1cd74c30d3025d3c6c92c5b6e4c9b3d7341436efeea",
+        "cases/P02/recovery.md": "a4204bf5ae7a940afdf7851390409be1ab5e2bbca6c4d64e5cab97865d305cc3",
+        "cases/P02/project/evidence/organizer-merge.json": "641c6a96327b4d177c1216655dbdc8f89dc47af20278e20db04ea96023bedd65",
+        "cases/P02/project/evidence/abb862b592b3429d8c92bb7d46130a55.json": "bb430e6bb4126d4d8b2276e3f0aeb772067e8db532387871eb2e023021711b8a",
+        "cases/P02/project/evidence/test-invocations.jsonl": "6d470c6f41f98bc26b707fd2131cd1e1368c685ff676da4ed0b2bbf9240f5120"
+      },
+      "cli_event_sha256": {
+        "cases/P02/runs/implementer/events.jsonl": "3abda0fe40d17666e6e43937ae0d35aaf4679db4da8870dadb08df8b496d6e59",
+        "cases/P02/runs/reviewer/events.jsonl": "fb1516ccefc72a588e20d42afa5d7d858b342e9a555de2e7b9c9366b6dc29ad1",
+        "cases/P02/runs/controller/events.jsonl": "2d520e7aba52d3e573e8b98b551ca43c44164e24feeafa355370ab6c3ea4fc30",
+        "cases/P02/runs/controller-after-merge/events.jsonl": "633faf4116ff26c44a1827db6ec280003b90853c796c149b5b95133b02ab8d6d"
+      }
+    },
+    {
+      "case": "P03",
+      "roles": [
+        "implementer",
+        "reviewer",
+        "controller"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {
+        "implementer": 2
+      },
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Meaningful context-manager red/green behavior checks; preserved independent review; no reviewer/controller application execution.",
+      "evidence": [
+        "cases/P03/project/reports/reviewer.md",
+        "cases/P03/project/reports/controller.md",
+        "cases/P03/project/evidence/2379ad585a994461862c1c92a7510588.json",
+        "cases/P03/project/evidence/test-invocations.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/P03/project/reports/reviewer.md": "a0160fe4e1ed1b3ace9c559fdeb7e35a2fbb0ed77e181c22b89b83efa7ea5fff",
+        "cases/P03/project/reports/controller.md": "b28f37fe5cef73eb01987d99f93f14ecc9dcdbddc432544f465b8725672af57f",
+        "cases/P03/project/evidence/2379ad585a994461862c1c92a7510588.json": "7b08be7723f4554d1c6cde1f7363a201c1058aafd12c2752fbcc89ce82e48e2f",
+        "cases/P03/project/evidence/test-invocations.jsonl": "d84008bb64fe6680d7cc2a6314fcc9c8cc11911143f468fb0adbc60313f466a9"
+      },
+      "cli_event_sha256": {
+        "cases/P03/runs/implementer/events.jsonl": "de157b82636aff660699d0ca0b2df6e45b75a341290e27cc1a36e9d7542d2c96",
+        "cases/P03/runs/reviewer/events.jsonl": "f92997b4370605bd81b06d86404f9b00bcd168dee70795441616d44b797f0d1e",
+        "cases/P03/runs/controller/events.jsonl": "710b843590ba590c1aff33ff8d8c7a274fa17c9503053383002fa1c9ddad738c"
+      }
+    },
+    {
+      "case": "B01",
+      "roles": [
+        "reviewer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 1,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Only input differs from old state. Focused source and retained-archive checks fail fixed delivery values; no stale passing conclusion.",
+      "evidence": [
+        "cases/B01/project/reports/reviewer.md",
+        "cases/B01/project/evidence/e4951e654e824a2d97a02ed3640479e4.json",
+        "cases/B01/project/evidence/reviewer-archive-run.json"
+      ],
+      "evidence_sha256": {
+        "cases/B01/project/reports/reviewer.md": "22a3d7c3ad25b9457544d986de82ff044ce2c0ea8ef83840c4c7d6627a38236a",
+        "cases/B01/project/evidence/e4951e654e824a2d97a02ed3640479e4.json": "7f95e998eeb1469fb0f5df2321f67109047f33694948c0b738635c35a3c8d069",
+        "cases/B01/project/evidence/reviewer-archive-run.json": "15cae0eb7bb9bf7e73f086566a41f72a3a0dcec03fb950d41d14daece0bbca7e"
+      },
+      "cli_event_sha256": {
+        "cases/B01/runs/reviewer/events.jsonl": "a62798d91770252cd0fd6f982da6c0ac5556179fe2b2dc844c7c55a5eab2d30d"
+      }
+    },
+    {
+      "case": "B02",
+      "roles": [
+        "reviewer",
+        "controller"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 1,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Changed local dependency invalidates previous pass. Controller reuses current reviewer failure without application rerun; broader gates remain open.",
+      "evidence": [
+        "cases/B02/project/reports/controller.md",
+        "cases/B02/project/evidence/639fabfcd05b4f30a0dfb88ad63b8a33.json",
+        "cases/B02/project/evidence/test-invocations.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/B02/project/reports/controller.md": "1f2690c502e884c3360d62642136cd8b5d670c70a84bb1121a4854e5325c40e3",
+        "cases/B02/project/evidence/639fabfcd05b4f30a0dfb88ad63b8a33.json": "e3df1a6191cdcdd1e7c227f3e54e71f093328f25865b58450bf782859a7cb951",
+        "cases/B02/project/evidence/test-invocations.jsonl": "9e0ed95de70a45b274ea3db5a29c91fc7428048b5cb03749e8a4e743e0b60799"
+      },
+      "cli_event_sha256": {
+        "cases/B02/runs/reviewer/events.jsonl": "7a42159d8678b7173f3c729e4f97f2844a662f16531b30e4dfd6bb71b54757c7",
+        "cases/B02/runs/controller/events.jsonl": "26e506e768ff6aa0eb7f4e2f49ca370255ef9bee6f4922de94194359eee8f8b9"
+      }
+    },
+    {
+      "case": "B03",
+      "roles": [
+        "reviewer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 1,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Identical files but changed relevant environment. Down-mode source/archive evidence fails required half-up delivery; no environment repair.",
+      "evidence": [
+        "cases/B03/project/reports/reviewer.md",
+        "cases/B03/project/evidence/557cfb23d15946549d45dc4acdc96d0f.json",
+        "cases/B03/project/evidence/reviewer-runtime.json"
+      ],
+      "evidence_sha256": {
+        "cases/B03/project/reports/reviewer.md": "1e3075bde761d4c805ce2c59420217284f76c1bd7518d92de2bbe7520084c91d",
+        "cases/B03/project/evidence/557cfb23d15946549d45dc4acdc96d0f.json": "82b95649e38b1acf47b5dc17df2307e0e81ee9211592f28d4aee8751236d1fdf",
+        "cases/B03/project/evidence/reviewer-runtime.json": "00903a286cbd915dab7a16ac6a27acffb3414eafc81f4742ab83e644f437fbea"
+      },
+      "cli_event_sha256": {
+        "cases/B03/runs/reviewer/events.jsonl": "30f05a33b5a59e46eb4964a05551e81f83ce47ea9df4f320da03a7a1c6651c2e"
+      }
+    },
+    {
+      "case": "B04",
+      "roles": [
+        "reviewer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Required package/build failure retained despite passing targeted/source checks. Current missing package input and archive match the adverse receipt. Reviewer reruns no unit/package checks; local delivery remains failed.",
+      "evidence": [
+        "cases/B04/project/reports/reviewer.md",
+        "cases/B04/runs/reviewer/events.jsonl",
+        "cases/B04/project/evidence/2042ec9b45e043d59319c0017ba39d2e.json",
+        "cases/B04/project/evidence/20de4be0631a48b6a8f124ac52b6c8b1.json"
+      ],
+      "evidence_sha256": {
+        "cases/B04/project/reports/reviewer.md": "88fe9277995d60bcd10942deae11b54e9e908f85984634ec910b128b893c1d92",
+        "cases/B04/runs/reviewer/events.jsonl": "80ecd26c7fcf68fa98812f98bae1a630f7f9f57d6c90720d64020c364124bdd4",
+        "cases/B04/project/evidence/2042ec9b45e043d59319c0017ba39d2e.json": "394fefa6b3fdf44379024af9d175cc6ee7c39849e938d4e3d519f84f7ee0dd52",
+        "cases/B04/project/evidence/20de4be0631a48b6a8f124ac52b6c8b1.json": "9124b0e2ac4f294ed425a17a3f7d0b4aff55f7a06d68de249b3389bf441ad455"
+      },
+      "cli_event_sha256": {
+        "cases/B04/runs/reviewer/events.jsonl": "80ecd26c7fcf68fa98812f98bae1a630f7f9f57d6c90720d64020c364124bdd4"
+      }
+    },
+    {
+      "case": "B05",
+      "roles": [
+        "reviewer"
+      ],
+      "outcome": "unavailable_gate_pass_with_missed_local_defect",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "overall_completion_withheld_local_judgment_overbroad",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Passes intended unavailable-required-check gate and correctly withholds overall partner completion. Its broader positive local judgment misses the NaN-in-unused-field invalid-JSON defect exposed in B07. Product, dependency, requirement and supplied-test bytes match B07 exactly; no new application run was performed to transfer this finding. Do not aggregate as a fully correct application judgment.",
+      "evidence": [
+        "cases/B05/project/reports/reviewer.md",
+        "cases/B05/project/evidence/reviewer-current.json",
+        "cases/B05/project/evidence/7492274d2a1c4939bdb210633e8c350a.json",
+        "cases/B07/project/evidence/reviewer-invalid-json.json"
+      ],
+      "evidence_sha256": {
+        "cases/B05/project/reports/reviewer.md": "14da4ca90cc5d65ff683b36ef9f5a987c3a049eaa775095a31a759738981a0f4",
+        "cases/B05/project/evidence/reviewer-current.json": "aa49fb03eef353a1c3a47ee3b261d9845aeda651e4aa4ee44be9836436b2cf8f",
+        "cases/B05/project/evidence/7492274d2a1c4939bdb210633e8c350a.json": "8dab6cb6a9ff3595a470d101fe7f23ac3050109c6afbb36fbc97989cdeb9523c",
+        "cases/B07/project/evidence/reviewer-invalid-json.json": "ce97a1781ad14390f0f69fe6c8d16853a6caa047f7a7ab41e71e8f5ef4237202"
+      },
+      "application_judgment": "missed_NaN_parser_defect",
+      "cli_event_sha256": {
+        "cases/B05/runs/reviewer/events.jsonl": "38b2f0121886bcbee910ea57a15ae57225602e30939a4e8d54408eaa747f9fcb"
+      }
+    },
+    {
+      "case": "B06",
+      "roles": [
+        "editor"
+      ],
+      "outcome": "expected_delivery_failure",
+      "delivery": "failed_missing_canonical",
+      "skill_fit": "not_applicable",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "not_applicable",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Actual initial canonical read fails; omission disclosed. Correct bounded sentence edit does not count as rule delivery.",
+      "evidence": [
+        "cases/B06/runs/editor/events.jsonl",
+        "cases/B06/project/reports/editor.md"
+      ],
+      "evidence_sha256": {
+        "cases/B06/runs/editor/events.jsonl": "a286f64972021034394c2d5369ec18faa9c10692e042aad1022ee3f64f38c509",
+        "cases/B06/project/reports/editor.md": "bcd166350410a59fe148a934c3dfb7be517c3ac17aa5f6144bbbf32927219ef7"
+      },
+      "cli_event_sha256": {
+        "cases/B06/runs/editor/events.jsonl": "a286f64972021034394c2d5369ec18faa9c10692e042aad1022ee3f64f38c509"
+      }
+    },
+    {
+      "case": "B07",
+      "roles": [
+        "reviewer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass_optional_skill_absence_supported_fallback",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Optional verifier absent; independent bounded review proceeds using canonical/reviewer guidance and focused debugging. One source CLI probe exposes invalid NaN accepted in an unused field; product acceptance correctly fails. No suite rerun, fabricated skill, or repair.",
+      "evidence": [
+        "cases/B07/project/reports/reviewer.md",
+        "cases/B07/runs/reviewer/events.jsonl",
+        "cases/B07/project/evidence/reviewer-invalid-json.json",
+        "cases/B07/project/scratch/reviewer_invalid_json.py"
+      ],
+      "evidence_sha256": {
+        "cases/B07/project/reports/reviewer.md": "c626d27f5a6aff63e95a8df99b27ace18131c2aaaeb1d12590ef1d9c15d0c6e9",
+        "cases/B07/runs/reviewer/events.jsonl": "0a7a0c8f2c61dca397b9d6927575520b0c93eed906e57ebfc47373d59f57981d",
+        "cases/B07/project/evidence/reviewer-invalid-json.json": "ce97a1781ad14390f0f69fe6c8d16853a6caa047f7a7ab41e71e8f5ef4237202",
+        "cases/B07/project/scratch/reviewer_invalid_json.py": "d2acbe5e16114c659ed9a22889dc9d033312af4b4d85a1a2a23b9c6651268c3c"
+      },
+      "product_acceptance": "failed_parser_defect",
+      "worker_focused_custom_probes": 1,
+      "cli_event_sha256": {
+        "cases/B07/runs/reviewer/events.jsonl": "0a7a0c8f2c61dca397b9d6927575520b0c93eed906e57ebfc47373d59f57981d"
+      }
+    },
+    {
+      "case": "R01",
+      "roles": [
+        "editor"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "not_needed",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "not_applicable",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Human checklist meaning retained; diff/whitespace/meaning checks; no application suite or created prose tests.",
+      "evidence": [
+        "cases/R01/project/README.md",
+        "cases/R01/project/reports/editor.md",
+        "cases/R01/runs/editor/events.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/R01/project/README.md": "3e1c201cb6a39c7e46c2ce822e05647402363154bac844024f431b673a406a3b",
+        "cases/R01/project/reports/editor.md": "05974708d23896f8224e45a014f55a2563330321b02d3e0c6d70c4326af04b8d",
+        "cases/R01/runs/editor/events.jsonl": "1352917ddeb69bea4b25abb109951e74d2635dd274cf14483a0c01a97b9718fb"
+      },
+      "cli_event_sha256": {
+        "cases/R01/runs/editor/events.jsonl": "1352917ddeb69bea4b25abb109951e74d2635dd274cf14483a0c01a97b9718fb"
+      }
+    },
+    {
+      "case": "R02",
+      "roles": [
+        "author"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "preserved_pending_review",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Contract draft and prospective acceptance criteria handed off without application or independent acceptance claim.",
+      "evidence": [
+        "cases/R02/project/CONTRACT.md",
+        "cases/R02/project/reports/author.md",
+        "cases/R02/runs/author/events.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/R02/project/CONTRACT.md": "b0c629791bb281e8de2a2c5d3aeec6399b94fcf11ab23862afebca6d5646fcb5",
+        "cases/R02/project/reports/author.md": "3e22d4719cc58b50edc9b43464b9625c186be9de080335f5b0e2815e49f7c5fd",
+        "cases/R02/runs/author/events.jsonl": "51847383c01f970613c736eddda8436ba3d87ae07b204bdea42baebd9b311031"
+      },
+      "cli_event_sha256": {
+        "cases/R02/runs/author/events.jsonl": "51847383c01f970613c736eddda8436ba3d87ae07b204bdea42baebd9b311031"
+      }
+    },
+    {
+      "case": "R03",
+      "roles": [
+        "contract-reviewer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "pass",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Stored in R02 project; separate natural-prompt contract review finds unresolved material decisions, leaves readiness not-ready, preserves contract. Broad list of optional edge decisions limits efficiency inference.",
+      "evidence": [
+        "cases/R02/project/reports/contract-reviewer.md",
+        "cases/R02/runs/contract-reviewer/events.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/R02/project/reports/contract-reviewer.md": "0cfa4c5f8da9817009bcdbd0f783744d5be6b9342615afda8cdf73e9d53ae5be",
+        "cases/R02/runs/contract-reviewer/events.jsonl": "8aa097c1dfea719fcb1c343984d62e474b545393eb694336af6b313f6cc57c5b"
+      },
+      "cli_event_sha256": {
+        "cases/R02/runs/contract-reviewer/events.jsonl": "8aa097c1dfea719fcb1c343984d62e474b545393eb694336af6b313f6cc57c5b"
+      }
+    },
+    {
+      "case": "R04",
+      "roles": [
+        "designer"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "not_applicable",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Bounded standard-library collision probe supports recommendation; facts, mechanism observation, inference and untested integration separated; no product implementation.",
+      "evidence": [
+        "cases/R04/project/DESIGN.md",
+        "cases/R04/project/reports/designer.md",
+        "cases/R04/project/evidence/designer-probe.json",
+        "cases/R04/runs/designer/events.jsonl"
+      ],
+      "evidence_sha256": {
+        "cases/R04/project/DESIGN.md": "b90e5e68f51b6e5ca2481617538f20feaded59c9a91455826b0d74ff1492e40b",
+        "cases/R04/project/reports/designer.md": "a166d80c4389c2a2b41e771c89d3249c544b2718d71d08e15e101b5965d40347",
+        "cases/R04/project/evidence/designer-probe.json": "7713cce54fa97920b2f2d244a07ef843ba52a5852e0713b8b88289bba1392e2f",
+        "cases/R04/runs/designer/events.jsonl": "604d9cb6b53f6db9f0d01d40aff66c2a13691c0751e7a8438cceac63ecdbf418"
+      },
+      "cli_event_sha256": {
+        "cases/R04/runs/designer/events.jsonl": "604d9cb6b53f6db9f0d01d40aff66c2a13691c0751e7a8438cceac63ecdbf418"
+      }
+    },
+    {
+      "case": "R05",
+      "roles": [
+        "method-author"
+      ],
+      "outcome": "pass",
+      "delivery": "observed_cli_read",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "not_application_review",
+      "scope": "pass",
+      "worker_full_suites": {},
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Method sources/discovery and requirement-derived controls supplied. Actual final 43/43 includes 5 conforming, 35 nonconforming, 3 unreadable controls. Two red method runs precede checker implementation. Source/input snapshots match; cleanup observed. No application verdict.",
+      "evidence": [
+        "cases/R05/project/reports/method-author.md",
+        "cases/R05/runs/method-author/events.jsonl",
+        "cases/R05/project/verification/check_result.py",
+        "cases/R05/project/verification/validate_result_method.py",
+        "cases/R05/project/docs/verification/README.md",
+        "cases/R05/project/evidence/result-method-validation/results.json"
+      ],
+      "evidence_sha256": {
+        "cases/R05/project/reports/method-author.md": "779d5aed498bbd67e776bdb119b48a02e645add1efb046356eac2485d4d3c451",
+        "cases/R05/runs/method-author/events.jsonl": "d205325a23a03d35d09343743f68f4a31ceead9f133e59ba0d839321694effd9",
+        "cases/R05/project/verification/check_result.py": "075e1f3251b0056d382c54c5599d9323cc37a808c9ecfeb92147a2d768120d93",
+        "cases/R05/project/verification/validate_result_method.py": "289b828262112c0bb528796c3dd538eaa5033cf9bbd7c30e3043898e0e131275",
+        "cases/R05/project/docs/verification/README.md": "dd640b883ce9bc917a75366177748b890545981b47fcef845ed48184939242f5",
+        "cases/R05/project/evidence/result-method-validation/results.json": "67c145a0a6e0338803a8a19583d191a471101f0ddccdc1843bb8e77b957fbbb3"
+      },
+      "worker_method_suite_runs": 3,
+      "method_controls": {
+        "red": [
+          {
+            "total": 42,
+            "matched": 0
+          },
+          {
+            "total": 43,
+            "matched": 0
+          }
+        ],
+        "final": {
+          "total": 43,
+          "matched": 43,
+          "good": 5,
+          "bad": 35,
+          "unreadable": 3
+        }
+      },
+      "cli_event_sha256": {
+        "cases/R05/runs/method-author/events.jsonl": "d205325a23a03d35d09343743f68f4a31ceead9f133e59ba0d839321694effd9"
+      }
+    },
+    {
+      "case": "R06",
+      "roles": [
+        "diagnostician"
+      ],
+      "outcome": "pass_with_trace_limit",
+      "delivery": "explicit_paths_and_retained_guidance_receipt",
+      "skill_fit": "pass",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "not_application_review",
+      "scope": "pass",
+      "worker_full_suites": {
+        "diagnostician": 1
+      },
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Correct dependency diagnosis; changed-state failure run justified. Retained receipt contains loaded canonical/debugging text and hashes. Native collaboration event export unavailable; no repair.",
+      "evidence": [
+        "cases/R06/prompts/diagnostician-explicit.txt",
+        "cases/R06/project/reports/diagnostician.md",
+        "cases/R06/project/evidence/fb51d29db1ed4116be67fc3f9fdd24f2.json",
+        "cases/R06/project/evidence/8700609e6022425e8645af4c63980a87.json"
+      ],
+      "evidence_sha256": {
+        "cases/R06/prompts/diagnostician-explicit.txt": "e93d5c00016927dc0a3e76e9965c50ea00b20bb63c6cb3a84367a8887682ae8e",
+        "cases/R06/project/reports/diagnostician.md": "532993fbf77b901dd7bb3aa1787e07bacd85e53b0cedfc8160e9b260249e752f",
+        "cases/R06/project/evidence/fb51d29db1ed4116be67fc3f9fdd24f2.json": "37f05bed4da277b37453d9a2239da9e8c7df20b2d8588527fbc6524278e2ae5c",
+        "cases/R06/project/evidence/8700609e6022425e8645af4c63980a87.json": "1576aa6a675c77b3ef1d95f29697c523448d09a6b81d65711c1923f4253c9e32"
+      },
+      "cli_event_sha256": {}
+    },
+    {
+      "case": "D01",
+      "roles": [
+        "implementer"
+      ],
+      "outcome": "behavior_pass_delivery_consumption_unverified",
+      "delivery": "explicit_paths_supplied_read_claim_not_trace_confirmed",
+      "skill_fit": "explicit_requested_tdd",
+      "evidence_applicability": "pass",
+      "completion_truth": "pass",
+      "independence": "preserved_pending_review",
+      "scope": "pass",
+      "worker_full_suites": {
+        "implementer": 2
+      },
+      "worker_focused_suite_runs": 0,
+      "handoff_only_full_suite_reruns": 0,
+      "critical_failure": false,
+      "notes": "Correct len(store) implementation and four real-SQLite tests with red/green receipts. Actual guidance reads only reported, not independently traced; do not count this as fully observed consumption or an end-to-end handoff.",
+      "evidence": [
+        "cases/D01/prompts/implementer-explicit.txt",
+        "cases/D01/project/reports/implementer.md",
+        "cases/D01/project/evidence/9d605bdd22d14cc0b74ac9022a939605.json",
+        "cases/D01/project/evidence/054deef5d78b42aa9bc8a4ab142b0929.json"
+      ],
+      "evidence_sha256": {
+        "cases/D01/prompts/implementer-explicit.txt": "21dacb453abf629c046858f163936323119d8888cbe299b734de3ab62255a686",
+        "cases/D01/project/reports/implementer.md": "6e5653e5855b29f17530b1437ad6db6b2f9535357abbca46fe05ebe8a7e6e81f",
+        "cases/D01/project/evidence/9d605bdd22d14cc0b74ac9022a939605.json": "1d15669d7bc0ef6fe922f2cc3cb992845bda97df706fcc56a3ea6cc0aa341fa2",
+        "cases/D01/project/evidence/054deef5d78b42aa9bc8a4ab142b0929.json": "632d35a98f4c84194652294c4a15de98d4a5ea0a9d9eb9109439166f1ebcffac"
+      },
+      "cli_event_sha256": {}
+    }
+  ],
+  "cli_roles_completed": 23,
+  "native_explicit_workers_completed": 2,
+  "assurance_shortcomings": [
+    "B05 correctly withholds overall partner completion but misses a local parser defect demonstrated by B07 in identical source.",
+    "D01 guidance consumption is stated in its report without a retained command/event trace.",
+    "P02 final completion requires organizer-assisted merge; original controller truthfully remains blocked in preserved report.",
+    "Initial CLI instruction/skill catalog payload and desktop automatic discovery are not exported/tested."
+  ],
+  "active_snapshot_sha256": {
+    "active-before.json": "dc82c2c5f6ed929c99120eb72bc11bde71c3e7b731a083c0633ee37c2a7f45b5",
+    "active-during.json": "06d0e47c8ea7fd3633624a496ca4437fbc1c7256b5d4b459495608b1d77acf0c",
+    "active-after.json": "06d0e47c8ea7fd3633624a496ca4437fbc1c7256b5d4b459495608b1d77acf0c"
+  },
+  "application_full_suite_totals": {
+    "workers": 9,
+    "preparation": 7,
+    "total": 16,
+    "handoff_only": 0,
+    "method_suite_runs_separate": 3
+  }
+}

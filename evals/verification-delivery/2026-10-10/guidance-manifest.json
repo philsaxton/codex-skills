@@ -1,0 +1,51 @@
+{
+  "application_revision": "6136fe2ea7bf6229f9654d53719e780e060930d6",
+  "superpowers_revision": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+  "runtime": {
+    "cli_version": "codex-cli 0.160.0",
+    "configured_model": "gpt-6.1-sol",
+    "configured_reasoning_effort": "max",
+    "override": false,
+    "source": "only named nonsecret top-level config keys read locally; per-request model response not exposed in JSONL"
+  },
+  "protocol_sha256": "163089715e19a69819c372ad1d4d3de571aa5aaaee43dc7224d0ac0ed77f6b64",
+  "guidance": {
+    ".agents/vendors/codex-skills/coordinator/SKILL.md": "d20608fdd08cfb1dcc8dcdfd481fc4c3228b5515c695bd52c2b792d7a1b2e313",
+    ".agents/vendors/codex-skills/shared/completion-evidence.md": "47765af163b0afa6f43ae3515e5a5a59fbcb4e32afc100eee2296255668f8afd",
+    ".agents/vendors/codex-skills/shared/reviewer-evidence.md": "897c383feab7a038887bb44a940ef67859fe391b27992839384521617feddf6d",
+    ".agents/vendors/codex-skills/solution-design/SKILL.md": "aea8e3878938f2a29ec5b6f6820c93bbc81e2f8c520266c635523e48ce31cea9",
+    ".agents/vendors/codex-skills/verification-method-author/SKILL.md": "4973e2bd67899d80838b1a284f2715584f95abf509871f286adddc1f0e2bbd8c",
+    ".agents/vendors/codex-skills/verifier/SKILL.md": "78683c04e5c4ff2e3e42671b0dcf5ae772a7f3d40790b0025d10418f477a9dee",
+    ".agents/vendors/codex-skills/contract-reviewer/SKILL.md": "5cfb28151b0339f3dedd1d68e2726080477d7439f5b611a7cf7e4176fc904a95",
+    ".agents/vendors/codex-skills/contract-author/SKILL.md": "8bb1957d92dee920c4060071c3f2b5534dcbcf0f3cc99cdaac14b97e3dddaf1d",
+    ".agents/vendors/superpowers/skills/test-driven-development/writing-good-tests.md": "51471c853306ff92ca8bb41dcaea05f31c0e46b03651f8f3c99754b7172f4ae1",
+    ".agents/vendors/superpowers/skills/test-driven-development/SKILL.md": "64b03fce4aee5a97a93160cea8111f3ba13a17b7c001db4bd5836d67fd10705d",
+    ".agents/vendors/superpowers/skills/systematic-debugging/test-pressure-1.md": "0b6a915db0054577819834c79be9eb614e97bddba10d73768e1fbe91cfed048a",
+    ".agents/vendors/superpowers/skills/systematic-debugging/condition-based-waiting.md": "e89fec8400d6cd50f43407cec9fab50976ba4d55d0ec2eb51c0bd68036b54c26",
+    ".agents/vendors/superpowers/skills/systematic-debugging/test-pressure-2.md": "b2030aeffba07050e8ad573ddf87486457c4a016a786bb326235bebd856f2016",
+    ".agents/vendors/superpowers/skills/systematic-debugging/CREATION-LOG.md": "c24733a5b1821bd6bed1fc950261f0b9f4e90097e0bbb96459d8179713730789",
+    ".agents/vendors/superpowers/skills/systematic-debugging/test-academic.md": "fe2ba480d78ac0d686dc025f41c2a32a43d642bf533f91b0c6053a04d35d6486",
+    ".agents/vendors/superpowers/skills/systematic-debugging/defense-in-depth.md": "1e175fb86fc357e58c6aebf5441e481e1b7868b4380c0456b63a17eefbd18ba7",
+    ".agents/vendors/superpowers/skills/systematic-debugging/SKILL.md": "51c6435d98c83c42c96ba7c35725a0b2c376cd487fb1a4e6bd0ddbe7e33ef202",
+    ".agents/vendors/superpowers/skills/systematic-debugging/test-pressure-3.md": "96b50a52e2c7989c9cf20fb752c47c1e9a3a70dc362f8f7989f8f5b64dac7708",
+    ".agents/vendors/superpowers/skills/systematic-debugging/root-cause-tracing.md": "75b933b6a8c40bdb2031b10f21654395b56ec6ab6bc7b018c18d3fe57aeb7fb8",
+    ".agents/vendors/superpowers/skills/systematic-debugging/condition-based-waiting-example.ts": "40ae5ebe497fdf310200e43fe986552546d0a22837c0d39e855db1cfd33eb88e",
+    ".agents/vendors/superpowers/skills/systematic-debugging/find-polluter.sh": "dd7b8f13c4cc2a24b33ff87b18da9248f3e1c80a085c3316224f69ff0fa5c43c",
+    ".agents/vendors/superpowers/skills/verification-before-completion/SKILL.md": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
+  },
+  "AGENTS.md": "73169450cf9cfbceee8c5f2521491e2ffbd67100f707675a3d289b78bd7f446d",
+  "selected_skills": {
+    "test-driven-development": "../vendors/superpowers/skills/test-driven-development",
+    "coordinator": "../vendors/codex-skills/coordinator",
+    "systematic-debugging": "../vendors/superpowers/skills/systematic-debugging",
+    "solution-design": "../vendors/codex-skills/solution-design",
+    "verification-method-author": "../vendors/codex-skills/verification-method-author",
+    "verifier": "../vendors/codex-skills/verifier",
+    "contract-reviewer": "../vendors/codex-skills/contract-reviewer",
+    "contract-author": "../vendors/codex-skills/contract-author"
+  },
+  "exceptions": {
+    "B06": "canonical completion file absent (negative delivery control)",
+    "B07": "optional verifier directory and selection absent"
+  }
+}

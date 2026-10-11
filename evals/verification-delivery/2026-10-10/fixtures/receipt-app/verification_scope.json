@@ -1,0 +1,40 @@
+{
+  "product": ["receipt.py"],
+  "local_dependencies": ["tax_rules.py"],
+  "input": ["inputs/order.json"],
+  "packaging": ["build.py", "check_package.py", "packaging/__main__.py"],
+  "tests": ["tests/__init__.py", "tests/test_receipt.py"],
+  "contract": ["REQUEST.md", "README.md", "verification_scope.json"],
+  "external_check": ["check_external.py"],
+  "process_environment": {
+    "RECEIPT_ROUNDING": {
+      "default_when_unset": "half_up",
+      "delivery_value": "half_up",
+      "other_supported_value": "down"
+    }
+  },
+  "runtime": ["Python executable path and version", "working directory"],
+  "local_required_commands": [
+    ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"],
+    ["python3", "check_package.py"]
+  ],
+  "targeted_command": [
+    "python3", "-m", "unittest", "tests.test_receipt.ReceiptTests.test_committed_order_receipt", "-v"
+  ],
+  "delivery_command": [
+    "python3", "receipt.py", "inputs/order.json", "--output", "build/receipt.json"
+  ],
+  "partner_required_command": [
+    "python3", "check_external.py", "--receipt", "build/receipt.json",
+    "--partner-export", "external/partner-receipt.json"
+  ],
+  "external_prerequisite": {
+    "path": "external/partner-receipt.json",
+    "origin": "separately supplied partner acceptance system export",
+    "bundled": false,
+    "absence_result": {"exit_code": 2, "status": "unavailable"}
+  },
+  "deliverables": ["build/receipt.pyz", "build/receipt.json"],
+  "scratch_and_generated_exclusions": [".scratch/", "build/", "__pycache__/"],
+  "organizer_only_exclusion": "variants.json"
+}

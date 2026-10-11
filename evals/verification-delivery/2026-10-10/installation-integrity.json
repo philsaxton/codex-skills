@@ -1,0 +1,17 @@
+{
+  "scope": "Before/during/after evaluation, before publication of the results commit. Original snapshots remain private. Existing repository differences were preserved.",
+  "snapshots_sha256": {
+    "active-before.json": "dc82c2c5f6ed929c99120eb72bc11bde71c3e7b731a083c0633ee37c2a7f45b5",
+    "active-during.json": "06d0e47c8ea7fd3633624a496ca4437fbc1c7256b5d4b459495608b1d77acf0c",
+    "active-after.json": "06d0e47c8ea7fd3633624a496ca4437fbc1c7256b5d4b459495608b1d77acf0c"
+  },
+  "recorded_repository_statuses_unchanged": true,
+  "active_pins_unchanged": true,
+  "selected_skill_links_unchanged": true,
+  "all_vendor_worktrees_clean_during_and_after": true,
+  "active_pins": {
+    "workspace_codex_skills": "c460e8e3833540519fdf27929c3c1a767bf4ccab",
+    "workspace_superpowers": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+    "consumer_codex_skills": "23143fe1837ac210ce9d1961869537ceaa38985e"
+  }
+}
