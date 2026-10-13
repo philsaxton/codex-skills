@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implementation Tracker"
+  short_description: "Read and update Markdown implementation slices"
+  default_prompt: "Use $implementation-tracker to inspect the recorded slices and apply the specified status updates."
