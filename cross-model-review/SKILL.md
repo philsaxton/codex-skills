@@ -51,8 +51,12 @@ the two options above, and stop.
 The configured command must be read-only in fact, not only by prompt:
 it must carry its CLI's sandbox or tool-allowlist restrictions and disable
 write-capable integrations (MCP servers, apps, plugins, hooks) for that
-CLI. If the line lacks those controls, ask the user to fix
-`.reviewer-model` rather than run it.
+CLI. Check the effective configuration from the target repository, including
+project and managed settings, using the CLI's read-only configuration
+inspection commands with the same configuration and feature overrides.
+Follow the Codex readback instructions in the example when using Codex.
+If restrictions are missing, overridden, or cannot be verified, stop and
+report the gap; ask the user to correct `.reviewer-model` when needed.
 
 Treat `.reviewer-model` as trusted user configuration (like a Makefile):
 it must never contain secrets or API keys — the CLI's stored
@@ -111,12 +115,17 @@ Work from the repository root of the change under review.
      commit would record);
      `git diff` (working tree against the index);
      plus the full contents of every untracked text file enumerated by
-     `git ls-files --others --exclude-standard`, marked as new — excluding
+     `git ls-files --others --exclude-standard -z`, marked as new — excluding
      `.reviewer-model` itself, which is reviewer configuration, not part of
-     the change. When staged content differs from the working tree, both
-     versions are in scope: approval must cover the index content, and you
-     must not commit staged content the reviewer has not seen;
-   - the check commands you ran and their observed results.
+     the change. Split that inventory on NUL bytes so spaces, quotes, and
+     newlines in filenames remain intact. Apply the same exclusions to
+     every packet section. When staged content differs from the working
+     tree, both versions are in scope: approval must cover the index
+     content, and you must not commit staged content the reviewer has not
+     seen;
+   - the check commands you ran, their observed results, and which state
+     they tested. Checks run on the working tree do not establish that a
+     different staged version passes.
    Do not truncate, summarise, or cherry-pick hunks of the diff. If the
    complete change is too large for one review, say so and split the task;
    a partial diff reviewed as if complete is a false approval. Exclude
@@ -134,7 +143,9 @@ There is no built-in reviewer command to fall back to.
 The reviewer prompt inside the packet must say, in substance:
 
 > You are the read-only reviewer in a cross-model review. Review the complete
-> change below against the requirements. Do not edit files, do not run
+> change below against the requirements, including both the index and working
+> tree when they differ. Apply check results only to the state actually tested.
+> Do not edit files, do not run
 > another model, and do not invoke the cross-model-review skill. Return only
 > the Markdown report defined here: a verdict line (`APPROVED`,
 > `CHANGES_REQUESTED`, or `BLOCKED`), a summary, and findings. Give each

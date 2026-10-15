@@ -6,12 +6,30 @@
 # choose or change them. Never put secrets or API keys in this file; the
 # reviewer's stored CLI authentication is used.
 
-# Codex reviewer (replace MODEL and EFFORT). --ignore-user-config keeps
-# your configured MCP servers out of the review, and the --disable flags
-# turn off app/plugin/hook/multi-agent integrations. If your model
-# provider is defined in user config, drop --ignore-user-config and
-# instead disable each MCP server defined in your own config.toml:
-# codex exec --ephemeral --ignore-user-config --sandbox read-only --disable apps --disable plugins --disable hooks --disable multi_agent -c 'approval_policy="never"' -m MODEL -c 'model_reasoning_effort="EFFORT"' -C {root} - < {packet} > {report}
+# Codex reviewer (replace MODEL, EFFORT, and MCP_OVERRIDES):
+# --ignore-user-config keeps MCP servers defined in your user config out
+# of the review; authentication still uses the stored login. If your model
+# provider is defined in user config, drop --ignore-user-config and treat
+# your user-config servers like project-config servers below.
+# --disable apps/plugins removes app- and plugin-provided integrations.
+# Do not add mcp_servers overrides for app/plugin-provided servers:
+# shadowing their registration without its transport breaks config load.
+# MCP_OVERRIDES covers only servers defined in config files (the target
+# repository's .codex/config.toml, system, or managed configuration).
+# From the target repository, inspect `codex mcp list --json`, identify
+# those config-file servers, and replace MCP_OVERRIDES with one -c
+# argument disabling each by its exact name, for example:
+# -c 'mcp_servers={"server.with-dots"={enabled=false},"another"={enabled=false}}'
+# If no config-file servers exist, remove MCP_OVERRIDES. An empty
+# mcp_servers={} merges with existing settings; it does not clear servers.
+# Before running the review, read back `codex mcp list --json` and
+# `codex features list` from the target repository with the same -c and
+# --disable options: no config-file MCP server may be enabled, and apps,
+# plugins, hooks, and multi_agent must all be false. If a remaining enabled
+# server cannot be disabled without breaking config load, stop.
+# --ignore-rules also prevents inherited execution rules from permitting
+# shell commands outside the read-only sandbox.
+# codex exec --ephemeral --ignore-rules --ignore-user-config --sandbox read-only --disable apps --disable plugins --disable hooks --disable multi_agent MCP_OVERRIDES -c 'approval_policy="never"' -m MODEL -c 'model_reasoning_effort="EFFORT"' -C {root} - < {packet} > {report}
 
 # Claude reviewer (replace MODEL and EFFORT):
 # claude --print --model MODEL --effort EFFORT --safe-mode --tools "Read,Glob,Grep" --allowedTools "Read,Glob,Grep" --disallowedTools "mcp__*" --permission-mode dontAsk --strict-mcp-config --mcp-config '{"mcpServers":{}}' < {packet} > {report}

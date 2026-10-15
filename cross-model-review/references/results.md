@@ -36,6 +36,9 @@ implementer assigns it the next ID.
   supplied check results pass, and no P0–P2 finding remains open. If any of
   that evidence is missing, use `CHANGES_REQUESTED` or `BLOCKED` — absence
   of evidence is unknown, not passing.
+- When the index and working tree differ, assess both versions. Check
+  results establish only the state they actually tested; identify missing
+  required evidence for the other version before approving it.
 - `Verdict: BLOCKED` is for an incomplete diff, unreadable requirements,
   or a capability you were denied. Name the missing input.
 
