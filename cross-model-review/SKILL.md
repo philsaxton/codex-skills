@@ -48,6 +48,12 @@ Wait for the answer. If no user can answer (for example an unattended
 run), report the review as blocked on the missing `.reviewer-model`, list
 the two options above, and stop.
 
+The configured command must be read-only in fact, not only by prompt:
+it must carry its CLI's sandbox or tool-allowlist restrictions and disable
+write-capable integrations (MCP servers, apps, plugins, hooks) for that
+CLI. If the line lacks those controls, ask the user to fix
+`.reviewer-model` rather than run it.
+
 Treat `.reviewer-model` as trusted user configuration (like a Makefile):
 it must never contain secrets or API keys — the CLI's stored
 authentication is used instead. The command must reference `{packet}` at
@@ -97,12 +103,19 @@ Work from the repository root of the change under review.
    files. The packet contains, in this order:
    - the reviewer instructions from the next section, verbatim in substance;
    - the task requirements or brief, as given;
-   - the base reference, current branch, and `git status --porcelain` output;
-   - the complete change: `git log --oneline <BASE>..HEAD` and
-     `git diff <BASE>` (this covers committed, staged, and unstaged tracked
-     changes), plus the full contents of any untracked text files listed by
-     `git status`, marked as new — excluding `.reviewer-model` itself, which
-     is reviewer configuration, not part of the change;
+   - the base reference, current branch, and
+     `git status --porcelain --untracked-files=all` output;
+   - the complete change, in separately labelled parts:
+     `git log --oneline <BASE>..HEAD`;
+     `git diff --cached <BASE>` (the index against the base — the content a
+     commit would record);
+     `git diff` (working tree against the index);
+     plus the full contents of every untracked text file enumerated by
+     `git ls-files --others --exclude-standard`, marked as new — excluding
+     `.reviewer-model` itself, which is reviewer configuration, not part of
+     the change. When staged content differs from the working tree, both
+     versions are in scope: approval must cover the index content, and you
+     must not commit staged content the reviewer has not seen;
    - the check commands you ran and their observed results.
    Do not truncate, summarise, or cherry-pick hunks of the diff. If the
    complete change is too large for one review, say so and split the task;

@@ -6,8 +6,12 @@
 # choose or change them. Never put secrets or API keys in this file; the
 # reviewer's stored CLI authentication is used.
 
-# Codex reviewer (replace MODEL and EFFORT):
-# codex exec --ephemeral --sandbox read-only -c 'approval_policy="never"' -m MODEL -c 'model_reasoning_effort="EFFORT"' -C {root} - < {packet} > {report}
+# Codex reviewer (replace MODEL and EFFORT). --ignore-user-config keeps
+# your configured MCP servers out of the review, and the --disable flags
+# turn off app/plugin/hook/multi-agent integrations. If your model
+# provider is defined in user config, drop --ignore-user-config and
+# instead disable each MCP server defined in your own config.toml:
+# codex exec --ephemeral --ignore-user-config --sandbox read-only --disable apps --disable plugins --disable hooks --disable multi_agent -c 'approval_policy="never"' -m MODEL -c 'model_reasoning_effort="EFFORT"' -C {root} - < {packet} > {report}
 
 # Claude reviewer (replace MODEL and EFFORT):
 # claude --print --model MODEL --effort EFFORT --safe-mode --tools "Read,Glob,Grep" --allowedTools "Read,Glob,Grep" --disallowedTools "mcp__*" --permission-mode dontAsk --strict-mcp-config --mcp-config '{"mcpServers":{}}' < {packet} > {report}
