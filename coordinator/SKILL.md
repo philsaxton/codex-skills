@@ -47,9 +47,12 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
 | Implementer | Available implementation skills suited to the task. |
+| Walkthrough guide | `pr-walkthrough` |
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
 Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
+
+Use the walkthrough guide when a human wants to understand a change through paced explanation and questions. Its outcome is comprehension; it does not replace an independent final review or grant approval.
 
 ### Select skills and dispatch
 
