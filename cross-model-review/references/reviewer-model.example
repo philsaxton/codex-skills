@@ -1,0 +1,17 @@
+# Copy this file to .reviewer-model at your repository root and uncomment
+# exactly one command line (or write your own). The implementing agent runs
+# that line verbatim after substituting {packet} (review packet file),
+# {report} (report output file), and {root} (repository root). The line
+# must contain the tool, model, and effort you want — the agent will not
+# choose or change them. Never put secrets or API keys in this file; the
+# reviewer's stored CLI authentication is used.
+
+# Codex reviewer (replace MODEL and EFFORT):
+# codex exec --ephemeral --sandbox read-only -c 'approval_policy="never"' -m MODEL -c 'model_reasoning_effort="EFFORT"' -C {root} - < {packet} > {report}
+
+# Claude reviewer (replace MODEL and EFFORT):
+# claude --print --model MODEL --effort EFFORT --safe-mode --tools "Read,Glob,Grep" --allowedTools "Read,Glob,Grep" --disallowedTools "mcp__*" --permission-mode dontAsk --strict-mcp-config --mcp-config '{"mcpServers":{}}' < {packet} > {report}
+
+# Muse reviewer (replace MODEL and EFFORT; add your read-only
+# permission/workspace restrictions):
+# muse exec --model MODEL --reasoning-effort EFFORT --prompt-file {packet} > {report}

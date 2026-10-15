@@ -46,7 +46,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
-| Implementer | Available implementation skills suited to the task. |
+| Implementer | Available implementation skills suited to the task; `cross-model-review` when a different-model review loop is wanted. |
 | Walkthrough guide | `pr-walkthrough` |
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
