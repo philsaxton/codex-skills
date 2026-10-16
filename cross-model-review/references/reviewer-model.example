@@ -1,4 +1,5 @@
-# Copy this file to .reviewer-model at your repository root and uncomment
+# Copy this file to .reviewer-model at your workspace root — beside the
+# governing AGENTS.md, not inside a repository — and uncomment
 # exactly one command line (or write your own). The implementing agent runs
 # that line verbatim after substituting {packet} (review packet file),
 # {report} (report output file), and {root} (repository root). The line

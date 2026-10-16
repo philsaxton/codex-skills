@@ -58,7 +58,7 @@ Use the walkthrough guide when a human wants to understand a change through pace
 
 `cross-model-review` gives an implementer an advisory second pair of eyes from a separate model. It is not a role, not verification, and not a substitute for the Final reviewer: its feedback, dispositions, and retained test evidence feed the verifier, which keeps the verification judgment.
 
-Assign it only when a separate reviewer model has already been assigned before dispatch. As part of preflight, resolve the reviewer from the repository's `.reviewer-model` or the project default recorded in project instructions, and carry the resolved reviewer command and reviewer model in the implementer's task contract. Never answer a missing assignment with the implementer's own model and never let the implementer choose one mid-run. If no separate model can be assigned, do not select the skill: proceed without it when pair review was optional, or block dispatch when the user or project requires it.
+Assign it only when a separate reviewer model has already been assigned before dispatch. As part of preflight, resolve the reviewer from `.reviewer-model` at the workspace root (beside the governing `AGENTS.md`) or the project default recorded in `AGENTS.md` or other project instructions, and carry the resolved reviewer command and reviewer model in the implementer's task contract. Never answer a missing assignment with the implementer's own model and never let the implementer choose one mid-run. If no separate model can be assigned, do not select the skill: proceed without it when pair review was optional, or block dispatch when the user or project requires it.
 
 ### Select skills and dispatch
 

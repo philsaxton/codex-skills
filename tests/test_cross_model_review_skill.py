@@ -165,6 +165,14 @@ class PairReviewScopeTests(unittest.TestCase):
         self.assertIn("coordinator", SKILL.lower())
         self.assertIn("separate reviewer model", self.COORDINATOR)
 
+    def test_reviewer_model_lives_at_workspace_root_beside_agents(self):
+        skill = " ".join(SKILL.split())
+        coordinator = " ".join(self.COORDINATOR.split())
+        self.assertIn("workspace root", skill)
+        self.assertIn("AGENTS.md", skill)
+        self.assertNotIn("`.reviewer-model` at the repository root", skill)
+        self.assertIn("workspace root", coordinator)
+
     def test_contract_source_is_not_blocked_by_reviewer_model_file(self):
         skill = " ".join(SKILL.split())
         self.assertIn("do not consult `.reviewer-model`", skill)

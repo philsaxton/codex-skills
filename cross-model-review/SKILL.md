@@ -22,9 +22,14 @@ assigned, by one of these sources:
    and names the reviewer model, for a task the coordinator assigned. Use
    that command as this task's reviewer configuration and do not consult
    `.reviewer-model` for this task.
-2. Otherwise, `.reviewer-model` at the repository root (`git rev-parse
-   --show-toplevel`): ignore blank lines and lines starting with `#`;
-   exactly one other line must remain — a shell command template that
+2. Otherwise, `.reviewer-model` at the workspace root, beside the
+   governing `AGENTS.md`. The workspace root is the root named by the
+   coordinator or user when one is supplied; otherwise it is the first
+   directory found by starting at the repository root
+   (`git rev-parse --show-toplevel`) and walking upward that contains an
+   `AGENTS.md`. This file is workspace configuration, not a file committed
+   to the reviewed repository. Ignore blank lines and lines starting with
+   `#`; exactly one other line must remain — a shell command template that
    already contains the tool, model, and effort flags.
 
 The reviewer model must be different from yours. If no assignment exists,
@@ -38,9 +43,10 @@ of this skill to invent a model or effort, and never continue as a
 self-review under this skill's name.
 
 The file checks in this paragraph apply only when the file supplies the
-command (source 2). If `.reviewer-model` is itself added or modified by
-the change under review, do not execute the working-tree version; ask the
-user or coordinator which configuration to trust. If zero or more than
+command (source 2). When the workspace root is inside the reviewed
+repository and `.reviewer-model` is itself added or modified by the change
+under review, do not execute the working-tree version; ask the user or
+coordinator which configuration to trust. If zero or more than
 one command line remains in the file, stop and report the file as
 ambiguous. A coordinator-supplied assignment is unaffected by the file's
 presence, contents, or state.
