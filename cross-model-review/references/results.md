@@ -20,7 +20,9 @@ Observations:
   their results>
   Suggested correction: <what you would change>
 
-Tests run: <commands you ran and their results, or "none">
+Tests run: <for each test: command, state tested, and the relevant
+output quoted or a durable artifact link to the full output, including
+failures — or "none">
 Unknowns: <evidence you could not obtain or questions you need
 answered, or "none">
 ```
@@ -37,9 +39,13 @@ or user weighs contested items; nobody needs your permission to proceed.
 - One observation per distinct issue. Use a concrete file and line where
   one exists; for a missing test or a cross-cutting issue, name the file
   or area and say what is absent.
-- Report only tests you actually ran, with their results. Supplied check
-  results are the implementer's evidence; say when you are relying on
-  them rather than rerunning them.
+- Report only tests you actually ran. For each one, preserve the
+  evidence: command, state tested, and the relevant output quoted in the
+  report or a durable artifact link to the full output, including
+  failures. A pass/fail summary without output or a durable artifact
+  link discards evidence the implementer is meant to retain. Supplied
+  check results are the implementer's evidence; say when you are relying
+  on them rather than rerunning them.
 - When the index and working tree differ, cover both versions. Check
   results establish only the state they actually tested.
 - `NO_FURTHER_SUGGESTIONS` means you see nothing more material to offer;

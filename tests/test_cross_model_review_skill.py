@@ -154,6 +154,9 @@ class CodexTemplateTests(unittest.TestCase):
             self.assertEqual(features.get(name), "false", name)
 
 
+RESULTS = (ROOT / "cross-model-review/references/results.md").read_text()
+
+
 class PairReviewScopeTests(unittest.TestCase):
     COORDINATOR = (ROOT / "coordinator/SKILL.md").read_text()
 
@@ -161,6 +164,19 @@ class PairReviewScopeTests(unittest.TestCase):
         self.assertIn("separate reviewer model has already been assigned", SKILL)
         self.assertIn("coordinator", SKILL.lower())
         self.assertIn("separate reviewer model", self.COORDINATOR)
+
+    def test_contract_source_is_not_blocked_by_reviewer_model_file(self):
+        skill = " ".join(SKILL.split())
+        self.assertIn("do not consult `.reviewer-model`", skill)
+        self.assertIn("only when the file supplies the command", skill)
+        self.assertIn("whichever source supplied the command", skill)
+
+    def test_reviewer_test_evidence_is_preserved_not_summarised(self):
+        for text in (SKILL, RESULTS):
+            flat = " ".join(text.split())
+            self.assertIn("durable artifact", flat)
+            self.assertIn("state tested", flat)
+        self.assertIn("including failures", " ".join(RESULTS.split()))
 
     def test_pair_review_is_advisory_not_an_approval_gate(self):
         self.assertIn("advisory", SKILL.lower())

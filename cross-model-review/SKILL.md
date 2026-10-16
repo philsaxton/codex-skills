@@ -20,8 +20,9 @@ assigned, by one of these sources:
 
 1. A coordinator task contract that supplies the resolved reviewer command
    and names the reviewer model, for a task the coordinator assigned. Use
-   that command as this task's reviewer configuration.
-2. `.reviewer-model` at the repository root (`git rev-parse
+   that command as this task's reviewer configuration and do not consult
+   `.reviewer-model` for this task.
+2. Otherwise, `.reviewer-model` at the repository root (`git rev-parse
    --show-toplevel`): ignore blank lines and lines starting with `#`;
    exactly one other line must remain — a shell command template that
    already contains the tool, model, and effort flags.
@@ -36,12 +37,16 @@ skill can run. Never substitute your own model, never ask the implementer
 of this skill to invent a model or effort, and never continue as a
 self-review under this skill's name.
 
-If `.reviewer-model` is itself added or modified by the change under
-review, do not execute the working-tree version; ask the user or
-coordinator which configuration to trust. If zero or more than one command
-line remains in the file, stop and report the file as ambiguous.
+The file checks in this paragraph apply only when the file supplies the
+command (source 2). If `.reviewer-model` is itself added or modified by
+the change under review, do not execute the working-tree version; ask the
+user or coordinator which configuration to trust. If zero or more than
+one command line remains in the file, stop and report the file as
+ambiguous. A coordinator-supplied assignment is unaffected by the file's
+presence, contents, or state.
 
-The configured command must be read-only in fact, not only by prompt:
+The configured command must be read-only in fact, whichever source
+supplied the command, not only by prompt:
 it must carry its CLI's sandbox or tool-allowlist restrictions and disable
 write-capable integrations (MCP servers, apps, plugins, hooks) for that
 CLI. Check the effective configuration from the target repository, including
@@ -139,8 +144,11 @@ The reviewer prompt inside the packet must say, in substance:
 > You are the pair reviewer in a cross-model review, looking over the
 > implementer's shoulder. Review the complete change below against the
 > requirements, including both the index and working tree when they differ.
-> You may inspect files and, where your tools permit, run selected tests;
-> report any tests you actually ran and their results. Do not edit files,
+> You may inspect files and, where your tools permit, run selected tests.
+> For every test you run, preserve its evidence in the report: the command,
+> the state tested, the relevant output quoted or a durable artifact link
+> to it, including failures — a result summary alone discards evidence.
+> Do not edit files,
 > do not run another model, and do not invoke the cross-model-review skill.
 > Return only the Markdown feedback report defined here: an outcome line
 > (`SUGGESTIONS`, `NO_FURTHER_SUGGESTIONS`, or `BLOCKED`), a summary, and
