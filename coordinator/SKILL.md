@@ -46,13 +46,19 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
-| Implementer | Available implementation skills suited to the task; `cross-model-review` when a different-model review loop is wanted. |
+| Implementer | Available implementation skills suited to the task; `cross-model-review` only when a separate reviewer model is assigned (see Cross-model pair review). |
 | Walkthrough guide | `pr-walkthrough` |
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
 Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
 
 Use the walkthrough guide when a human wants to understand a change through paced explanation and questions. Its outcome is comprehension; it does not replace an independent final review or grant approval.
+
+### Cross-model pair review
+
+`cross-model-review` gives an implementer an advisory second pair of eyes from a separate model. It is not a role, not verification, and not a substitute for the Final reviewer: its feedback, dispositions, and retained test evidence feed the verifier, which keeps the verification judgment.
+
+Assign it only when a separate reviewer model has already been assigned before dispatch. As part of preflight, resolve the reviewer from the repository's `.reviewer-model` or the project default recorded in project instructions, and carry the resolved reviewer command and reviewer model in the implementer's task contract. Never answer a missing assignment with the implementer's own model and never let the implementer choose one mid-run. If no separate model can be assigned, do not select the skill: proceed without it when pair review was optional, or block dispatch when the user or project requires it.
 
 ### Select skills and dispatch
 

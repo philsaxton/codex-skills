@@ -154,5 +154,19 @@ class CodexTemplateTests(unittest.TestCase):
             self.assertEqual(features.get(name), "false", name)
 
 
+class PairReviewScopeTests(unittest.TestCase):
+    COORDINATOR = (ROOT / "coordinator/SKILL.md").read_text()
+
+    def test_skill_requires_an_assigned_separate_model(self):
+        self.assertIn("separate reviewer model has already been assigned", SKILL)
+        self.assertIn("coordinator", SKILL.lower())
+        self.assertIn("separate reviewer model", self.COORDINATOR)
+
+    def test_pair_review_is_advisory_not_an_approval_gate(self):
+        self.assertIn("advisory", SKILL.lower())
+        self.assertNotIn("only the reviewer closes", SKILL.lower())
+        self.assertNotIn("passes cross-model review only when", SKILL.lower())
+
+
 if __name__ == "__main__":
     unittest.main()
