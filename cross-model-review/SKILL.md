@@ -20,12 +20,11 @@ test output so a coordinator or verifier can reuse the evidence later.
    authorization scope, and its source. Use that command for the assigned
    task; do not replace it with an `AGENTS.md` default.
 2. Otherwise, read the applicable `AGENTS.md` using the host's normal
-   instruction discovery and precedence. Its location does not matter:
-   it may govern a workspace, a standalone project, or a project checked
-   out as a submodule. Read the command from `Cross-model-review model` and
-   its authorization scope from `Cross-model-review instructions`, honoring
-   existing user and coordinator instructions. The model section identifies one
-   shell command template containing the tool, model, and effort flags.
+   instruction discovery and precedence. Read the command from
+   `Cross-model-review model` and its authorization scope from
+   `Cross-model-review instructions`, honoring existing user and coordinator
+   instructions. The model section identifies one shell command template
+   containing the tool, model, and effort flags.
 
 Before building any packet, confirm that the assigned reviewer differs
 from your current model, including when reusing a complete assignment.
