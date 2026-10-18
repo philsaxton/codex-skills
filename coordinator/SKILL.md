@@ -46,7 +46,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
-| Implementer | Available implementation skills suited to the task; `cross-model-review` only when a separate reviewer model is assigned (see Cross-model pair review). |
+| Implementer | Available implementation skills suited to the task; `cross-model-review` when separate-model review is requested, with configuration resolved before dispatch (see Cross-model pair review). |
 | Walkthrough guide | `pr-walkthrough` |
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
@@ -58,7 +58,7 @@ Use the walkthrough guide when a human wants to understand a change through pace
 
 `cross-model-review` gives an implementer an advisory second pair of eyes from a separate model. It is not a role, not verification, and not a substitute for the Final reviewer: its feedback, dispositions, and retained test evidence feed the verifier, which keeps the verification judgment.
 
-Assign it only when a separate reviewer model has already been assigned before dispatch. As part of preflight, resolve the reviewer command and authorization from applicable `AGENTS.md` instructions, including the workspace root above an independent repository or worktree, and any explicit user assignment. Carry the exact command, reviewer model, authorization scope, and its source in the implementer's task contract. Do not require a separate `.reviewer-model` file or request approval again within an already authorized scope. Resolve missing command details or authorization with the user before dispatch. Never answer a missing assignment with the implementer's own model and never let the implementer choose one mid-run. If no separate model can be assigned, do not select the skill: proceed without it when pair review was optional, or block dispatch when the user or project requires it.
+When pair review is requested, resolve the reviewer command and authorization from the applicable `AGENTS.md` under the host's normal instruction rules, wherever that file governs the work, and any explicit user assignment. If configuration is missing, ask the user for the missing reviewer model, reasoning effort, and authorization; clarify the CLI/provider when needed. Construct and validate the command, then update `AGENTS.md` yourself using the skill's setup procedure before dispatch. Save it in the intended scope where the assigned checkout will read it, preserving existing valid settings and the user's actual authorization limits. Do not ask the user to edit the file. Carry the exact command, separate reviewer model, authorization scope, and its source in the implementer's task contract. Do not require a separate `.reviewer-model` file or request approval again within an already authorized scope. Never invent a reviewer model or effort, or substitute the implementer's own model. If the user declines setup or a separate model cannot be assigned, proceed without pair review when optional, or block dispatch when the user or project requires it.
 
 ### Select skills and dispatch
 

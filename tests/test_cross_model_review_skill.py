@@ -165,13 +165,6 @@ class PairReviewScopeTests(unittest.TestCase):
         self.assertIn("coordinator", SKILL.lower())
         self.assertIn("separate reviewer model", self.COORDINATOR)
 
-    def test_reviewer_configuration_includes_workspace_agents(self):
-        skill = " ".join(SKILL.split())
-        coordinator = " ".join(self.COORDINATOR.split())
-        self.assertIn("workspace root", skill)
-        self.assertIn("AGENTS.md", skill)
-        self.assertIn("workspace root", coordinator)
-
     def test_reviewer_test_evidence_is_preserved_not_summarised(self):
         for text in (SKILL, RESULTS):
             flat = " ".join(text.split())

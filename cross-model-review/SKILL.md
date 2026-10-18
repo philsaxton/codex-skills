@@ -1,6 +1,6 @@
 ---
 name: cross-model-review
-description: Run an advisory cross-model pair-review loop from the implementing agent, only when a separate reviewer model has already been assigned through applicable AGENTS.md instructions or a coordinator task contract. The reviewer inspects the complete change, may run selected tests, and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
+description: Configure and run an advisory cross-model pair-review loop from the implementing agent. Use the reviewer configured in AGENTS.md or a coordinator task contract; when configuration is missing, collect the user's model, effort, and authorization and write AGENTS.md. The reviewer inspects the complete change and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
 ---
 
 # Cross-model review
@@ -13,42 +13,62 @@ machine. Each exchange is a fresh, stateless invocation whose prompt
 contains everything the reviewer needs. Retain every packet, report, and
 test output so a coordinator or verifier can reuse the evidence later.
 
-## Precondition: a separate model is already assigned
-
-Do not use this skill unless a separate reviewer model has already been
-assigned, by one of these sources:
+## Resolve or configure the reviewer
 
 1. A coordinator task contract that supplies the resolved reviewer command,
    names the reviewer model, and carries the applicable authorization scope
    and its source. Use that command for the assigned task; do not replace it
    with an `AGENTS.md` default.
-2. Otherwise, the applicable `AGENTS.md` instructions, including those at
-   the workspace root above an independent repository or worktree. Read
-   the reviewer command from the `Cross-model-review model` section and
+2. Otherwise, read the applicable `AGENTS.md` using the host's normal
+   instruction discovery and precedence. Its location does not matter:
+   it may govern a workspace, a standalone project, or a project checked
+   out as a submodule. Read the command from `Cross-model-review model` and
    its authorization scope from `Cross-model-review instructions`, honoring
-   the normal instruction hierarchy. The model section must identify one
+   existing user and coordinator instructions. The model section identifies one
    shell command template containing the tool, model, and effort flags.
    Do not read or require a separate `.reviewer-model` file.
 
-Use the applicable instructions supplied by the host. When discovering them
-on disk, include the workspace root named by the user or coordinator;
-otherwise inspect the repository root and its ancestors for `AGENTS.md`,
-including above the Git boundary. A nearer section overrides the same
-section in an ancestor; a missing section inherits from the ancestor.
-An unrelated nearer `AGENTS.md` does not hide the workspace configuration.
-Existing user and coordinator instructions retain their precedence.
+Before building any packet, confirm that the assigned reviewer differs
+from your current model, including when reusing a complete assignment.
+Treat a matching or uncertain model identity as unresolved. Return a
+coordinator-supplied mismatch or uncertainty to the coordinator to resolve;
+otherwise use setup below to ask the user for a different model or clarify
+its identity. Do not substitute a model yourself.
 
-The reviewer model must be different from yours. If no assignment exists,
-the assignment does not name a separate model, or you cannot tell that the
-reviewer differs from you, this skill does not apply: stop before building
-any packet. In a coordinated task, return that blocker to the coordinator,
-which owns assignment. In solo use, report that a separate reviewer model
-must be assigned before this skill can run. Ask for the missing command or
-model details in the applicable `AGENTS.md`, using
-[the configuration example](references/agents-example.md). Never substitute
-your own model, never ask the implementer
-of this skill to invent a model or effort, and never continue as a
-self-review under this skill's name.
+If configuration is missing or unresolved, set it up with the user before
+building a review packet:
+
+1. Ask the user which reviewer model and reasoning effort to use, asking
+   only for values not already supplied. Clarify the CLI/provider only if
+   needed to construct the command. Do not invent a model or effort.
+2. Explain which provider will receive the review material and obtain any
+   missing authorization for that material and reviewer activity. Reuse
+   existing authorization within its scope, as described below. Clarify
+   whether new consent is standing or only for this review when unclear;
+   never turn one-review consent into reusable authorization.
+3. Reuse a supplied command, or construct one from those choices using the
+   installed CLI's supported syntax. Before saving, confirm a
+   separate reviewer model has already been assigned and is different from
+   yours; ask for a different model or clarification if that is not clear.
+   Check CLI availability, required placeholders, and the read-only controls
+   below. Resolve missing choices or invalid configuration before persisting
+   it. Never turn this into self-review.
+4. Update `AGENTS.md` yourself in the scope intended to govern this work,
+   using [the configuration example](references/agents-example.md). Update
+   existing review sections in place, changing only the missing or agreed
+   values; preserve valid existing configuration and unrelated instructions,
+   and avoid duplicate sections. If no applicable file exists, create it
+   for the project being reviewed. Ask which scope to update only when
+   unclear, whether or not files already exist. Do not ask the user to edit
+   the file or supply a finished shell command. Record only the authorization
+   actually granted; keep one-review consent scoped to this review.
+5. Read back the saved effective configuration and continue the review.
+
+Reuse an existing complete assignment once its model is confirmed to differ
+from yours. In coordinated work, the coordinator can perform setup before
+dispatch. If you cannot contact the user from a delegated task, return the
+missing choices to the coordinator to resolve and save; do not ask the user
+to make the file edits.
 
 Use the user's existing authorization for the configured provider and
 review material, whether supplied directly in the conversation or recorded
@@ -79,7 +99,9 @@ project and managed settings, using the CLI's read-only configuration
 inspection commands with the same configuration and feature overrides.
 Follow the Codex readback instructions in the example when using Codex.
 If restrictions are missing, overridden, or cannot be verified, stop and
-report the gap; ask the user or coordinator to correct the assignment.
+report the gap before saving or running the command. Ask only for missing
+decisions or authorization; make agreed corrections yourself, or have the
+coordinator make them, rather than asking the user to edit the file.
 
 Treat the reviewer configuration as trusted user configuration (like a
 Makefile): it must never contain secrets or API keys — the CLI's stored
