@@ -40,6 +40,3 @@ CLI's stored authentication.
 
 Existing authorization in the conversation also applies; do not ask the
 user to repeat it. Host sandbox and approval controls remain in force.
-If migrating from `.reviewer-model`, move the agreed command into these
-sections; the skill no longer reads the old file. Retire that obsolete
-file when authorized, preserving any unrelated content.

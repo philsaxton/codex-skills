@@ -1,6 +1,6 @@
 ---
 name: cross-model-review
-description: Configure and run an advisory cross-model pair-review loop from the implementing agent. Use the reviewer configured in AGENTS.md or a coordinator task contract; when configuration is missing, collect the user's model, effort, and authorization and write AGENTS.md. The reviewer inspects the complete change and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
+description: Configure and run an advisory cross-model pair-review loop from the implementing agent. Use the reviewer configured in AGENTS.md or supplied by a coordinating agent; when configuration is missing, collect the user's model, effort, and authorization and write AGENTS.md. The reviewer inspects the complete change and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
 ---
 
 # Cross-model review
@@ -15,10 +15,10 @@ test output so a coordinator or verifier can reuse the evidence later.
 
 ## Resolve or configure the reviewer
 
-1. A coordinator task contract that supplies the resolved reviewer command,
-   names the reviewer model, and carries the applicable authorization scope
-   and its source. Use that command for the assigned task; do not replace it
-   with an `AGENTS.md` default.
+1. When a coordinating agent supplies the reviewer in your task instructions,
+   those instructions must include the resolved command, reviewer model,
+   authorization scope, and its source. Use that command for the assigned
+   task; do not replace it with an `AGENTS.md` default.
 2. Otherwise, read the applicable `AGENTS.md` using the host's normal
    instruction discovery and precedence. Its location does not matter:
    it may govern a workspace, a standalone project, or a project checked
@@ -26,7 +26,6 @@ test output so a coordinator or verifier can reuse the evidence later.
    its authorization scope from `Cross-model-review instructions`, honoring
    existing user and coordinator instructions. The model section identifies one
    shell command template containing the tool, model, and effort flags.
-   Do not read or require a separate `.reviewer-model` file.
 
 Before building any packet, confirm that the assigned reviewer differs
 from your current model, including when reusing a complete assignment.
