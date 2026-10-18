@@ -18,7 +18,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = (ROOT / "cross-model-review/SKILL.md").read_text()
-EXAMPLE = (ROOT / "cross-model-review/references/reviewer-model.example").read_text()
+EXAMPLE = (ROOT / "cross-model-review/references/reviewer-commands.example").read_text()
 GIT_COMMANDS = [
     shlex.split(command)
     for command in re.findall(r"`(git [^`\n]+)`", SKILL)
@@ -165,19 +165,12 @@ class PairReviewScopeTests(unittest.TestCase):
         self.assertIn("coordinator", SKILL.lower())
         self.assertIn("separate reviewer model", self.COORDINATOR)
 
-    def test_reviewer_model_lives_at_workspace_root_beside_agents(self):
+    def test_reviewer_configuration_includes_workspace_agents(self):
         skill = " ".join(SKILL.split())
         coordinator = " ".join(self.COORDINATOR.split())
         self.assertIn("workspace root", skill)
         self.assertIn("AGENTS.md", skill)
-        self.assertNotIn("`.reviewer-model` at the repository root", skill)
         self.assertIn("workspace root", coordinator)
-
-    def test_contract_source_is_not_blocked_by_reviewer_model_file(self):
-        skill = " ".join(SKILL.split())
-        self.assertIn("do not consult `.reviewer-model`", skill)
-        self.assertIn("only when the file supplies the command", skill)
-        self.assertIn("whichever source supplied the command", skill)
 
     def test_reviewer_test_evidence_is_preserved_not_summarised(self):
         for text in (SKILL, RESULTS):

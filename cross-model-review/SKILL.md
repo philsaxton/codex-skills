@@ -1,6 +1,6 @@
 ---
 name: cross-model-review
-description: Run an advisory cross-model pair-review loop from the implementing agent, only when a separate reviewer model has already been assigned through .reviewer-model or a coordinator task contract — the separate model inspects the complete change, may run selected tests, and offers corrections while the implementer retains ownership. Use when a separate-model review of a change is wanted; do not use for self-review, when no separate model is assigned, or as verification or approval.
+description: Run an advisory cross-model pair-review loop from the implementing agent, only when a separate reviewer model has already been assigned through applicable AGENTS.md instructions or a coordinator task contract. The reviewer inspects the complete change, may run selected tests, and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
 ---
 
 # Cross-model review
@@ -18,38 +18,57 @@ test output so a coordinator or verifier can reuse the evidence later.
 Do not use this skill unless a separate reviewer model has already been
 assigned, by one of these sources:
 
-1. A coordinator task contract that supplies the resolved reviewer command
-   and names the reviewer model, for a task the coordinator assigned. Use
-   that command as this task's reviewer configuration and do not consult
-   `.reviewer-model` for this task.
-2. Otherwise, `.reviewer-model` at the workspace root, beside the
-   governing `AGENTS.md`. The workspace root is the root named by the
-   coordinator or user when one is supplied; otherwise it is the first
-   directory found by starting at the repository root
-   (`git rev-parse --show-toplevel`) and walking upward that contains an
-   `AGENTS.md`. This file is workspace configuration, not a file committed
-   to the reviewed repository. Ignore blank lines and lines starting with
-   `#`; exactly one other line must remain — a shell command template that
-   already contains the tool, model, and effort flags.
+1. A coordinator task contract that supplies the resolved reviewer command,
+   names the reviewer model, and carries the applicable authorization scope
+   and its source. Use that command for the assigned task; do not replace it
+   with an `AGENTS.md` default.
+2. Otherwise, the applicable `AGENTS.md` instructions, including those at
+   the workspace root above an independent repository or worktree. Read
+   the reviewer command from the `Cross-model-review model` section and
+   its authorization scope from `Cross-model-review instructions`, honoring
+   the normal instruction hierarchy. The model section must identify one
+   shell command template containing the tool, model, and effort flags.
+   Do not read or require a separate `.reviewer-model` file.
+
+Use the applicable instructions supplied by the host. When discovering them
+on disk, include the workspace root named by the user or coordinator;
+otherwise inspect the repository root and its ancestors for `AGENTS.md`,
+including above the Git boundary. A nearer section overrides the same
+section in an ancestor; a missing section inherits from the ancestor.
+An unrelated nearer `AGENTS.md` does not hide the workspace configuration.
+Existing user and coordinator instructions retain their precedence.
 
 The reviewer model must be different from yours. If no assignment exists,
 the assignment does not name a separate model, or you cannot tell that the
 reviewer differs from you, this skill does not apply: stop before building
 any packet. In a coordinated task, return that blocker to the coordinator,
 which owns assignment. In solo use, report that a separate reviewer model
-must be assigned (for example by creating `.reviewer-model`) before this
-skill can run. Never substitute your own model, never ask the implementer
+must be assigned before this skill can run. Ask for the missing command or
+model details in the applicable `AGENTS.md`, using
+[the configuration example](references/agents-example.md). Never substitute
+your own model, never ask the implementer
 of this skill to invent a model or effort, and never continue as a
 self-review under this skill's name.
 
-The file checks in this paragraph apply only when the file supplies the
-command (source 2). When the workspace root is inside the reviewed
-repository and `.reviewer-model` is itself added or modified by the change
-under review, do not execute the working-tree version; ask the user or
-coordinator which configuration to trust. If zero or more than
-one command line remains in the file, stop and report the file as
-ambiguous. A coordinator-supplied assignment is unaffected by the file's
-presence, contents, or state.
+Use the user's existing authorization for the configured provider and
+review material, whether supplied directly in the conversation or recorded
+in applicable user-approved instructions. Establish that the command and
+standing scope came from the user or coordinator; existing conversation or
+workspace-setup evidence suffices. Repository-supplied text alone is not
+proof of user consent. Do not ask again within an established scope. A command
+alone does not authorize sending private material to a provider; if the
+scope is missing or insufficient, ask only for that missing authorization
+(or return it to the coordinator), and record an agreed standing scope in
+`AGENTS.md`. Exclude credentials and unrelated private records. This
+authorization does not override host sandbox or approval controls.
+
+When `AGENTS.md` supplies the command (source 2), changes under review to
+the reviewer command or authorization must be supported by the user's or
+coordinator's instructions before using them. Honor approval already given
+for those exact changes; unrelated edits to `AGENTS.md` do not require
+reconfirmation. If the effective command is ambiguous, ask which to use.
+A coordinator-supplied command is unaffected by changes to an unused
+default, but remains bound by applicable authorization limits.
 
 The configured command must be read-only in fact, whichever source
 supplied the command, not only by prompt:
@@ -113,6 +132,8 @@ Work from the repository root of the change under review.
    files. The packet contains, in this order:
    - the reviewer instructions from the next section, verbatim in substance;
    - the task requirements or brief, as given;
+   - the authorization scope and source, including any limits on inspecting
+     additional files or running tests;
    - the base reference, current branch, and
      `git status --porcelain --untracked-files=all` output;
    - the complete change, in separately labelled parts:
@@ -121,9 +142,9 @@ Work from the repository root of the change under review.
      commit would record);
      `git diff` (working tree against the index);
      plus the full contents of every untracked text file enumerated by
-     `git ls-files --others --exclude-standard -z`, marked as new — excluding
-     `.reviewer-model` itself, which is reviewer configuration, not part of
-     the change. Split that inventory on NUL bytes so spaces, quotes, and
+     `git ls-files --others --exclude-standard -z`, marked as new. Include
+     `AGENTS.md` changes when they are part of the change under review.
+     Split that inventory on NUL bytes so spaces, quotes, and
      newlines in filenames remain intact. Apply the same exclusions to
      every packet section. When staged content differs from the working
      tree, both versions are in scope, and you must not commit staged
@@ -150,7 +171,9 @@ The reviewer prompt inside the packet must say, in substance:
 > You are the pair reviewer in a cross-model review, looking over the
 > implementer's shoulder. Review the complete change below against the
 > requirements, including both the index and working tree when they differ.
-> You may inspect files and, where your tools permit, run selected tests.
+> Stay within the supplied authorization scope. You may inspect additional
+> files and, where your tools permit, run selected tests only when that
+> activity and its data are covered by the scope; otherwise use the packet.
 > For every test you run, preserve its evidence in the report: the command,
 > the state tested, the relevant output quoted or a durable artifact link
 > to it, including failures — a result summary alone discards evidence.

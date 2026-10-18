@@ -1,10 +1,10 @@
-# Copy this file to .reviewer-model at your workspace root — beside the
-# governing AGENTS.md, not inside a repository — and uncomment
-# exactly one command line (or write your own). The implementing agent runs
-# that line verbatim after substituting {packet} (review packet file),
+# Put one agreed command in the Cross-model-review model section of the
+# applicable AGENTS.md; use agents-example.md for the authorization section.
+# These command shapes are examples, not defaults. The implementing agent
+# runs the agreed line verbatim after substituting {packet} (review packet file),
 # {report} (report output file), and {root} (repository root). The line
 # must contain the tool, model, and effort you want — the agent will not
-# choose or change them. Never put secrets or API keys in this file; the
+# choose or change them. Never put secrets or API keys in AGENTS.md; the
 # reviewer's stored CLI authentication is used.
 
 # Codex reviewer (replace MODEL, EFFORT, and MCP_OVERRIDES):
@@ -37,4 +37,8 @@
 
 # Muse reviewer (replace MODEL and EFFORT; add your read-only
 # permission/workspace restrictions):
+# The bare command below is incomplete: do not run it unchanged under this
+# skill. First include and verify the installed Muse version's read-only
+# controls and isolation of write-capable integrations. If those restrictions
+# cannot be verified, report that gap instead of relying on prompt wording.
 # muse exec --model MODEL --reasoning-effort EFFORT --prompt-file {packet} > {report}
