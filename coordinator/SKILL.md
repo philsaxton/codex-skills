@@ -64,6 +64,8 @@ When pair review is requested, look for the reviewer command and authorization i
 
 Resolve matching skills from the available catalog or explicitly configured locations. Check their descriptions and boundaries, reading selected guidance as needed to settle fit. Treat menu entries as selection guidance, not proof of availability. Do not guess paths or assume a skill is available to a child because the parent used it.
 
+An explicitly selected experimental candidate may support the existing Implementer through its resolved source path; it need not be installed or become a default. Select one development-loop method per assignment, such as `spec-test-dev` or Superpowers `test-driven-development`, rather than routinely combining them. Carry the selected path and explicit routing for conflicting direct references into the handoff without changing active installations.
+
 Use the task-contract guide below to carry the selected skills and their reading instructions into the subagent's starting prompt. Do not assume the parent's loaded instructions transfer. Reassess selection when the assignment or evidence changes, preserving fresh contexts where independent judgment is required.
 
 If an optional skill is unavailable, state the gap and assign the responsibility explicitly. Block only affected work when a skill is required by the user or controlling instructions. Skill selection does not expand the role's authority: resolve conflicting guidance through those instructions and route incompatible responsibilities to their owners. Preserve required separation between design, authorship, implementation, review, and approval.
