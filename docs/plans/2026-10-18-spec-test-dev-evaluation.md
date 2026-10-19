@@ -1,8 +1,11 @@
 # Spec-test-dev evaluation plan
 
-Status: planned, 2026-10-18. This change records the candidate and evaluation
-design only. It creates no skill, runs no experiment, and changes no active
-installation. See the [candidate backlog](../../FUTURE_SKILLS.md#spec-test-dev).
+Status: experimental candidate prepared, 2026-10-18; adoption evaluation and
+activation remain pending. The initial planning change recorded this design
+only. The candidate now lives at
+[evals/spec-test-dev/2026-10-18/treatments/spec-test-dev/SKILL.md](../../evals/spec-test-dev/2026-10-18/treatments/spec-test-dev/SKILL.md),
+outside active discovery. Preparation does not execute the comparison or change
+an active installation. See the [candidate backlog](../../FUTURE_SKILLS.md#spec-test-dev).
 
 ## Decision and scope
 
@@ -30,9 +33,9 @@ did not test this ordered method. The
 [completion comparison](../../evals/verification-completion/2026-10-10/results.md)
 does not establish its value either.
 
-## Candidate to prepare for evaluation
+## Candidate prepared for evaluation
 
-Keep the eventual entry point self-contained and focused on these decisions:
+Keep the experimental entry point self-contained and focused on these decisions:
 
 1. Read the authorized requirements and current public contract. Establish or
    update the affected behavior, including relevant inputs, outputs, errors,
@@ -199,5 +202,6 @@ Retain raw runs, snapshots, commands and output, treatment identities, actual
 skill reads, independent findings, interventions and the final disposition in the
 configured ignored evidence location. Keep private project material out of
 portable fixtures. Publish only appropriate source-safe summaries with the
-candidate's recorded identity and limits. Execution, installation and changes to
-ACKS remain future work; this planning task ends with the backlog and plan.
+candidate's recorded identity and limits. Comparative evaluation, installation
+and changes to ACKS remain future work; candidate preparation does not authorize
+those steps.
