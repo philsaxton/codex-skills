@@ -88,7 +88,8 @@ def marker_bounds(lines):
                 fence = None
             continue
         opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", content)
-        if opening:
+        # Backtick fence info cannot contain backticks; such text can be inline code.
+        if opening and (opening[1][0] == "~" or "`" not in opening[2]):
             fence = (opening[1][0], len(opening[1]))
             continue
         if content == OPEN:

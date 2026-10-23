@@ -19,6 +19,13 @@ historical notes outside it are preserved. Fenced examples are not live tables.
 <!-- /implementation-tracker -->
 ```
 
+Write each marker line exactly as shown. The header must immediately follow
+the opening marker, and the table must continue without blank lines through
+the line before the closing marker. Each table line requires outer pipes;
+whitespace around table lines and cell values is allowed. Separator cells
+contain at least three hyphens and may have a colon at either or both ends
+for alignment.
+
 The four shown columns are required; other supported columns are optional and
 may appear in any order. Empty cells represent absent optional information.
 Column names are case-sensitive. Unknown or repeated columns are errors.
@@ -85,8 +92,10 @@ Field options are `--title`, `--status`, `--checkpoint`, `--type`, `--priority`,
 `--dependencies 'S001,S002'` replaces the whole dependency list. An empty string
 clears an optional field; type defaults to `slice`. Unspecified update fields
 are retained. Adding a previously absent column extends existing rows with their
-defaults. Ordinary changes preserve other rows and all text outside the table;
-the modified row is rendered in normalized spacing. LF or CRLF is preserved.
+defaults and renders the whole table in normalized spacing and escaping. When
+columns do not change, unchanged rows retain their original text; inserted or
+changed rows are rendered in normalized form. All text outside the table is
+preserved. LF or CRLF is preserved.
 
 JSON success output contains `file` and `revision` (`sha256:` plus the hash of
 the complete file bytes). List output has `slices`; inspect/insert/update have
@@ -107,8 +116,9 @@ Writers take a sibling `.FILENAME.lock` file using exclusive creation, then
 compare the complete current bytes with the expected revision. Paths are
 resolved so symlink aliases use the same target and lock. Hard-linked tracker
 files are refused for writes because distinct names cannot share this protocol.
-A candidate is structurally validated before publication. A flushed temporary
-file in the same directory is atomically published; updates preserve file mode.
+`insert` and `update` structurally validate the proposed records before
+rendering. A flushed temporary file in the same directory is atomically
+published; updates preserve file mode.
 The source is checked again immediately before publication to detect intervening
 manual edits. Failed validation or stale revisions leave the tracker unchanged.
 

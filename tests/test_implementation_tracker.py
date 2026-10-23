@@ -149,6 +149,14 @@ class ImplementationTrackerTests(unittest.TestCase):
         self.file.write_text("```markdown\n" + FIXTURE + "```\n\n" + FIXTURE, encoding="utf-8")
         self.assertEqual(self.invoke("validate")["count"], 4)
 
+    def test_inline_backtick_code_before_fenced_example_keeps_live_tracker(self):
+        prefix = "```git status```\n\n~~~markdown\n" + FIXTURE + "~~~\n\n"
+        self.file.write_text(prefix + FIXTURE, encoding="utf-8")
+        self.assertEqual(self.invoke("validate")["count"], 4)
+        self.update("S0.1", "--status", "review")
+        self.assertEqual(self.file.read_text(encoding="utf-8"),
+                         prefix + FIXTURE.replace("| ready |", "| review |"))
+
     def test_unicode_separators_in_cell_text_remain_readable_after_update(self):
         value = "Quoted text: alpha\u2028beta\u2029gamma\u0085delta"
         self.update("S0.1", "--checkpoint", value)
