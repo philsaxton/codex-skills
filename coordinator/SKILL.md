@@ -43,6 +43,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 
 | Role | Skills |
 |---|---|
+| Coordinator / tracker maintainer | `implementation-tracker`, when the project uses its normalized Markdown records. |
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
@@ -51,6 +52,8 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
 
 Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
+
+For a record-maintenance handoff, supply the authoritative tracker path, the read revision, and the exact decisions to record. `implementation-tracker` retrieves and records those decisions deterministically; readiness, priority, approval, gates, and conflict reconciliation remain with the responsible agent and project workflow.
 
 Use the walkthrough guide when a human wants to understand a change through paced explanation and questions. Its outcome is comprehension; it does not replace an independent final review or grant approval.
 
