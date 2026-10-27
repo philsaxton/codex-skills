@@ -44,3 +44,5 @@ Assess behavior and evidence rather than wording:
 Single synthetic trials do not establish reliability, automatic discovery, or performance across hosts and projects. A baseline may already succeed; report that outcome rather than claiming causal improvement. An evaluator's claimed reads or independence are self-reports unless separately observed. Tool records, child identities, input hashes, and concrete outputs strengthen the evidence but do not create filesystem isolation or independent acceptance. No companion skill, installed link, or publication changes are part of these checks.
 
 See [the recorded results](results.md) for the evaluated revisions, observations, and evidence limits.
+
+For completion-policy questions and delegated Git cleanup, use the separate [cycle cleanup checks](cycle-cleanup.md). Those cases authorize mutations only in disposable Git fixtures; they do not change the read-only boundaries of the parcel fixtures above.

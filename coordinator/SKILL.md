@@ -27,11 +27,21 @@ Before assigning work, directly inspect the current controlling instructions and
 
 Inventory pre-existing and concurrent work before editing. Preserve changes outside the assignment and record any overlap that affects isolation or ownership. When version control is available, confirm the active branch or worktree and its current state before relying on it.
 
+Record which repository, branch refs, and worktree paths the cycle owns, including any explicitly agreed release of a pre-existing checkout. Using a branch or worktree does not by itself authorize its removal. Keep required evidence and deliverables outside eventual cleanup targets.
+
 Where repository instructions designate a checkout for the integration branch, record that branch-to-worktree mapping when assigning isolated work. Put new feature work in branch-specific worktrees when possible. If active feature work already occupies the designated checkout, preserve it and defer integration until that checkout is available. Do not switch a feature worktree to the integration branch just to merge.
 
 Use isolation in proportion to risk. Separate contexts or workspaces when independent reasoning must be demonstrated, concurrent edits may collide, or one role must not inherit another's conclusions. Parallelize only work with independent inputs and non-overlapping outputs; serialize shared files, contracts, interfaces, migrations, or unresolved dependencies.
 
 Treat prerequisite failures as hard stops on their first occurrence. Do not cross a gate when a mandatory source is inaccessible, required independence is unavailable, safe workspace preservation cannot be established, controlling approval is absent or stale, or required evidence cannot be established safely.
+
+## Resolve Git completion rules
+
+For work that changes branches or uses linked worktrees, establish the intended completion steps from the current request and controlling project instructions before dispatch. Resolve only applicable decisions: leaving work local, committing, pushing specified refs to a specified remote, opening a pull request, merging into the integration branch, and any subsequent activation. Identify the owner and authorization for each step, plus branch retention and whether a released worktree may be removed while its branch stays unmerged. A configured remote or a previous project's practice does not establish this project's policy.
+
+Ask early about missing decisions; continue independent work while keeping unspecified transitions and dependent cleanup pending. Save the user's agreed project defaults in the applicable `AGENTS.md`, preserving unrelated instructions. Carry an explicit task exception in the assignment without silently rewriting the standing rule. Reuse existing answers and authorization rather than asking again. If the rule cannot be saved, report that limitation and retain the answer in the handoff; do not claim it is persistent.
+
+Pass the resolved steps, their instruction sources, and retention rules to affected workers. A cycle may legitimately end with a local branch or an open pull request. Neither outcome implies permission to merge, push, or discard that branch.
 
 ## Assign roles and ownership
 
@@ -50,6 +60,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 | Implementer | Available implementation skills suited to the task; `cross-model-review` when separate-model review is requested, with configuration resolved before dispatch (see Cross-model pair review). |
 | Walkthrough guide | `pr-walkthrough` |
 | Final reviewer | `verifier`; other available review skills suited to the deliverable. |
+| Cleanup worker | `cleaning-git-repositories`, limited to the completed cycle's explicitly released Git artifacts. |
 
 Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
 
@@ -153,3 +164,11 @@ When an authorized transition is defined as atomic, apply all of it or none of i
 Declare completion, merge, publish, deploy, or perform another consequential transition only when the applicable authority and evidence support that exact action. Report the outcome, remaining risks or blockers, preservation result, and who owns any next step.
 
 Before closing work that used linked worktrees, recheck any designated integration checkout. If the mapping has drifted, restore it only after checking affected worktrees for changes and tasks that still rely on their current branches. Otherwise leave the work intact and report the exact branch and path that need reconciliation.
+
+### Delegate cycle cleanup
+
+After the required completion steps succeed, retain the evidence and obtain release of the cycle's worktrees from their workers and other users. Delegate cleanup of the cycle's Git artifacts to a cleanup worker using the resolved `cleaning-git-repositories` skill. Supply the repository identities, exact allowed branch refs and tips, worktree paths, completion and retention policy with its authority, observed completion evidence, release evidence, protected checkouts, and concurrent work to preserve. Keep a required failed merge, push, or activation pending; do not clean up its dependent artifacts as though that step succeeded.
+
+Run the worker from a retained checkout, without creating another branch or worktree for cleanup. It must inspect current state, act only within the supplied scope, and return uncertain items to the coordinator. Cleanup does not authorize the worker to complete missing merges or pushes, delete remote branches, or tackle unrelated backlog. Use host-supported controls for managed worktrees and defer any checkout that cannot safely be released. Do not launch another cleanup cycle for the cleanup worker itself.
+
+Collect the result before the final report. Distinguish completed delivery steps from removed artifacts, intentional retention, failures, and cleanup still pending, with an owner for unresolved follow-up. If the skill, delegation, or safe execution is unavailable, report the affected cleanup as pending. A cycle with no Git artifacts needs no cleanup worker, and bounded cleanup never establishes that the whole repository is clean.
