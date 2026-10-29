@@ -1,42 +1,40 @@
 # Configure cross-model review in AGENTS.md
 
-After collecting the user's missing model, effort, and authorization,
-create or update the applicable `AGENTS.md` yourself using this template.
-Use the file that governs the work, regardless of repository layout, and
-preserve unrelated instructions. The user supplies choices and consent;
-the agent constructs the command and edits the file. This template grants
-no authorization itself.
+Resolve the tool, any overrides, and authorization from the user or coordinator.
+Use the governing AGENTS.md, preserve unrelated instructions and valid existing
+choices, and record only the consent actually supplied. This example grants none.
+Task-only exceptions belong in the assignment rather than standing configuration.
 
-The wording below illustrates standing authorization. Adapt it to the
-provider, materials, reviewer activities, duration, and limits the user
-actually agreed to. If consent is only for the current review, do not insert
-this standing grant: record that restriction explicitly or retain the
-one-review consent in the task context. Preserve existing valid settings
-and update existing sections in place rather than duplicating them.
-
-````markdown
+```markdown
 ### Cross-model-review instructions
 
-Cross-model reviews requested under this project's workflow are authorized
-to send repository changes, requirements, and relevant test evidence to
-PROVIDER through the configured reviewer. Exclude credentials and unrelated
-private records. Do not request approval again within this scope.
+Requested reviews may send the task's change, requirements and check evidence
+to PROVIDER, and inspect relevant repository files read-only. Exclude credentials
+and unrelated private records. This is standing authorization; do not ask again
+within its scope. Tests remain the implementer's responsibility.
+Record the selected adapter's limits: Muse/Codex reads can extend beyond the
+repository, and Codex retains shell execution in a read-only sandbox. Live-read
+exclusions and the no-tests rule are instructions, not filesystem/command filters.
+They remain binding; this consent does not permit tests or out-of-scope reads.
+Use stronger isolation when the assignment requires it. Claude's restricted
+file tools additionally confine reads to its working directories.
 
 ### Cross-model-review model
 
-```bash
-REPLACE_WITH_RESOLVED_REVIEWER_COMMAND
+Use the installed cross-model-review skill's scripts/review.py with --tool muse.
+Use its Wonder-Full/max defaults unless the assignment supplies an override.
+The implementer must supply its actual model identity, the brief, check evidence,
+authorization scope, and one retained review directory for the task. Keep the
+original review-round-*.md reports and link them in the finish report.
 ```
-````
 
-Replace `PROVIDER` with the authorized provider and the entire command
-placeholder with the invocation you construct from the user's choices,
-including the tool, separate model, effort, and read-only restrictions.
-See [reviewer command examples](reviewer-commands.example)
-for CLI-specific syntax and configuration checks. The command must use
-`{packet}` and may use `{report}` and `{root}`. These expand to shell-quoted
-absolute paths; do not add quotes around them. Keep credentials in the
-CLI's stored authentication.
+Replace PROVIDER, tool and overrides with the agreed choices. The available
+tool defaults and complete command are in [runner.md](runner.md). Do not put
+credentials into the file; native CLIs use their existing authentication.
+Verify that the selected reviewer differs from the actual implementer before
+invocation. A default collision requires a caller-owned selection change.
 
-Existing authorization in the conversation also applies; do not ask the
-user to repeat it. Host sandbox and approval controls remain in force.
+Existing native command templates remain supported; follow
+[legacy.md](legacy.md) and [reviewer-commands.example](reviewer-commands.example).
+Do not silently rewrite their flags or authorization. For those templates,
+{packet}, {report} and {root} still mean shell-quoted absolute paths.

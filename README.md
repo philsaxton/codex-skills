@@ -35,6 +35,15 @@ ln -s ../vendors/codex-skills/contract-author .agents/skills/contract-author
 
 For transferring unfinished implementation between native Claude Code and Codex sessions, see the [agent handoff skill](agent-handoff/SKILL.md). The operator records the assignment and confirms that prior writers have released the checkout. A fresh worker in either tool reads the same installed skill and handoff record before continuing.
 
+## Cross-model pair review
+
+The [cross-model-review skill](cross-model-review/SKILL.md) includes a
+[deterministic runner](cross-model-review/references/runner.md) that captures the
+complete change and saves one native review exchange. Choose Muse, Codex, or
+Claude Code; each has an overridable review model and maximum-effort default.
+The original findings remain in separate reports for the implementer,
+coordinator, and verifier to inspect. Review is advisory.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for skill authoring and validation requirements.

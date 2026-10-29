@@ -1,254 +1,150 @@
 ---
 name: cross-model-review
-description: Configure and run an advisory cross-model pair-review loop from the implementing agent. Use the reviewer configured in AGENTS.md or supplied by a coordinating agent; when configuration is missing, collect the user's model, effort, and authorization and write AGENTS.md. The reviewer inspects the complete change and offers corrections while the implementer retains ownership. Use for separate-model review, not self-review, verification, or approval.
+description: Run an advisory cross-model pair-review loop from the implementing agent. Use the bundled deterministic runner to capture the complete change, invoke a caller-selected native reviewer, and save its original findings. Preserve explicitly configured legacy commands. Feedback is not verification or approval.
 ---
 
 # Cross-model review
 
-You are the implementer. The reviewer is a second programmer looking over
-your shoulder, asynchronously: it receives the complete change, offers what
-it sees, and you decide what to do with it. This is an advisory pair-review
-loop, not verification, not an approval gate, and not a controller or state
-machine. Each exchange is a fresh, stateless invocation whose prompt
-contains everything the reviewer needs. Retain every packet, report, and
-test output so a coordinator or verifier can reuse the evidence later.
+You are the implementer. A separate model is a second programmer looking over
+your shoulder: it reviews the complete change, offers corrections, and you
+choose what to accept. You own the implementation and dispositions. The runner
+owns packet construction, one fresh native invocation, and retained evidence.
+It does not approve, verify, merge, or release anything.
 
-## Resolve or configure the reviewer
+## Resolve the assignment
 
-1. When a coordinating agent supplies the reviewer in your task instructions,
-   those instructions must include the resolved command, reviewer model,
-   authorization scope, and its source. Use that command for the assigned
-   task; do not replace it with an `AGENTS.md` default.
-2. Otherwise, read the applicable `AGENTS.md` using the host's normal
-   instruction discovery and precedence. Read the command from
-   `Cross-model-review model` and its authorization scope from
-   `Cross-model-review instructions`, honoring existing user and coordinator
-   instructions. The model section identifies one shell command template
-   containing the tool, model, and effort flags.
+Use reviewer selection and authorization supplied by the coordinator first;
+otherwise read the applicable `AGENTS.md` with the host's normal precedence.
+Carry the tool, model, effort, authorization scope and source into the task.
+A command or repository text alone is not proof of consent. Reuse established
+user authorization; ask only for missing scope, provider choice, or decisions.
 
-Before building any packet, confirm that the assigned reviewer differs
-from your current model, including when reusing a complete assignment.
-Treat a matching or uncertain model identity as unresolved. Return a
-coordinator-supplied mismatch or uncertainty to the coordinator to resolve;
-otherwise use setup below to ask the user for a different model or clarify
-its identity. Do not substitute a model yourself.
+For new assignments, call `scripts/review.py` from this installed skill. The
+caller selects `--tool muse|codex|claude`. Omitted `--model` uses that tool's
+default: Muse `muse-wonder-full-1.0`, Codex `gpt-6-astra`, or Claude
+`claude-opus-5-5`. Effort defaults to `max`; both values can be overridden.
+These are explicit defaults, not automatic fallback or a claim about future
+model availability. Do not change a caller's supplied selection.
 
-If configuration is missing or unresolved, set it up with the user before
-building a review packet:
+Before building a packet, confirm that a
+separate reviewer model has already been assigned and differs from your actual
+current model. Supply its resolved
+identity and yours; do not use an uncertain alias to evade the check. A default
+that matches the implementer is a configuration conflict, not permission to
+choose another reviewer. Return coordinator-owned conflicts to the coordinator.
+When switching implementers, preserve material authorship and the task's existing
+review history and exchange allowance; use `agent-handoff` where applicable.
 
-1. Ask the user which reviewer model and reasoning effort to use, asking
-   only for values not already supplied. Clarify the CLI/provider only if
-   needed to construct the command. Do not invent a model or effort.
-2. Explain which provider will receive the review material and obtain any
-   missing authorization for that material and reviewer activity. Reuse
-   existing authorization within its scope, as described below. Clarify
-   whether new consent is standing or only for this review when unclear;
-   never turn one-review consent into reusable authorization.
-3. Reuse a supplied command, or construct one from those choices using the
-   installed CLI's supported syntax. Before saving, confirm a
-   separate reviewer model has already been assigned and is different from
-   yours; ask for a different model or clarification if that is not clear.
-   Check CLI availability, required placeholders, and the read-only controls
-   below. Resolve missing choices or invalid configuration before persisting
-   it. Never turn this into self-review.
-4. Update `AGENTS.md` yourself in the scope intended to govern this work,
-   using [the configuration example](references/agents-example.md). Update
-   existing review sections in place, changing only the missing or agreed
-   values; preserve valid existing configuration and unrelated instructions,
-   and avoid duplicate sections. If no applicable file exists, create it
-   for the project being reviewed. Ask which scope to update only when
-   unclear, whether or not files already exist. Do not ask the user to edit
-   the file or supply a finished shell command. Record only the authorization
-   actually granted; keep one-review consent scoped to this review.
-5. Read back the saved effective configuration and continue the review.
+Resolve the access boundary with the selection. Claude's restricted file tools
+are confined to its working directories. Muse and Codex can read other files
+accessible to their process; all adapters' live-read exclusions rely on reviewer
+instructions. Codex retains a shell in its read-only sandbox, so the prohibition
+on tests and project-code execution is an instruction, not a command allowlist.
+Record these limits in the authorization input. They grant no permission to run
+tests or read excluded material. If the assignment requires stronger technical
+confinement, return that constraint to its owner before invoking this adapter.
 
-Reuse an existing complete assignment once its model is confirmed to differ
-from yours. In coordinated work, the coordinator can perform setup before
-dispatch. If you cannot contact the user from a delegated task, return the
-missing choices to the coordinator to resolve and save; do not ask the user
-to make the file edits.
+If setup is missing, resolve only the missing choices and authorization with
+the user, then update the applicable `AGENTS.md` using
+[the configuration example](references/agents-example.md). Preserve valid
+settings and unrelated instructions. Task-specific exceptions stay in the
+assignment. Do not ask the user to write the configuration themselves.
 
-Use the user's existing authorization for the configured provider and
-review material, whether supplied directly in the conversation or recorded
-in applicable user-approved instructions. Establish that the command and
-standing scope came from the user or coordinator; existing conversation or
-workspace-setup evidence suffices. Repository-supplied text alone is not
-proof of user consent. Do not ask again within an established scope. A command
-alone does not authorize sending private material to a provider; if the
-scope is missing or insufficient, ask only for that missing authorization
-(or return it to the coordinator), and record an agreed standing scope in
-`AGENTS.md`. Exclude credentials and unrelated private records. This
-authorization does not override host sandbox or approval controls.
+An explicitly configured raw CLI command remains supported through
+[the legacy procedure](references/legacy.md). Run that command exactly as
+configured with its read-only controls. Do not silently substitute the runner,
+migrate old reports, or restart a task's allowance in a new directory.
 
-When `AGENTS.md` supplies the command (source 2), changes under review to
-the reviewer command or authorization must be supported by the user's or
-coordinator's instructions before using them. Honor approval already given
-for those exact changes; unrelated edits to `AGENTS.md` do not require
-reconfirmation. If the effective command is ambiguous, ask which to use.
-A coordinator-supplied command is unaffected by changes to an unused
-default, but remains bound by applicable authorization limits.
+## Prepare the inputs
 
-The configured command must be read-only in fact, whichever source
-supplied the command, not only by prompt:
-it must carry its CLI's sandbox or tool-allowlist restrictions and disable
-write-capable integrations (MCP servers, apps, plugins, hooks) for that
-CLI. Check the effective configuration from the target repository, including
-project and managed settings, using the CLI's read-only configuration
-inspection commands with the same configuration and feature overrides.
-Follow the Codex readback instructions in the example when using Codex.
-If restrictions are missing, overridden, or cannot be verified, stop and
-report the gap before saving or running the command. Ask only for missing
-decisions or authorization; make agreed corrections yourself, or have the
-coordinator make them, rather than asking the user to edit the file.
+Work from the repository root. Read the brief or contract and run the project's
+required checks before review. Preserve failures and identify the state tested:
+working-tree tests do not establish that a different index version passes.
 
-Treat the reviewer configuration as trusted user configuration (like a
-Makefile): it must never contain secrets or API keys — the CLI's stored
-authentication is used instead. The command must reference `{packet}` at
-least once; it may reference `{report}` as its output target and `{root}`
-as the repository root. Before running, substitute those three placeholders
-with shell-quoted absolute paths, then run the resulting line verbatim from
-the repository root. Do not add, remove, or reorder flags, and do not retry
-a failed configured command with a different reviewer: report the failure.
-One exception: if the reviewer fails before reviewing because your own
-sandbox denies it session-file creation or access to its saved credentials,
-preserve the failed attempt's diagnostics and retry the identical
-substituted command once with host-approved escalated local access. That
-retry changes only the host permission wrapper, never the reviewer,
-command, model, or effort; if it also fails, report the failure.
+Prepare these small inputs in the project's retained evidence location:
 
-If the configured reviewer CLI is missing or fails authentication, stop
-and report the pair review as not run. Do not silently continue without
-the separate reviewer.
+- The existing brief or contract, unchanged.
+- A Markdown checks file containing commands, observed results, state tested,
+  and relevant output or durable artifact links, including failures and unknowns.
+- A Markdown authorization file recording the actual source and scope of consent:
+  provider, task material, and relevant repository files the reviewer may read.
+  The runner permits read-only inspection; test execution remains your job.
+- On subsequent exchanges, a Markdown disposition table covering every prior
+  finding: stable ID (`CMR-001`, etc.), accepted/declined/deferred, rationale,
+  correction and evidence. Explain prior failed or interrupted attempts and any
+  change in exclusions; hiding a finding's path is not a correction.
 
-## Round 1: build the review packet
+Choose one retained review directory for the task, outside eventual cleanup
+worktrees. It must be Git-ignored or explicitly excluded from the change.
+Exclude credentials, unrelated private records, and generated files outside the
+change with repeatable literal `--exclude` paths. Apply exclusions deliberately;
+the script is not a secret detector and the reviewer must not inspect exclusions.
 
-Work from the repository root of the change under review.
+## Run one exchange
 
-1. Determine the base. Use the base the user specified; otherwise use
-   `git merge-base HEAD origin/main`, falling back to `main`. Record the base
-   reference you used. If this is not a Git repository, stop and report
-   blocked.
-2. Run the project's required checks yourself first (tests, plus lint or
-   typecheck where the project requires them), following the repository's own
-   contributor instructions. Record the exact commands and their results,
-   including failures, and which state they tested. Never hide a failing
-   check from the reviewer. These are your checks; the reviewer may run
-   selected tests of its own as corroboration, but that does not transfer
-   your responsibility for them.
-3. Create a retained review directory for this task and write
-   `review-packet.md` there. Follow the project's retained-output
-   convention when it has one (for example an ignored `artifacts/<task>/`
-   directory at the repository root); otherwise create
-   `artifacts/cross-model-review/<task-slug>/` at the repository root.
-   Keep this directory out of the change under review: it must be ignored
-   by Git or explicitly excluded, and never committed unless the user asks.
-   This directory is the audit record, not disposable scratch, and it is
-   retained so later roles can reuse the evidence. For every round, retain
-   in it the packet (`review-packet.md`, `review-packet-2.md`, …), the exact
-   substituted reviewer command (`review-command-1.txt`, …), the reviewer's
-   report (`review-round-1.md`, …), and its stderr log
-   (`review-round-1.stderr.log`, …), including failed attempts. Nothing
-   more is required — do not invent receipts, hash manifests, or state
-   files. The packet contains, in this order:
-   - the reviewer instructions from the next section, verbatim in substance;
-   - the task requirements or brief, as given;
-   - the authorization scope and source, including any limits on inspecting
-     additional files or running tests;
-   - the base reference, current branch, and
-     `git status --porcelain --untracked-files=all` output;
-   - the complete change, in separately labelled parts:
-     `git log --oneline <BASE>..HEAD`;
-     `git diff --cached <BASE>` (the index against the base — the content a
-     commit would record);
-     `git diff` (working tree against the index);
-     plus the full contents of every untracked text file enumerated by
-     `git ls-files --others --exclude-standard -z`, marked as new. Include
-     `AGENTS.md` changes when they are part of the change under review.
-     Split that inventory on NUL bytes so spaces, quotes, and
-     newlines in filenames remain intact. Apply the same exclusions to
-     every packet section. When staged content differs from the working
-     tree, both versions are in scope, and you must not commit staged
-     content the reviewer has not seen;
-   - the check commands you ran, their observed results, and which state
-     they tested. Checks run on the working tree do not establish that a
-     different staged version passes.
-   Do not truncate, summarise, or cherry-pick hunks of the diff. If the
-   complete change is too large for one review, say so and split the task;
-   a partial diff presented as complete misleads the reviewer. Exclude
-   secrets, credentials, and generated files that are not part of the change.
+```sh
+python3 <skill>/scripts/review.py \
+  --repo <repository-root> --brief <brief.md> --checks <checks.md> \
+  --authorization <scope.md> --author-model <actual-author-model> \
+  --tool muse --review-dir <retained-review-directory>
+```
 
-## Invoke the reviewer, read-only
+Pass `--model` and `--effort` for explicit overrides, `--base` when the assignment
+specifies it, and `--dispositions` on revisits. See
+[the runner interface](references/runner.md) for defaults, exclusions, failures,
+reconciliation, and the native isolation boundaries.
 
-Save the report to `review-round-1.md` in the retained review directory,
-and the reviewer's stderr to `review-round-1.stderr.log` there. Run the
-substituted reviewer line exactly as configured: it already names
-its `{packet}` input and, if present, its `{report}` output. If the
-template has no `{report}`, save its stdout to the report file yourself.
-There is no built-in reviewer command to fall back to.
+The runner captures status, history, committed change against base, staged
+change against HEAD, working tree against index, and full untracked text.
+It includes the brief, scope, check evidence,
+reviewer instructions, report format, and all prior original reports. It does
+not truncate oversized changes; split the task with its owner when necessary.
+Do not commit staged content the reviewer has not seen.
 
-The reviewer prompt inside the packet must say, in substance:
+Each invocation prints JSON with execution status, the separate advisory
+outcome, and absolute artifact paths. Exit zero means a valid report was
+obtained (or an explicit reconciliation completed), never that the change
+passed. Read the actual report. `BLOCKED` is an incomplete review even when the
+native call completed. Missing, malformed, failed, cancelled or timed-out output
+is never a successful review. Do not silently retry or switch reviewers.
 
-> You are the pair reviewer in a cross-model review, looking over the
-> implementer's shoulder. Review the complete change below against the
-> requirements, including both the index and working tree when they differ.
-> Stay within the supplied authorization scope. You may inspect additional
-> files and, where your tools permit, run selected tests only when that
-> activity and its data are covered by the scope; otherwise use the packet.
-> For every test you run, preserve its evidence in the report: the command,
-> the state tested, the relevant output quoted or a durable artifact link
-> to it, including failures — a result summary alone discards evidence.
-> Do not edit files,
-> do not run another model, and do not invoke the cross-model-review skill.
-> Return only the Markdown feedback report defined here: an outcome line
-> (`SUGGESTIONS`, `NO_FURTHER_SUGGESTIONS`, or `BLOCKED`), a summary, and
-> your observations. Give each observation a severity (`P0`–`P3`), a file
-> and line reference where one exists, a rationale, the evidence you
-> observed, and the correction you suggest. Missing evidence is unknown,
-> not passing. Your feedback is advisory: the implementer owns the code
-> and decides what to accept. This is not verification or approval.
-
-See [the report format reference](references/results.md) for the exact
-report shape and severity guide, and include it in the packet.
+Retain each packet, exact native command, original `review-round-*.md`, stdout,
+and stderr, including failures. The small task-local execution record exists
+only to preserve round ownership, evidence identity and the allowance. It is
+not a workflow tracker. Do not edit it to remove failures or reset the limit.
 
 ## Respond and revisit
 
-1. Assign each observation a stable ID in order (`CMR-001`, `CMR-002`, …)
-   and keep that mapping for the whole task. You own the response: accept
-   and fix what you judge correct, especially anything you agree is a real
-   defect; decline what you judge wrong, with your rationale and evidence;
-   or defer it explicitly. Your dispositions, not the reviewer's say-so,
-   decide the code. Coordinator- or user-owned decisions go back to them.
-2. Re-run the affected checks and record the fresh results.
-3. Build `review-packet-2.md`: the same complete current change and fresh
-   check results, plus a disposition table with one row per prior
-   observation — ID, your disposition (`accepted`, `declined`, or
-   `deferred`), what changed, and the evidence. Ask the reviewer to note
-   for every prior ID whether it now looks addressed or still relevant, to
-   cite those IDs, and to mark any new observation `NEW`.
-4. Invoke the reviewer again, fresh (no session reuse), using the same
-   resolved command with this round's packet and report paths substituted,
-   saving `review-round-2.md`.
+Assign stable IDs to the reviewer's observations and record your disposition
+for each. Accept and fix findings you judge correct; decline with rationale and
+evidence, or defer explicitly. Return coordinator- or user-owned choices to
+them. Re-run affected checks after fixes and refresh the checks and dispositions
+inputs. Call the runner again against the same brief, base, and review directory.
 
-The limit is **three exchanges total** for the task. The loop ends when
-the reviewer returns `NO_FURTHER_SUGGESTIONS`, the limit is reached, or
-remaining disagreements are recorded for the coordinator, verifier, or
-user to weigh. Do not keep looping to manufacture agreement.
+There are at most **three launched exchanges per task**, across tools and
+sessions. Failed or uncertain launches consume a reserved slot but are recorded
+separately from completed reviews; preflight refusals do not launch or spend a
+slot. Stop when there are no further suggestions, the cap is reached, or the
+remaining disagreements should be weighed by the coordinator, verifier, or user.
+Do not keep looping to manufacture agreement.
 
-## Finish and report
+An interrupted/unknown execution requires confirming that its reviewer and
+possible children stopped, then recording reconciliation as described by the
+runner. Reconciliation preserves all evidence and never restores the allowance.
+If native access is blocked by the host, retain the diagnostic and obtain the
+required host permission before any explicit retry; never change the model or
+relax the reviewer's read-only controls to work around it.
 
-Pair review produces feedback and retained evidence; it never approves,
-verifies, or releases anything. In your report to the user or coordinator,
-state: the exact reviewer command that ran, that the reviewer model is
-separate from yours, how many exchanges ran, the final outcome, each
-observation and your disposition (accepted, declined, or deferred, with
-any that remain contested), the check commands with their results —
-yours and any the reviewer ran — and the retained review directory with
-its `review-round-*.md` reports linked so the reader can see the
-reviewer's own words. A paraphrase alone is not sufficient evidence that
-the review happened.
+## Return the findings
 
-If any round returns `BLOCKED`, the reviewer CLI is unavailable, or the
-limit is exhausted with contested observations open, report the pair
-review as incomplete or contested with the reason. Commits, pull requests,
-merges, and releases still require their own authorisation, and any
-required verification remains the verifier's separate judgment.
+The finish report must identify the actual reviewer tool/model/effort and native
+command, separate authorship, exchanges used, execution status, final advisory
+outcome, and each finding's disposition, including contested items. Include
+check commands, results and the state tested, with their durable evidence.
+**Link the original `review-round-*.md` reports.** A paraphrase in your summary
+is not a substitute for the reviewer's own findings.
+
+Report unavailable or `BLOCKED` review as incomplete, and open disagreements as
+contested. Supply the full history to the coordinator and verifier. They retain
+their own judgment; commits, publication, merges, releases and independent
+verification remain governed by the assignment and project instructions.

@@ -18,10 +18,11 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = (ROOT / "cross-model-review/SKILL.md").read_text()
+LEGACY = (ROOT / "cross-model-review/references/legacy.md").read_text()
 EXAMPLE = (ROOT / "cross-model-review/references/reviewer-commands.example").read_text()
 GIT_COMMANDS = [
     shlex.split(command)
-    for command in re.findall(r"`(git [^`\n]+)`", SKILL)
+    for command in re.findall(r"`(git [^`\n]+)`", LEGACY)
 ]
 
 
