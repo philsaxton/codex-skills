@@ -53,7 +53,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 
 | Role | Skills |
 |---|---|
-| Coordinator / tracker maintainer | `implementation-tracker`, when the project uses its normalized Markdown records. |
+| Coordinator / tracker maintainer | `implementation-tracker`, when the project uses its normalized Markdown records; `agent-handoff` for transferring unfinished implementation between sessions or tools. |
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
@@ -146,6 +146,8 @@ that exceed this worker's authority; identify any unaffected work that can conti
 Make scope limits and completion criteria concrete enough for the worker to act and the next role to verify. Carry existing criteria forward without weakening or inventing requirements. Mark missing authoritative inputs as gaps and preserve their gates.
 
 Distinguish observed evidence from inference and from unverified claims. Preserve adverse findings and their dispositions so later roles can assess the full history.
+
+For an implementation that may change sessions or tools, resolve `agent-handoff` and use its retained assignment and native-session entry instruction before launch. At takeover, the coordinator owns confirming every possible writer's release and handing the replacement the record and resolved skill path. The replacement reconciles actual staged, unstaged, and untracked work before editing. Preserve test provenance, material authors, review findings, and used exchanges; route reviewer conflicts without resetting the review loop or changing release authority. Keep this execution record separate from the authoritative backlog. If the skill is unavailable, assign these responsibilities explicitly and keep uncertain ownership gates closed.
 
 When one role's artifact controls downstream work, do not begin that work until the designated authority accepts the exact current artifact. A substantive change invalidates that acceptance and closes the downstream gate until the changed artifact is accepted. Independent acceptance applies only to the exact artifact or state reviewed. Material post-review changes require independent review again.
 
