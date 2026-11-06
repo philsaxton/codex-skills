@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import argparse
 import base64
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone
 import fcntl
 import hashlib
@@ -103,15 +103,45 @@ def block(title, content):
     return f"## {title}\n\n{fence}\n{content}\n{fence}\n\n"
 
 
+def committed_history(root, base, head, exclusions):
+    if not exclusions:
+        return decode(git(root, "log", "--oneline", "--no-color", "--no-decorate", base + ".." + head))
+    # Path-limited git log simplifies away empty commits and merge topology.
+    # Walk the full graph, then omit only history confined to excluded paths.
+    records = git(root, "log", "--topo-order", "--format=%H %P%x00%h %s", "-z",
+                  "--no-color", "--no-decorate", base + ".." + head).split(b"\0")
+    commits = list(zip(records[::2], records[1::2]))
+    visible = set()
+    for identity, _ in reversed(commits):
+        commit, *parents = identity.decode("ascii").split()
+        comparison = (parents[0], commit) if parents else (commit,)
+        diff = ("diff-tree", "--root", "--no-commit-id", "--name-only", "-r",
+                "--no-renames", "--no-ext-diff", "--no-textconv", *comparison)
+        changed = git(root, *diff)
+        included = bool(git(root, *diff, *pathspec(exclusions))) if changed else not parents[1:]
+        if len(parents) > 1 and not included:
+            # Comparing every parent would expose a private-only merge merely
+            # because its first parent already contained a public change.
+            introduced = set(git(root, "rev-list", *parents[1:], "--not", parents[0], base).splitlines())
+            included = bool(introduced & visible) or (not changed and not introduced)
+        if included:
+            visible.add(commit.encode("ascii"))
+    lines = [summary for identity, summary in commits if identity.split(b" ", 1)[0] in visible]
+    return decode(b"\n".join(lines) + (b"\n" if lines else b""))
+
+
 def capture(root, base, exclusions, limit):
     specs = pathspec(exclusions)
     if git(root, "ls-files", "--unmerged", "-z", *specs):
         raise ReviewError("Unmerged index has multiple staged versions; resolve or explicitly exclude those paths")
+    flags = git(root, "ls-files", "-v", "-z", *specs).split(b"\0")
+    if any(record[:1] == b"S" or record[:1].islower() for record in flags if record):
+        raise ReviewError("Tracked paths marked assume-unchanged or skip-worktree cannot be captured completely; "
+                          "clear those flags yourself or explicitly exclude those paths")
     head = decode(git(root, "rev-parse", "HEAD")).strip()
     branch = decode(git(root, "symbolic-ref", "--quiet", "--short", "HEAD", check=False) or b"(detached)").strip()
     sections = [("Git status", decode(git(root, "status", "--porcelain", "--untracked-files=all", *specs))),
-                ("Committed history", decode(git(root, "log", "--oneline", "--no-color",
-                    "--no-decorate", base + "..HEAD", *(specs if exclusions else []))))]
+                ("Committed history", committed_history(root, base, head, exclusions))]
     for title, args in (("Committed change against base", (base, "HEAD")),
                         ("Staged change against HEAD", ("--cached", "HEAD")),
                         ("Working tree against index", ())):
@@ -171,11 +201,14 @@ def write_new(path, data):
 
 
 @contextmanager
-def locked(directory):
+def locked(directory, *, create=True):
     if directory.is_symlink():
         raise ReviewError("Review directory must not be a symlink")
-    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    fd = os.open(directory / ".review.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    if create:
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd = os.open(directory / ".review.lock", os.O_RDWR | os.O_NOFOLLOW | (os.O_CREAT if create else 0), 0o600)
+    # Keep the lock inode after release: unlinking it can let another caller
+    # acquire a different inode while an existing opener still owns this one.
     with os.fdopen(fd, "r+") as stream:
         try:
             fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -270,7 +303,7 @@ def terminate(process):
     process.wait(timeout=5)
 
 
-def reconcile(args, directory, state):
+def reconcile(args, directory, state, *, save=True):
     if not state or not args.reconciliation:
         raise ReviewError("Reconciliation requires existing history and --reconciliation FILE")
     note = read_text(Path(args.reconciliation).resolve())
@@ -307,7 +340,9 @@ def reconcile(args, directory, state):
         # A prior attempt may have saved the note before the journal update failed.
         if note_path.is_symlink() or not note_path.is_file() or note_path.read_bytes() != note.encode():
             raise ReviewError("An existing reconciliation note differs; refusing to overwrite it")
-    else:
+    if not save:
+        return result
+    if not note_path.exists():
         write_new(note_path, note)
     entry.update(reconciled_from=entry["status"], status="reconciled", hashes=hashes,
                  reconciliation=name, reconciliation_sha256=digest(note.encode()), reconciled_at=now())
@@ -317,11 +352,24 @@ def reconcile(args, directory, state):
 
 def run(args):
     directory = Path(args.review_dir).absolute()
-    with locked(directory):
+    with ExitStack() as locks:
+        if directory.is_symlink():
+            raise ReviewError("Review directory must not be a symlink")
         directory = directory.resolve()
+        if directory.exists() and not directory.is_dir():
+            raise ReviewError("Review directory must be a directory")
+        lock = directory / ".review.lock"
+        acquired = lock.exists() or lock.is_symlink()
+        if acquired:
+            # Read existing history under its persistent lock, without creating
+            # any output while arguments and locations are still unvalidated.
+            locks.enter_context(locked(directory, create=False))
         state = load_state(directory)
         if args.reconcile_round is not None:
-            return reconcile(args, directory, state)
+            reconcile(args, directory, state, save=False)
+            if not acquired:
+                locks.enter_context(locked(directory))
+            return reconcile(args, directory, load_state(directory))
         for name in ("repo", "brief", "checks", "authorization", "tool", "author_model"):
             if not getattr(args, name):
                 raise ReviewError(f"--{name.replace('_', '-')} is required")
@@ -330,11 +378,12 @@ def run(args):
         used = len(state["exchanges"]) if state else 0
         if used >= MAX_EXCHANGES:
             raise ReviewError("Three-exchange allowance exhausted; return findings to the coordinator or verifier")
-        model = args.model or DEFAULT_MODELS[args.tool]
-        for value in (model, args.author_model):
-            if not value.strip() or value.lower() in {"unknown", "auto", "default", "latest", "opus", "sonnet", "haiku"}:
+        model = (args.model if args.model is not None else DEFAULT_MODELS[args.tool]).strip()
+        author_model = args.author_model.strip()
+        for value in (model, author_model):
+            if not value or value.casefold() in {"unknown", "auto", "default", "latest", "opus", "sonnet", "haiku"}:
                 raise ReviewError("Supply resolved model identities; aliases or unknown identity cannot establish independence")
-        if model.strip().casefold() == args.author_model.strip().casefold():
+        if model.casefold() == author_model.casefold():
             raise ReviewError("Reviewer and implementer must be separate models")
         supplied_root = Path(args.repo).resolve()
         root = Path(decode(git(supplied_root, "rev-parse", "--show-toplevel")).strip()).resolve()
@@ -406,7 +455,7 @@ def run(args):
         prompt += read_text(REFERENCES / "results.md") + "\n\n"
         for name in ("brief", "authorization"):
             prompt += block(name.title() + " — " + inputs[name][0], inputs[name][1])
-        prompt += block("Review scope", f"Repository: {root}\nAuthor model: {args.author_model}\nReviewer: {args.tool} / {model}\nEffort: {args.effort}\nExclusions (literal paths and subtrees): {json.dumps(exclusions)}\nDo not inspect excluded paths or unrelated private material.")
+        prompt += block("Review scope", f"Repository: {root}\nAuthor model: {author_model}\nReviewer: {args.tool} / {model}\nEffort: {args.effort}\nExclusions (literal paths and subtrees): {json.dumps(exclusions)}\nDo not inspect excluded paths or unrelated private material.")
         prompt += change + block("Implementer's check evidence — " + inputs["checks"][0], inputs["checks"][1]) + prior
         encoded = prompt.encode("utf-8")
         if len(encoded) > args.max_packet_bytes:
@@ -420,11 +469,15 @@ def run(args):
         # A configuration probe must not race a changing index/worktree.
         if capture(root, base, exclusions, args.max_packet_bytes) != change:
             raise ReviewError("Repository changed while assembling the packet; capture again after writers stop")
+        if not acquired:
+            locks.enter_context(locked(directory))
+        if load_state(directory) != state:
+            raise ReviewError("Review history changed during preflight; retry with the current history and dispositions")
         if state is None:
             state = {"version": 1, "repo": str(root), "git_common_dir": common, "base": base,
                      "brief_sha256": digest(inputs["brief"][1].encode()), "exchanges": []}
         entry = {"round": n, "status": "starting", "tool": args.tool, "model": model,
-                 "effort": args.effort, "author_model": args.author_model, "files": files,
+                 "effort": args.effort, "author_model": author_model, "files": files,
                  "exclusions": exclusions,
                  "started_at": now(), "argv": argv, "pid": None, "outcome": None}
         state["exchanges"].append(entry)

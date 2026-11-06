@@ -39,6 +39,10 @@ if "mcp" in args and "list" in args:
  disabled=any("mcp_servers=" in x for x in args)
  print(json.dumps([{"name":"server.with-dots","enabled": bool(os.getenv("BAD_MCP")) or not disabled}])); sys.exit(0)
 if "features" in args and "list" in args:
+ gate=os.getenv("PROBE_GATE")
+ if gate:
+  Path(gate+".ready").write_text("Configuration probe reached")
+  while not Path(gate).exists(): time.sleep(0.01)
  for x in ("apps","plugins","hooks","multi_agent","computer_use","browser_use","in_app_browser","image_generation"):
   print(x,"stable", "true" if os.getenv("BAD_FEATURE") else "false")
  sys.exit(0)
@@ -181,6 +185,70 @@ class ReviewRunnerTests(unittest.TestCase):
         self.assertIn("+# committed then staged away", packet)
         self.assertIn("-# committed then staged away", packet)
 
+    def test_unrelated_exclusion_preserves_empty_and_merge_commits(self):
+        self.git("commit", "--allow-empty", "-qm", "Intentional empty commit")
+        self.git("checkout", "-qb", "topic")
+        (self.repo / "public.txt").write_text("Public branch content\n")
+        self.git("add", ".")
+        self.git("commit", "-qm", "Public branch commit")
+        self.git("checkout", "feature")
+        self.git("merge", "--no-ff", "-qm", "Merge public history", "topic")
+        code, result = self.call("--exclude", "unrelated-private.txt")
+        self.assertEqual(code, 0, result)
+        packet = Path(result["packet"]).read_text()
+        for subject in ("Intentional empty commit", "Public branch commit", "Merge public history"):
+            self.assertIn(subject, packet)
+
+    def test_excluded_only_history_and_merges_do_not_leak_metadata(self):
+        private = "private[1].txt"
+        (self.repo / private).write_text("PRIVATE_LINEAR_CONTENT\n")
+        self.git("add", private)
+        self.git("commit", "-qm", "PRIVATE_LINEAR_SUBJECT")
+        private_commits = [self.git("rev-parse", "--short", "HEAD").decode().strip()]
+        self.git("checkout", "-qb", "private-topic")
+        (self.repo / private).write_text("PRIVATE_SIDE_CONTENT\n")
+        self.git("add", private)
+        self.git("commit", "-qm", "PRIVATE_SIDE_SUBJECT")
+        private_commits.append(self.git("rev-parse", "--short", "HEAD").decode().strip())
+        self.git("checkout", "feature")
+        # The public first-parent change must not make a private side merge public.
+        (self.repo / "calc.py").write_text("# Public first-parent content\n")
+        self.git("add", "calc.py")
+        self.git("commit", "-qm", "Public first-parent commit")
+        self.git("merge", "--no-ff", "-qm", "PRIVATE_MERGE_SUBJECT", "private-topic")
+        private_commits.append(self.git("rev-parse", "--short", "HEAD").decode().strip())
+        (self.repo / "public.txt").write_text("Public mixed commit content\n")
+        (self.repo / private).write_text("PRIVATE_MIXED_CONTENT\n")
+        self.git("add", ".")
+        self.git("commit", "-qm", "Public and private mixed commit")
+        code, result = self.call("--exclude", private)
+        self.assertEqual(code, 0, result)
+        packet = Path(result["packet"]).read_text()
+        self.assertNotIn("PRIVATE_", packet)
+        for commit in private_commits:
+            self.assertNotIn(commit, packet)
+        self.assertIn("Public first-parent commit", packet)
+        self.assertIn("Public and private mixed commit", packet)
+        self.assertIn("Public mixed commit content", packet)
+
+    def test_empty_merge_retains_public_side_history_but_not_excluded_only_side(self):
+        for name in ("public", "private"):
+            self.git("checkout", "-qb", name + "-topic")
+            file = self.repo / (name + ".txt")
+            file.write_text(name + " temporary branch content\n")
+            self.git("add", ".")
+            self.git("commit", "-qm", name + " branch addition")
+            self.git("rm", name + ".txt")
+            self.git("commit", "-qm", name + " branch removal")
+            self.git("checkout", "feature")
+            self.git("merge", "--no-ff", "-qm", name + " empty merge", name + "-topic")
+        code, result = self.call("--exclude", "private.txt")
+        self.assertEqual(code, 0, result)
+        packet = Path(result["packet"]).read_text()
+        for suffix in ("branch addition", "branch removal", "empty merge"):
+            self.assertIn("public " + suffix, packet)
+            self.assertNotIn("private " + suffix, packet)
+
     def test_text_filename_resembling_binary_numstat_is_not_rejected(self):
         file = self.repo / "literal-\t-\tfile.txt"
         file.write_text("text\n")
@@ -212,6 +280,34 @@ class ReviewRunnerTests(unittest.TestCase):
         self.assertEqual(self.calls(), [])
         self.assertEqual(self.call("--exclude", "nested")[0], 0)
 
+    def test_hidden_index_flags_refuse_without_mutation_and_allow_explicit_exclusion(self):
+        source = self.repo / "calc.py"
+        for flag in ("assume-unchanged", "skip-worktree"):
+            with self.subTest(flag=flag):
+                self.review = self.home / ("review-" + flag)
+                self.git("update-index", "--" + flag, "calc.py")
+                source.write_text("# HIDDEN_CHANGED_CONTENT\n")
+                (self.repo / "public.txt").write_text("Public content remains reviewable\n")
+                before_flags = self.git("ls-files", "-v", "-z")
+                before_index = (self.repo / ".git/index").read_bytes()
+                code, result = self.call()
+                self.assertEqual(code, 2, result)
+                self.assertIn(flag, result["error"])
+                self.assertFalse(self.review.exists())
+                self.assertEqual(self.git("ls-files", "-v", "-z"), before_flags)
+                self.assertEqual((self.repo / ".git/index").read_bytes(), before_index)
+                code, result = self.call("--exclude", "calc.py")
+                self.assertEqual(code, 0, result)
+                packet = Path(result["packet"]).read_text()
+                self.assertNotIn("HIDDEN_CHANGED_CONTENT", packet)
+                self.assertIn("Public content remains reviewable", packet)
+                self.assertEqual(self.git("ls-files", "-v", "-z"), before_flags)
+                self.assertEqual((self.repo / ".git/index").read_bytes(), before_index)
+                self.assertEqual(source.read_text(), "# HIDDEN_CHANGED_CONTENT\n")
+                self.git("update-index", "--no-" + flag, "calc.py")
+                self.git("checkout", "--", "calc.py")
+        self.assertEqual(len(self.calls()), 2)
+
     def test_documented_invocation_does_not_write_to_installed_skill(self):
         skill = self.home / "installed-skill"
         shutil.copytree(RUNNER.parent.parent, skill)
@@ -237,12 +333,62 @@ class ReviewRunnerTests(unittest.TestCase):
             self.assertEqual(code, 2, result)
         self.assertEqual(self.calls(), [])
 
+    def test_model_identity_whitespace_and_aliases_refuse_without_artifacts(self):
+        for option in ("--author-model", "--model"):
+            for i, identity in enumerate(("", " \t\n", "unknown ", "\tAuTo\n", " default ",
+                                          " LATEST ", " Opus\t", " sonnet ", " haiku ")):
+                with self.subTest(option=option, identity=identity):
+                    self.review = self.home / f"identity-{option}-{i}"
+                    code, result = self.call(option, identity)
+                    self.assertEqual(code, 2, result)
+                    self.assertFalse(self.review.exists())
+        code, result = self.call("--author-model", " CLAUDE-OPUS-5-5\n")
+        self.assertEqual(code, 2, result)
+        self.assertIn("separate models", result["error"])
+        code, result = self.call("--model", " FIXTURE-AUTHOR-V1\n")
+        self.assertEqual(code, 2, result)
+        self.assertIn("separate models", result["error"])
+        self.assertEqual(self.calls(), [])
+
+    def test_normalized_model_identity_is_used_in_packet_state_and_argv(self):
+        code, result = self.call("--model", " reviewer-v1\t", "--author-model", " author-v2\n")
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["model"], "reviewer-v1")
+        entry = self.state()["exchanges"][0]
+        self.assertEqual(entry["model"], "reviewer-v1")
+        self.assertEqual(entry["author_model"], "author-v2")
+        argv = self.calls()[0]
+        self.assertEqual(argv[argv.index("--model") + 1], "reviewer-v1")
+        packet = Path(result["packet"]).read_text()
+        self.assertIn("Author model: author-v2\nReviewer: claude / reviewer-v1\n", packet)
+
     def test_missing_or_empty_inputs(self):
         self.checks.unlink()
         self.assertEqual(self.call()[0], 2)
         self.checks.write_text("")
         self.assertEqual(self.call()[0], 2)
         self.assertEqual(self.calls(), [])
+        self.assertFalse(self.review.exists())
+
+    def test_invalid_initial_inputs_leave_no_output_directory_or_parents(self):
+        self.review = self.home / "new-output-parent/review"
+        for extra in (("--brief", str(self.home / "missing.md")),
+                      ("--repo", str(self.home)), ("--base", "missing-ref"),
+                      ("--exclude", "../outside"), ("--max-packet-bytes", "40")):
+            with self.subTest(extra=extra):
+                code, result = self.call(*extra)
+                self.assertEqual(code, 2, result)
+                self.assertFalse(self.review.parent.exists())
+        (self.repo / "binary.bin").write_bytes(b"a\x00b")
+        self.assertEqual(self.call()[0], 2)
+        self.assertFalse(self.review.parent.exists())
+        self.assertEqual(self.calls(), [])
+
+    def test_reconciliation_without_history_leaves_output_untouched(self):
+        evidence = self.home / "stop-evidence.md"
+        evidence.write_text("No reviewer process was started.\n")
+        self.assertEqual(self.call("--reconcile-round", "1", "--reconciliation", str(evidence))[0], 2)
+        self.assertFalse(self.review.exists())
 
     def test_explicit_base_and_complete_committed_history(self):
         (self.repo / "calc.py").write_text("# committed change\n")
@@ -290,7 +436,10 @@ class ReviewRunnerTests(unittest.TestCase):
 
     def test_unsafe_output_location_refuses(self):
         self.review = self.repo / "not-ignored"
+        before = self.git("status", "--porcelain", "--untracked-files=all")
         self.assertEqual(self.call()[0], 2)
+        self.assertFalse(self.review.exists())
+        self.assertEqual(self.git("status", "--porcelain", "--untracked-files=all"), before)
         self.assertEqual(self.call("--exclude", "not-ignored")[0], 0)
 
     def test_ignored_output_location(self):
@@ -326,6 +475,15 @@ class ReviewRunnerTests(unittest.TestCase):
         self.assertEqual(code, 2, result)
         self.assertIn("overlap tracked files", result["error"])
         self.assertEqual(self.calls(), [])
+        self.assertEqual(sorted(p.name for p in self.review.iterdir()), ["keep.md"])
+
+    def test_invalid_input_does_not_add_lock_to_existing_output_directory(self):
+        self.review.mkdir()
+        marker = self.review / "unrelated.txt"
+        marker.write_text("Keep existing content.\n")
+        self.checks.unlink()
+        self.assertEqual(self.call()[0], 2)
+        self.assertEqual(list(self.review.iterdir()), [marker])
 
     def test_text_forced_nul_is_rejected_before_model_invocation(self):
         (self.repo / ".gitattributes").write_text("*.py diff\n")
@@ -476,9 +634,18 @@ class ReviewRunnerTests(unittest.TestCase):
                     break
                 time.sleep(0.02)
             self.assertTrue(self.calls())
+            lock = self.review / ".review.lock"
+            lock_inode = lock.stat().st_ino
+            before = {p.name: p.read_bytes() for p in self.review.iterdir()}
             code, result = self.call()
             self.assertEqual(code, 2)
             self.assertIn("owns", result["error"])
+            self.assertEqual(self.call("--brief", str(self.home / "missing.md"))[0], 2)
+            code, result = self.call()
+            self.assertEqual(code, 2)
+            self.assertIn("owns", result["error"])
+            self.assertEqual(lock.stat().st_ino, lock_inode)
+            self.assertEqual({p.name: p.read_bytes() for p in self.review.iterdir()}, before)
             proc.send_signal(signal.SIGINT)
             stdout, stderr = proc.communicate(timeout=8)
             self.assertEqual(json.loads(stdout)["execution"], "cancelled", stderr)
@@ -487,6 +654,32 @@ class ReviewRunnerTests(unittest.TestCase):
             if proc.poll() is None:
                 proc.kill()
                 proc.communicate()
+
+    def test_history_is_rechecked_under_lock_after_concurrent_preflight(self):
+        gate = self.home / "release-probe"
+        proc = subprocess.Popen(self.command("--tool", "codex"),
+                                env={**self.env, "PROBE_GATE": str(gate)},
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            for _ in range(150):
+                if Path(str(gate) + ".ready").exists():
+                    break
+                time.sleep(0.02)
+            self.assertTrue(Path(str(gate) + ".ready").exists())
+            self.assertEqual(self.call()[0], 0)
+            lock_inode = (self.review / ".review.lock").stat().st_ino
+            before = {p.name: p.read_bytes() for p in self.review.iterdir()}
+            gate.touch()
+            stdout, stderr = proc.communicate(timeout=8)
+            self.assertEqual(proc.returncode, 2, stdout + stderr)
+            self.assertIn("history changed", json.loads(stdout)["error"])
+            self.assertEqual(len(self.calls()), 1)
+            self.assertEqual((self.review / ".review.lock").stat().st_ino, lock_inode)
+            self.assertEqual({p.name: p.read_bytes() for p in self.review.iterdir()}, before)
+        finally:
+            gate.touch()
+            if proc.poll() is None:
+                proc.communicate(timeout=8)
 
     def test_surviving_reviewer_child_requires_reconciliation(self):
         code, result = self.call(env={"FAKE_MODE":"orphan"})

@@ -24,6 +24,8 @@ Astra and `max` in the [OpenAI documentation](https://developers.openai.com/api/
 Muse's installed model-profile resolver recognizes Wonder-Full at max.
 There is no automatic fallback. Supply resolved identities for independence;
 the caller is responsible for resolving aliases and actual model changes.
+Leading and trailing whitespace is removed from both model identities before
+validation, recording and invocation; identity comparisons ignore case.
 
 `--base REF` pins a commit. Initially the default is the merge-base with
 `origin/main`, falling back to `main`. Revisits reuse that pinned commit.
@@ -31,11 +33,18 @@ Changing the repository, brief or base in an existing task is refused.
 
 Repeat `--exclude path` for literal repository-relative files or directories,
 not glob patterns. Exclusions apply to status, history, all three diffs and untracked
-content, and are listed in the packet. Input documents are supplied explicitly
+content, and are listed in the packet. History retains empty commits and merges
+that change included paths or introduce included history. Commits and merges
+confined to excluded changes are omitted, including their subjects.
+Input documents are supplied explicitly
 and are not filtered. Symlinks are recorded as link targets, never followed for
 packet capture. Binary, non-UTF-8, special-file and submodule changes require an
 explicit exclusion or another review method; they are never silently omitted.
 Unmerged index entries must be resolved or explicitly excluded before review.
+Included tracked paths marked `assume-unchanged` or `skip-worktree` are refused,
+even if they appear clean: Git can hide their working-tree changes. The caller
+must clear those flags or explicitly exclude those paths; the runner never
+changes index flags.
 Each exchange records its exclusion list, tool, model, effort and author.
 Revisits expose that earlier scope alongside the current scope. Explain every
 scope change in dispositions; the reviewer must flag unexplained narrowing.
@@ -59,6 +68,9 @@ a file. The original Markdown is not rewritten, even when invalid or partial.
 
 `review-state.json` records execution identity, original artifact hashes and the
 three reserved exchange slots. `.review.lock` prevents simultaneous callers.
+Initial input, output-location and packet validation happens before creating
+a directory or lock. Existing locks remain in place after refusals and completed
+calls so concurrent callers continue to use the same lock file.
 Do not edit, delete or copy these to reset the task. Existing legacy reports
 remain readable, but a directory without runner state is not silently adopted:
 continue its explicit legacy procedure and retain its original allowance.
