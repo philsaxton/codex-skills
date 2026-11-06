@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import stat
 import sys
 
@@ -49,24 +50,28 @@ def signature(info: os.stat_result) -> tuple:
             info.st_mtime_ns, info.st_ctime_ns)
 
 
-def inventory(fd: int, device: int) -> dict:
+def inventory(fd: int, device: int, prefix: str = "") -> dict:
     names = set(os.listdir(fd))
     if names & {".git", ".worktrees", ".worktree"} or {"HEAD", "objects", "refs"} <= names:
-        raise Refusal("repository or worktree content is not disposable scratch")
+        raise Refusal(f"repository or worktree content is not disposable scratch at {json.dumps(prefix or '.')}")
     result = {}
     for name in sorted(names):
+        path = json.dumps(prefix + name)
         info = os.stat(name, dir_fd=fd, follow_symlinks=False)
         if info.st_dev != device:
-            raise Refusal("scratch crosses a filesystem boundary")
+            raise Refusal(f"scratch crosses a filesystem boundary at {path}")
         if stat.S_ISDIR(info.st_mode):
             with open_directory(name, fd) as child:
                 if signature(os.fstat(child)) != signature(info):
-                    raise Refusal("directory changed during inspection")
-                result[name] = (signature(info), inventory(child, device))
+                    raise Refusal(f"directory changed during inspection at {path}")
+                result[name] = (signature(info), inventory(child, device, prefix + name + "/"))
         elif stat.S_ISREG(info.st_mode) and info.st_nlink == 1:
             result[name] = (signature(info), None)
         else:
-            raise Refusal("symlinks, hard links and special files are not supported")
+            kind = "hard-linked file" if stat.S_ISREG(info.st_mode) else {
+                stat.S_IFLNK: "symlink", stat.S_IFIFO: "FIFO", stat.S_IFSOCK: "socket",
+            }.get(stat.S_IFMT(info.st_mode), "special file")
+            raise Refusal(f"{kind} is not supported at {path}")
     return result
 
 
@@ -125,7 +130,30 @@ def remove_inventory(fd: int, entries: dict):
             os.rmdir(name, dir_fd=fd)
 
 
-def run(action: str, task: str, apply: bool, workspace: Path):
+def print_inventory(entries: dict):
+    """Show relative paths without letting filenames inject terminal output."""
+    files = directories = size = 0
+
+    def visit(items: dict, prefix: str = ""):
+        nonlocal files, directories, size
+        for name, (info, children) in items.items():
+            path = prefix + name
+            if children is None:
+                files += 1
+                size += info[3]
+                print(f"file\t{info[3]}\t{json.dumps(path)}")
+            else:
+                directories += 1
+                print(f"dir\t-\t{json.dumps(path)}")
+                visit(children, path + "/")
+
+    print("Contents: type, bytes, JSON-quoted relative path (including the marker)")
+    visit(entries)
+    print(f"Total: {files} files, {directories} directories, {size} bytes")
+
+
+def run(action: str, task: str, apply: bool, workspace: Path,
+        command: list[str] | None = None):
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", task):
         raise Refusal("task must be one simple name, not a path")
     if not workspace.is_absolute() or workspace == Path(workspace.anchor) or ".." in workspace.parts:
@@ -147,9 +175,31 @@ def run(action: str, task: str, apply: bool, workspace: Path):
             if identity[0] != device:
                 raise Refusal("task crosses a filesystem boundary")
             state, marker_identity = read_state(folder, task)
+            if action == "run":
+                if state["state"] != "active":
+                    raise Refusal("task is complete; create a new task to run more commands")
+                if not command:
+                    raise Refusal("run requires a command after --")
+                if signature(os.stat(MARKER, dir_fd=folder, follow_symlinks=False)) != marker_identity:
+                    raise Refusal("ownership marker changed before execution")
+                env = {**os.environ, **dict.fromkeys(
+                    ("TMPDIR", "TMP", "TEMP"), str(garage / "tmp" / task))}
+                # Replace the helper so streams, exit status and signals belong
+                # to the command. Do not change cwd or interpret shell syntax.
+                # Undo signals Python ignores, as subprocess does for children.
+                for name in ("SIGPIPE", "SIGXFZ", "SIGXFSZ"):
+                    number = getattr(signal, name, None)
+                    if number is not None:
+                        signal.signal(number, signal.SIG_DFL)
+                os.execvpe(command[0], command, env)
             entries = inventory(folder, device)
             if entries.get(MARKER, (None,))[0] != marker_identity:
                 raise Refusal("ownership marker changed during inspection")
+            if action == "inspect":
+                print(f"Inspect: {garage / 'tmp' / task}")
+                print(f"State: {state['state']}")
+                print_inventory(entries)
+                return
             if action == "complete":
                 write_state(folder, task, "complete")
                 print(f"Marked complete: {task}")
@@ -158,6 +208,8 @@ def run(action: str, task: str, apply: bool, workspace: Path):
                 raise Refusal("task is active; finish its writers and mark it complete first")
             print(f"{'Remove' if apply else 'Preview'}: {garage / 'tmp' / task}")
             if not apply:
+                print(f"State: {state['state']}")
+                print_inventory(entries)
                 print("No changes made. --apply permanently removes this completed scratch task.")
                 return
             if inventory(folder, device) != entries:
@@ -172,17 +224,26 @@ def run(action: str, task: str, apply: bool, workspace: Path):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__, epilog="For run, append -- COMMAND [ARG ...].")
     parser.add_argument("--workspace", type=Path, required=True,
                         help="absolute workspace directory with an existing real tmp/ child")
-    parser.add_argument("action", choices=("create", "complete", "clean"))
+    parser.add_argument("action", choices=("create", "run", "inspect", "complete", "clean"))
     parser.add_argument("task", help="unique task name, never a filesystem path")
     parser.add_argument("--apply", action="store_true", help="apply clean instead of previewing")
-    args = parser.parse_args()
+    argv = sys.argv[1:]
+    # Parse helper options only before the separator; child flags are literal.
+    separator = argv.index("--") if "--" in argv else len(argv)
+    args = parser.parse_args(argv[:separator])
+    command = argv[separator + 1:]
+    if args.action == "run" and not command:
+        parser.error("run requires -- COMMAND [ARG ...]")
+    if args.action != "run" and separator != len(argv):
+        parser.error("-- COMMAND is only used with run")
     if args.apply and args.action != "clean":
         parser.error("--apply is only used with clean")
     try:
-        run(args.action, args.task, args.apply, args.workspace)
+        run(args.action, args.task, args.apply, args.workspace, command)
     except (OSError, ValueError, Refusal) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
