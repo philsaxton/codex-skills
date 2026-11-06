@@ -13,9 +13,11 @@ AGENTS.md and current authorization remain authoritative. Work within the permit
 
 Read the governing request or contract, relevant application state, existing verification methods, and the caller's coverage gap. Preserve acceptance-criterion identifiers; otherwise reference the stated requirement directly. Use the requirements to determine expected behavior. Code helps locate behavior but cannot silently turn current output into the acceptance criterion.
 
-Distinguish an outdated method from a product regression or an unresolved requirement. Repair method drift within scope; report a product defect or route a requirement decision. Do not rewrite documentation to make broken behavior acceptable.
+Distinguish an outdated method from a product regression or an unresolved requirement. Address method drift within scope; report a product defect or route a requirement decision. Do not rewrite documentation to make broken behavior acceptable.
 
 Prefer extending an adequate existing test, script, fixture, or runbook. Choose a focused executable check when repeatable actions and assertions help, or a manual procedure when meaningful judgment or unavailable automation makes that appropriate. Reuse project tools and startup/recovery procedures. Avoid a shared runner, extra dependency, or broad feature inventory for a local gap.
+
+When repeated repairs produce more verification machinery, reconsider the original requirement before expanding the method. Reuse an adequate existing check, direct observation, or simpler replacement. Required behavior and evidence remain binding; repetition and sunk effort do not make a method mandatory. Stop at adequate support for the required claims.
 
 ## Make the method discoverable and runnable
 
@@ -32,16 +34,16 @@ Use repository-relative instructions and explicit parameters rather than another
 
 ## Validate the method itself
 
-Execute the documented procedure against a known acceptable case and a representative known failure. The expected result must come from the requirement or an independently established control, not from the output being checked. Use isolated fixtures or copies for negative controls, preserving the application under review. For a manual procedure, exercise its observations and decision rule on corresponding examples.
+Match validation to the stated application claim and plausible ways the method could give a wrong verdict. Routine readbacks, path checks, and inspection helpers do not automatically need separate qualification or validation layers. Use representative acceptable and failing controls where they establish meaningful confidence in assertions or decision rules, including manual procedures. Expected results must come from the requirement or an independently established control, not from the output being checked. Use isolated fixtures or copies for negative controls, preserving the application under review.
 
-Show that the method detects the failure it is meant to catch. Exercise relevant unavailable-prerequisite or measurement-error behavior so an unsuccessful check cannot appear to pass. Test cleanup after failed attempts and verify that collected evidence still exists. Re-run the affected validation after changing the method.
+Exercise unavailable-prerequisite, measurement-error, and failed-attempt cleanup behavior where it could produce a wrong verdict, lose evidence, or disturb resources. Rerun validation whose conclusions a change could invalidate. Carry forward accepted results and verified portions after narrow corrections, with their original identity and a brief applicability reason. A handoff, lost cache, report-format correction, or incidental metadata change alone does not require repeating successful execution.
 
-Record what was actually exercised. An unrun procedure is a draft. If a required control cannot be exercised, return that validation gap explicitly; do not claim the method fully validated or use its existence to declare the application verified. Suitable current validation results may also serve the caller's application check without another identical run.
+Record what was actually exercised. An unrun procedure is a draft. If a control needed for a sound judgment cannot be exercised, return that validation gap explicitly; do not claim the method fully validated or use its existence to declare the application verified. Missing optional measurements limit the claims supported; they do not add product requirements. Applicable validation results may also serve the caller's application check without another identical run.
 
 ## Maintain and hand off
 
 Keep method sources with the project and use its existing version control; no separate version scheme is required. Identify the evaluated method and application state, including relevant uncommitted changes, inputs, and environment in the run evidence. Keep that evidence separate from the reusable instructions.
 
-Review affected methods when requirements, application behavior, tools, or prerequisites change. Retire an obsolete method by updating active references and recording its replacement or the remaining coverage gap. Preserve needed historical evidence and the project's history; removal of a method does not remove its requirement.
+Review affected methods when requirements, application behavior, tools, or prerequisites change. Retire an obsolete method by updating active references and recording its replacement or the remaining coverage gap. Preserve needed historical evidence, including failures and limitations, without making repair of an abandoned method a condition of completion. Removal of a method does not remove its requirement or a real coverage gap.
 
 Return the method and discovery locations, requirement coverage, changes made, validation commands or actions and results, evidence locations, cleanup result, and limitations. Keep the handoff concise and use any project-defined format. The verifier assesses this material before relying on it; authoring or maintaining a method is not implementation acceptance.
