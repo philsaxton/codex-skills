@@ -230,10 +230,30 @@ report shape and severity guide, and include it in the packet.
    resolved command with this round's packet and report paths substituted,
    saving `review-round-2.md`.
 
-The limit is **three exchanges total** for the task. The loop ends when
-the reviewer returns `NO_FURTHER_SUGGESTIONS`, the limit is reached, or
-remaining disagreements are recorded for the coordinator, verifier, or
-user to weigh. Do not keep looping to manufacture agreement.
+The initial allowance is **three reserved launches**, followed by a mandatory
+coordinator/authorized-owner reassessment. Failed launches count; resolve
+unknown execution before another call. Stop earlier when repeated remediation
+of the same unresolved root cause shows nonprogress, across feedback from the
+implementer, reviewer, verifier, user or checks. A new reporter, context, model,
+commit or finding label alone does not justify another attempt.
+
+Apply the same [continuation policy](../SKILL.md#respond-and-revisit) as the
+runner while retaining this configured command and its native capability rules.
+For materially new authorized work, a distinct finding, an evidence-backed
+changed approach or a repaired execution prerequisite, the coordinator or
+authorized owner may record an allowance of one to three launches. An early
+reassessment retires unused old slots; the new allowance replaces them rather
+than stacking. Routine in-scope continuation uses existing authority, while
+protected requirement and product decisions retain their owners.
+
+Keep cumulative launch numbering and manually retain each decision's owner,
+authority source, reviewed history, basis and evidence, revised brief, open
+finding dispositions, replacement boundary and retired slots. Include that
+history in future packets without deleting original reports or failed attempts.
+Do not adopt a legacy directory into runner state or use this procedure to
+bypass an exhausted runner window. No automatic retry crosses a checkpoint.
+Stop when no further pair review is useful or a decision belongs to the owner;
+do not loop to manufacture agreement.
 
 ## Finish and report
 
@@ -249,7 +269,7 @@ reviewer's own words. A paraphrase alone is not sufficient evidence that
 the review happened.
 
 If any round returns `BLOCKED`, the reviewer CLI is unavailable, or the
-limit is exhausted with contested observations open, report the pair
+current allowance is exhausted with contested observations open, report the pair
 review as incomplete or contested with the reason. Commits, pull requests,
 merges, and releases still require their own authorisation, and any
 required verification remains the verifier's separate judgment.

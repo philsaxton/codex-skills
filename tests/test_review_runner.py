@@ -1,5 +1,6 @@
 """Behavior tests using real Git repositories and local stub CLIs, no models."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +33,9 @@ FAKE = '''import json,os,sys,time,subprocess
 from pathlib import Path
 args=sys.argv[1:]
 tool=Path(sys.argv[0]).name
+if os.getenv("ALL_CALL_LOG"):
+ Path(os.environ["ALL_CALL_LOG"]).open("a").write(json.dumps([tool,*args])+"\\n")
+if os.getenv("FAIL_ANY_CLI"): sys.exit(91)
 if args[:2]==["config","status"]:
  print("  plane=defaults source_class=system_file state="+("active" if os.getenv("BAD_POLICY") else "absent")); sys.exit(0)
 if args[:2]==["plugins","list"]:
@@ -126,6 +131,38 @@ class ReviewRunnerTests(unittest.TestCase):
 
     def state(self):
         return json.loads((self.review / "review-state.json").read_text())
+
+    def evidence(self):
+        return {p.name: p.read_bytes() for p in self.review.iterdir() if p.is_file()}
+
+    def continuation(self, name="decision.json", **changes):
+        value = {"version": 1, "after_round": len(self.state()["exchanges"]),
+                 "history_sha256": hashlib.sha256((self.review / "review-state.json").read_bytes()).hexdigest(),
+                 "allowance": 1, "brief_sha256": hashlib.sha256(self.brief.read_bytes()).hexdigest(),
+                 "owner": "Fixture coordinator", "authorization_source": "Synthetic assignment",
+                 "basis": "distinct_finding", "rationale": "New boundary case; retain CMR-001 and inspect its fix."}
+        value.update(changes)
+        file = self.home / name
+        file.write_text(json.dumps(value, indent=2) + "\n")
+        return file
+
+    def continuation_command(self, file, *extra):
+        return [sys.executable, "-B", str(RUNNER), "--review-dir", str(self.review),
+                "--repo", str(self.repo), "--brief", str(self.brief), "--continue-with", str(file), *extra]
+
+    def continue_call(self, file, *extra, env=None):
+        result = subprocess.run(self.continuation_command(file, *extra),
+                                env={**self.env, **(env or {})}, capture_output=True, text=True, timeout=15)
+        self.assertNotIn("Traceback", result.stderr, result.stderr)
+        return result.returncode, json.loads(result.stdout) if result.stdout else {"error": result.stderr}
+
+    def assert_allowance(self, result, used, limit):
+        self.assertEqual(result["allowance_used"], used)
+        self.assertEqual(result["allowance_limit"], limit)
+        self.assertEqual(result["allowance_remaining"], limit - used)
+        self.assertEqual(result["reassessment_required"], used == limit)
+        self.assertEqual(result["history_sha256"],
+                         hashlib.sha256((self.review / "review-state.json").read_bytes()).hexdigest())
 
     def test_complete_capture_and_original_reports(self):
         (self.repo / "calc.py").write_text("def f(n):\n    return abs(n)  # staged bug\n")
@@ -609,6 +646,437 @@ class ReviewRunnerTests(unittest.TestCase):
         self.assertEqual(code, 2, result)
         self.assertIn("exhausted", result["error"])
         self.assertEqual(len(self.calls()), 3)
+        self.assert_allowance(result, 3, 3)
+
+    def test_checkpoint_continuation_preserves_history_and_stops_at_new_boundary(self):
+        for _ in range(3):
+            self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        before, entries = self.evidence(), self.state()["exchanges"]
+        code, result = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 2, result)
+        self.assertEqual(self.evidence(), before)
+        grant = self.continuation(allowance=2)
+        probes = self.home / "metadata-cli-calls"
+        code, result = self.continue_call(grant, env={"FAIL_ANY_CLI": "1", "ALL_CALL_LOG": str(probes)})
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["execution"], "continuation_recorded")
+        self.assertEqual(len(self.calls()), 3)
+        self.assertFalse(probes.exists())
+        self.assert_allowance(result, 3, 5)
+        self.assertEqual(self.state()["exchanges"], entries)
+        for name, data in before.items():
+            if name != "review-state.json":
+                self.assertEqual((self.review / name).read_bytes(), data)
+        self.assertEqual(Path(result["decision"]).read_bytes(), grant.read_bytes())
+        self.assertEqual(Path(result["brief"]).read_bytes(), self.brief.read_bytes())
+        for round_number in (4, 5):
+            code, result = self.call("--dispositions", str(self.dispositions))
+            self.assertEqual(code, 0, result)
+            self.assertEqual(result["round"], round_number)
+            self.assert_allowance(result, round_number, 5)
+            packet = Path(result["packet"]).read_text()
+            self.assertIn(grant.read_text(), packet)
+            self.assertEqual(packet.count(REPORT), round_number - 1)
+            self.assertIn("CMR-001: accepted", packet)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        self.assertEqual(len(self.calls()), 5)
+
+    def test_early_revised_brief_retires_unused_allowance_and_retains_prior_scope(self):
+        self.assertEqual(self.call()[0], 0)
+        initial_hash = self.state()["brief_sha256"]
+        initial_packet = (self.review / "review-packet.md").read_bytes()
+        self.brief.write_bytes(b"New authorized requirement.\r\nPreserve prior integer behavior.\r\n")
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        grant = self.continuation(allowance=2, basis="new_authorized_work")
+        code, result = self.continue_call(grant)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 1, 3)
+        self.assertEqual(self.state()["brief_sha256"], initial_hash)
+        self.assertEqual(Path(result["brief"]).read_bytes(), self.brief.read_bytes())
+        for _ in range(2):
+            code, result = self.call("--dispositions", str(self.dispositions))
+            self.assertEqual(code, 0, result)
+            packet = Path(result["packet"]).read_text()
+            self.assertIn("New authorized requirement.", packet)
+            self.assertIn(REPORT, packet)
+            self.assertIn(initial_hash, packet)
+            self.assertIn(str(self.review.resolve() / "review-packet.md"), packet)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        self.assertEqual(len(self.calls()), 3)
+        self.assertEqual((self.review / "review-packet.md").read_bytes(), initial_packet)
+
+    def test_early_changed_approach_replaces_slots_and_replay_never_regrants(self):
+        self.assertEqual(self.call()[0], 0)
+        first = self.continuation(allowance=3, basis="changed_approach")
+        self.assertEqual(self.continue_call(first)[0], 0)
+        before = self.evidence()
+        code, result = self.continue_call(first)
+        self.assertEqual(code, 0, result)
+        self.assertTrue(result["replayed"])
+        self.assert_allowance(result, 1, 4)
+        self.assertEqual(self.evidence(), before)
+        for _ in range(3):
+            self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        before = self.evidence()
+        code, result = self.continue_call(first)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 4, 4)
+        self.assertEqual(self.evidence(), before)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        second = self.continuation("second.json", allowance=1)
+        self.assertEqual(self.continue_call(second)[0], 0)
+        before = self.evidence()
+        code, result = self.continue_call(first)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 4, 5)
+        self.assertEqual(self.evidence(), before)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        self.assertEqual(len(self.calls()), 5)
+
+    def test_same_round_decisions_replace_allowance_and_old_brief_replay_is_inert(self):
+        self.call()
+        original = self.brief.read_bytes()
+        first = self.continuation(allowance=3)
+        self.assertEqual(self.continue_call(first)[0], 0)
+        self.brief.write_text("Revised current basis\n")
+        second = self.continuation("second.json", allowance=1, basis="new_authorized_work")
+        code, result = self.continue_call(second)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 1, 2)
+        old_brief = self.home / "old-brief.md"
+        old_brief.write_bytes(original)
+        before = self.evidence()
+        code, result = self.continue_call(first, "--brief", str(old_brief))
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 1, 2)
+        self.assertEqual(self.evidence(), before)
+        code, result = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, result)
+        packet = Path(result["packet"]).read_text()
+        self.assertIn(original.decode().strip(), packet)
+        self.assertIn("Revised current basis", packet)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+
+    def test_v1_history_stays_v1_until_explicit_promotion_without_rewriting_evidence(self):
+        self.call()
+        state = self.state()
+        state["version"] = 1
+        state.pop("continuations", None)
+        state["exchanges"][0].pop("exclusions", None)
+        (self.review / "review-state.json").write_text(json.dumps(state))
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        self.assertEqual(self.state()["version"], 1)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        before, entries = self.evidence(), self.state()["exchanges"]
+        grant = self.continuation()
+        self.assertEqual(self.continue_call(grant)[0], 0)
+        self.assertEqual(self.state()["version"], 2)
+        self.assertEqual(self.state()["exchanges"], entries)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        for name, data in before.items():
+            if name != "review-state.json":
+                self.assertEqual((self.review / name).read_bytes(), data)
+        self.assertEqual(self.state()["exchanges"][:3], entries)
+
+    def test_continuation_rejects_malformed_stale_and_mixed_operations_without_effects(self):
+        self.call()
+        valid = self.continuation()
+        value = json.loads(valid.read_text())
+        before = self.evidence()
+        for changes in ({"version": True}, {"version": 2}, {"after_round": True}, {"after_round": 0},
+                        {"allowance": True}, {"allowance": 0}, {"allowance": 4}, {"allowance": 1.5},
+                        {"owner": " "}, {"authorization_source": ""}, {"rationale": []}, {"basis": "retry"},
+                        {"history_sha256": "0" * 64}, {"history_sha256": "bad"},
+                        {"brief_sha256": "0" * 64}, {"extra": "unknown"}):
+            with self.subTest(changes=changes):
+                valid.write_text(json.dumps({**value, **changes}))
+                self.assertEqual(self.continue_call(valid)[0], 2)
+                self.assertEqual(self.evidence(), before)
+        for raw in ("", "{", "[]", json.dumps(value)[:-1] + ', "allowance": 2}'):
+            valid.write_text(raw)
+            self.assertEqual(self.continue_call(valid)[0], 2)
+            self.assertEqual(self.evidence(), before)
+        original_brief = self.brief.read_bytes()
+        self.brief.write_text("\u00a0\n")
+        blank_brief = self.continuation("blank-brief.json")
+        self.assertEqual(self.continue_call(blank_brief)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        self.brief.write_bytes(original_brief)
+        valid.write_text(json.dumps(value))
+        for option, argument in (("--tool", "claude"), ("--model", "reviewer"), ("--effort", "max"),
+                                 ("--checks", str(self.checks)), ("--authorization", str(self.auth)),
+                                 ("--dispositions", str(self.dispositions)), ("--author-model", "author"),
+                                 ("--timeout", "1800"), ("--max-packet-bytes", "2097152"),
+                                 ("--reconcile-round", "1"), ("--reconciliation", str(self.checks))):
+            with self.subTest(option=option):
+                self.assertEqual(self.continue_call(valid, option, argument)[0], 2)
+                self.assertEqual(self.evidence(), before)
+        self.assertEqual(self.continue_call(valid)[0], 0)
+        before = self.evidence()
+        valid.write_text(json.dumps({**value, "rationale": "Changed bytes using the stale token"}))
+        self.assertEqual(self.continue_call(valid)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        self.assertEqual(len(self.calls()), 1)
+
+    def test_continuation_never_adopts_missing_or_legacy_history_or_new_repo_base(self):
+        self.call()
+        grant = self.continuation()
+        before = self.evidence()
+        for args in (("--repo", str(self.home)), ("--brief", str(self.checks)), ("--base", "missing-ref"),
+                     ("--exclude", "../outside")):
+            self.assertEqual(self.continue_call(grant, *args)[0], 2)
+            self.assertEqual(self.evidence(), before)
+        self.git("commit", "--allow-empty", "-qm", "Different base")
+        self.assertEqual(self.continue_call(grant, "--base", "HEAD")[0], 2)
+        missing = self.home / "missing-parent/history"
+        self.assertEqual(self.continue_call(grant, "--review-dir", str(missing))[0], 2)
+        self.assertFalse(missing.parent.exists())
+        legacy = self.home / "legacy"
+        legacy.mkdir()
+        (legacy / "review-round-1.md").write_text(REPORT)
+        self.assertEqual(self.continue_call(grant, "--review-dir", str(legacy))[0], 2)
+        self.assertEqual([p.name for p in legacy.iterdir()], ["review-round-1.md"])
+
+    def test_uncertainty_blocks_continuation_and_replay_until_reconciled(self):
+        self.call()
+        first = self.continuation(allowance=3)
+        self.assertEqual(self.continue_call(first)[0], 0)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions), "--timeout", "0.1",
+                                   env={"FAKE_MODE": "slow"})[0], 1)
+        stale = self.continuation("stale.json", basis="repaired_prerequisite")
+        before = self.evidence()
+        self.assertEqual(self.continue_call(stale)[0], 2)
+        self.assertEqual(self.continue_call(first)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        stopped = self.home / "stopped.md"
+        stopped.write_text("Owned stub group was terminated; no other processes launched.\n")
+        code, result = self.call("--reconcile-round", "2", "--reconciliation", str(stopped))
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 2, 4)
+        before = self.evidence()
+        self.assertEqual(self.continue_call(stale)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        code, result = self.continue_call(first)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 2, 4)
+        fresh = self.continuation("fresh.json", basis="repaired_prerequisite")
+        self.assertEqual(self.continue_call(fresh)[0], 0)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+
+    def test_failed_and_invalid_launches_count_preflight_refusals_do_not(self):
+        for mode in ("exit", "malformed", "empty"):
+            code, result = self.call("--dispositions", str(self.dispositions), env={"FAKE_MODE": mode})
+            self.assertEqual(code, 1, result)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        grant = self.continuation()
+        self.assertEqual(self.continue_call(grant)[0], 0)
+        before = self.evidence()
+        self.assertEqual(self.call("--author-model", "unknown")[0], 2)
+        self.assertEqual(self.evidence(), before)
+        code, result = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 4, 4)
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+
+    def test_continuation_evidence_tampering_or_invalid_sequence_is_refused(self):
+        self.call()
+        grant = self.continuation()
+        code, result = self.continue_call(grant)
+        self.assertEqual(code, 0, result)
+        state_file = self.review / "review-state.json"
+        for name in ("decision", "brief"):
+            file = Path(result[name])
+            original = file.read_bytes()
+            file.write_bytes(original + b"tampered")
+            self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+            self.assertEqual(self.continue_call(grant)[0], 2)
+            file.unlink()
+            self.assertEqual(self.continue_call(grant)[0], 2)
+            file.symlink_to(self.brief)
+            self.assertEqual(self.continue_call(grant)[0], 2)
+            file.unlink()
+            file.write_bytes(original)
+        state_bytes = state_file.read_bytes()
+        recorded = json.loads(state_bytes)
+        decision_path = Path(result["decision"])
+        decision_bytes = decision_path.read_bytes()
+        # Even matching artifact hashes cannot authorize an impossible sequence.
+        bad = json.loads(decision_bytes)
+        bad["after_round"] = 2
+        decision_path.write_text(json.dumps(bad))
+        recorded["continuations"][0]["hashes"]["decision"] = hashlib.sha256(decision_path.read_bytes()).hexdigest()
+        state_file.write_text(json.dumps(recorded))
+        self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 2)
+        decision_path.write_bytes(decision_bytes)
+        state_file.write_bytes(state_bytes)
+        (self.review / "review-round-1.md").write_text("altered original")
+        self.assertEqual(self.continue_call(grant)[0], 2)
+
+    def test_complete_orphan_evidence_retry_finishes_once_after_state_write_failure(self):
+        self.call()
+        grant = self.continuation()
+        state_bytes = (self.review / "review-state.json").read_bytes()
+        spec = importlib.util.spec_from_file_location("review_for_failure_fixture", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        with patch.object(sys, "path", [str(RUNNER.parent), *sys.path]):
+            spec.loader.exec_module(module)
+        args = module.parser().parse_args(self.continuation_command(grant)[3:])
+        with patch.dict(os.environ, self.env, clear=True), \
+                patch.object(module, "atomic_json", side_effect=OSError("Synthetic state-write failure")), \
+                patch.object(module, "build", side_effect=AssertionError("Metadata must not probe a reviewer")):
+            with self.assertRaisesRegex(OSError, "Synthetic state-write failure"):
+                module.run(args)
+        self.assertEqual((self.review / "review-state.json").read_bytes(), state_bytes)
+        orphan_decision = (self.review / "review-continuation-1.json").read_bytes()
+        orphan_brief = (self.review / "review-brief-1.md").read_bytes()
+        self.assertEqual(orphan_decision, grant.read_bytes())
+        self.assertEqual(orphan_brief, self.brief.read_bytes())
+        code, result = self.continue_call(grant)
+        self.assertEqual(code, 0, result)
+        self.assert_allowance(result, 1, 2)
+        before = self.evidence()
+        self.assertEqual(self.continue_call(grant)[0], 0)
+        self.assertEqual(self.evidence(), before)
+        self.assertEqual(len(self.state()["continuations"]), 1)
+        self.assertEqual(len(self.calls()), 1)
+
+    def test_partial_conflicting_symlinked_and_unexpected_orphans_are_preserved(self):
+        self.call()
+        grant = self.continuation()
+        decision_file = self.review / "review-continuation-1.json"
+        brief_file = self.review / "review-brief-1.md"
+        decision_file.write_bytes(grant.read_bytes())
+        before = self.evidence()
+        self.assertEqual(self.continue_call(grant)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        brief_file.write_text("partial brief")
+        before = self.evidence()
+        self.assertEqual(self.continue_call(grant)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        brief_file.unlink()
+        brief_file.symlink_to(self.brief)
+        self.assertEqual(self.continue_call(grant)[0], 2)
+        self.assertTrue(brief_file.is_symlink())
+        brief_file.unlink()
+        brief_file.write_bytes(self.brief.read_bytes())
+        extra = self.review / "review-continuation-9.json"
+        extra.write_text("unexpected evidence")
+        before = self.evidence()
+        self.assertEqual(self.continue_call(grant)[0], 2)
+        self.assertEqual(self.evidence(), before)
+
+    def test_continuation_checks_new_artifacts_and_cumulative_round_output_paths(self):
+        self.review = self.repo / "artifacts/review"
+        for _ in range(3):
+            self.assertEqual(self.call("--dispositions", str(self.dispositions))[0], 0)
+        grant = self.continuation()
+        before = self.evidence()
+        (self.repo / ".gitignore").write_text("ignored.txt\n")
+        self.assertEqual(self.continue_call(grant)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        (self.repo / ".gitignore").write_text("artifacts/\nignored.txt\n")
+        for name in ("review-continuation-1.json", "review-brief-1.md", "review-round-4.md"):
+            file = self.review / name
+            file.write_text("Tracked content must not be overwritten\n")
+            self.git("add", "-f", str(file))
+            before = self.evidence()
+            self.assertEqual(self.continue_call(grant, "--exclude", "artifacts/review")[0], 2)
+            self.assertEqual(self.evidence(), before)
+            self.git("rm", "--cached", str(file))
+            file.unlink()
+        self.assertEqual(self.continue_call(grant)[0], 0)
+        code, result = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["round"], 4)
+        self.assertEqual(self.git("status", "--porcelain"), b"")
+
+    def test_concurrent_decisions_cannot_duplicate_or_stack_a_grant(self):
+        self.call()
+        for count, identical in enumerate((True, False), 1):
+            first = self.continuation(f"first-{count}.json")
+            second = first if identical else self.continuation(f"second-{count}.json", rationale="Distinct supplied decision")
+            processes = [subprocess.Popen(self.continuation_command(file), env=self.env,
+                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                         for file in (first, second)]
+            results = []
+            for process in processes:
+                stdout, stderr = process.communicate(timeout=15)
+                self.assertNotIn("Traceback", stderr)
+                results.append((process.returncode, json.loads(stdout)))
+            self.assertIn(0, [code for code, _ in results])
+            if not identical:
+                self.assertEqual(sorted(code for code, _ in results), [0, 2])
+            self.assertEqual(len(self.state()["continuations"]), count)
+            self.assertEqual(len(self.calls()), 1)
+            winner = next(result for code, result in results if code == 0)
+            self.assert_allowance(winner, 1, 2)
+
+    def test_active_review_lock_blocks_continuation_and_reconciliation(self):
+        self.call()
+        grant = self.continuation()
+        proc = subprocess.Popen(self.command("--dispositions", str(self.dispositions)),
+                                env={**self.env, "FAKE_MODE": "slow"},
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            for _ in range(150):
+                if len(self.calls()) == 2 and self.state()["exchanges"][-1]["status"] == "running":
+                    break
+                time.sleep(0.02)
+            self.assertEqual(len(self.calls()), 2)
+            lock_inode = (self.review / ".review.lock").stat().st_ino
+            before = self.evidence()
+            code, result = self.continue_call(grant)
+            self.assertEqual(code, 2, result)
+            self.assertIn("owns", result["error"])
+            self.assertEqual(self.call("--reconcile-round", "2", "--reconciliation", str(self.checks))[0], 2)
+            self.assertEqual(self.evidence(), before)
+            self.assertEqual((self.review / ".review.lock").stat().st_ino, lock_inode)
+            proc.send_signal(signal.SIGINT)
+            stdout, stderr = proc.communicate(timeout=8)
+            self.assertEqual(json.loads(stdout)["execution"], "cancelled", stderr)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate()
+
+    def test_recovered_v1_missing_packet_stays_missing_after_revised_brief_continuation(self):
+        self.call()
+        state = self.state()
+        state["version"] = 1
+        state.pop("continuations")
+        state["exchanges"][0].update(status="starting", pid=None, hashes={})
+        (self.review / "review-packet.md").unlink()
+        (self.review / "review-state.json").write_text(json.dumps(state))
+        stale = self.continuation()
+        self.assertEqual(self.continue_call(stale)[0], 2)
+        stopped = self.home / "stopped.md"
+        stopped.write_text("Synthetic interrupted journal; original stub completed and has no remaining process.\n")
+        self.assertEqual(self.call("--reconcile-round", "1", "--reconciliation", str(stopped))[0], 0)
+        reconciled = self.state()["exchanges"][0]
+        self.assertIsNone(reconciled["hashes"]["packet"])
+        self.brief.write_text("Revised requirement after interrupted initial capture.\n")
+        fresh = self.continuation("fresh.json", basis="new_authorized_work")
+        self.assertEqual(self.continue_call(fresh)[0], 0)
+        code, result = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, result)
+        packet = Path(result["packet"]).read_text()
+        self.assertIn("Revised requirement after interrupted initial capture.", packet)
+        self.assertIn(REPORT, packet)
+        self.assertNotIn("Preserve every integer input, including negative values.", packet)
+        self.assertFalse((self.review / "review-packet.md").exists())
+        self.assertEqual(self.state()["exchanges"][0], reconciled)
+
+    def test_continuation_history_cannot_be_silently_truncated_to_fit_packet_budget(self):
+        self.call()
+        grant = self.continuation(rationale="Supplied evidence. " * 1500)
+        self.assertEqual(self.continue_call(grant)[0], 0)
+        before = self.evidence()
+        code, result = self.call("--dispositions", str(self.dispositions), "--max-packet-bytes", "15000")
+        self.assertEqual(code, 2, result)
+        self.assertEqual(self.evidence(), before)
+        self.assertEqual(len(self.calls()), 1)
 
     def test_changed_brief_or_repo_does_not_reset_history(self):
         self.call()

@@ -22,3 +22,11 @@ identify unresolved disagreements and mark new observations NEW. Do not
 weaken the requirements or manufacture agreement.
 Compare current exclusions with the prior exchange scopes and the implementer's
 explanation. Flag unexplained narrowing instead of treating hidden work as fixed.
+Continuation decisions are retained caller claims, not authenticated authority
+or evidence of progress. Review against the current authorized brief; use
+historical snapshots and dispositions to assess continuing findings. A change
+of reporter, label, context or implementer alone does not resolve a root cause.
+Initial requirements may be available only in a linked original packet that
+your access restrictions do not permit reading. Record unavailable comparisons
+in Unknowns; return BLOCKED only when the missing basis materially prevents the
+assigned review. Do not invent historical requirements or expand your access.

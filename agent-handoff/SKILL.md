@@ -30,8 +30,9 @@ PROGRESS: checkpoint time; observed changes; unfinished work; next bounded actio
 assumptions, failures, and unknown or partially completed external operations.
 CHECKS: exact commands; observed results; state tested; retained output locations.
 REVIEW: resolved reviewer command/model and authorization source; packets/reports;
-exchanges used; pending/failed invocations; stable findings and dispositions,
-including disagreements; models that materially authored the change.
+cumulative exchanges used; active boundary and retired unused slots; continuation
+decisions and brief versions; pending/failed invocations; stable open findings and
+dispositions, including disagreements; models that materially authored the change.
 ```
 
 An attempt ID and a locatable launch context must exist before execution. On entry, confirm the actual tool/model against the assignment. A native session ID created by launch is initially `not yet created`; add it when available. Record model uncertainty explicitly and resolve it before work requiring reviewer independence. A first launch must also establish that no other writer owns the checkout.
@@ -73,7 +74,7 @@ Keep historic check results with their tested state. Later changes make an affec
 
 ## Carry review and authority forward
 
-When the assignment uses `cross-model-review`, read that skill from its resolved location and continue the same task's advisory loop. Preserve the reviewer command/model and authorization, all packets and reports, stable finding IDs and dispositions, contested findings, and exchanges already used. Record invocation failures separately from review outcomes. Reconcile pending invocations and uncertain history before another call; switching sessions, tools, or reviewers does not restart the three-exchange allowance.
+When the assignment uses `cross-model-review`, read that skill from its resolved location and continue the same task's advisory loop. Preserve the reviewer command/model and authorization, all packets and reports, stable finding IDs and dispositions, contested findings, cumulative attempts, continuation decisions and brief versions. Record invocation failures separately from review outcomes. Reconcile pending invocations and uncertain history before another call. Switching sessions, tools, reviewers or implementers does not reset the active allowance or justify continuation. At the three-launch or later bounded checkpoint, return for coordinator/authorized-owner reassessment; only a recorded continuation can replace the allowance, retiring rather than accumulating unused slots. Carry evidence of recurring unresolved root causes across handoffs so a new context does not restart an unproductive repair loop.
 
 Before another review, recheck that the configured reviewer differs from the current implementer model. A matching or uncertain identity returns to the coordinator or other designated configuration owner; do not silently substitute a reviewer. Also disclose any overlap with earlier material author models and apply the governing independence policy. Prefer a reviewer outside that author set when available; any stronger requirement or changed reviewer assignment belongs to the designated authority.
 

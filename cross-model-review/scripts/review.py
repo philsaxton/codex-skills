@@ -35,7 +35,9 @@ UNCERTAIN = {"starting", "running", "timeout", "cancelled", "unknown"}
 
 
 class ReviewError(ValueError):
-    pass
+    def __init__(self, message, **details):
+        super().__init__(message)
+        self.details = details
 
 
 def now():
@@ -201,6 +203,60 @@ def write_new(path, data):
         stream.write(data if isinstance(data, bytes) else data.encode("utf-8"))
 
 
+def continuation_names(n):
+    return {"decision": f"review-continuation-{n}.json", "brief": f"review-brief-{n}.md"}
+
+
+def decision(data):
+    def unique_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ReviewError(f"Duplicate continuation field: {key}")
+            result[key] = value
+        return result
+
+    value = json.loads(decode(data), object_pairs_hook=unique_keys)
+    fields = {"version", "after_round", "history_sha256", "allowance", "brief_sha256",
+              "owner", "authorization_source", "basis", "rationale"}
+    if not isinstance(value, dict) or set(value) != fields:
+        raise ReviewError("Continuation must contain exactly the documented decision fields")
+    if (type(value["version"]) is not int or value["version"] != 1
+            or type(value["after_round"]) is not int or value["after_round"] < 0
+            or type(value["allowance"]) is not int or not 1 <= value["allowance"] <= MAX_EXCHANGES):
+        raise ReviewError("Continuation requires version 1, a nonnegative round and an allowance of 1–3")
+    for key in ("history_sha256", "brief_sha256"):
+        if not isinstance(value[key], str) or not re.fullmatch(r"[0-9a-f]{64}", value[key]):
+            raise ReviewError(f"Invalid continuation {key}")
+    for key in ("owner", "authorization_source", "rationale"):
+        if not isinstance(value[key], str) or not value[key].strip():
+            raise ReviewError(f"Continuation requires nonempty {key}")
+    if value["basis"] not in ("new_authorized_work", "distinct_finding", "changed_approach", "repaired_prerequisite"):
+        raise ReviewError("Unrecognized continuation basis")
+    return value
+
+
+def allowance_limit(directory, state):
+    records = state.get("continuations", [])
+    if not records:
+        return MAX_EXCHANGES
+    last = decision((directory / records[-1]["files"]["decision"]).read_bytes())
+    return last["after_round"] + last["allowance"]
+
+
+def active_brief(state):
+    records = state.get("continuations", [])
+    return records[-1]["hashes"]["brief"] if records else state["brief_sha256"]
+
+
+def allowance_info(directory, state):
+    used = len(state["exchanges"])
+    limit = allowance_limit(directory, state)
+    return {"allowance_used": used, "allowance_limit": limit, "allowance_remaining": limit - used,
+            "reassessment_required": used == limit,
+            "history_sha256": digest((directory / "review-state.json").read_bytes())}
+
+
 @contextmanager
 def locked(directory, *, create=True):
     if directory.is_symlink():
@@ -227,13 +283,19 @@ def load_state(directory):
             raise ReviewError("Existing artifacts have no runner history; reconcile the legacy history, do not reset its allowance")
         return None
     state = json.loads(read_text(path))
-    if not isinstance(state, dict) or state.get("version") != 1 or not isinstance(state.get("exchanges"), list):
+    if (not isinstance(state, dict) or type(state.get("version")) is not int
+            or state["version"] not in (1, 2) or not isinstance(state.get("exchanges"), list)):
         raise ReviewError("Unsupported or damaged review history")
-    if len(state["exchanges"]) > MAX_EXCHANGES or any(not isinstance(state.get(k), str)
+    if any(not isinstance(state.get(k), str)
             for k in ("repo", "git_common_dir", "base", "brief_sha256")):
         raise ReviewError("Damaged task identity or exchange allowance")
+    if state["version"] == 1:
+        if len(state["exchanges"]) > MAX_EXCHANGES or "continuations" in state:
+            raise ReviewError("Damaged version 1 exchange allowance")
+    elif not isinstance(state.get("continuations"), list):
+        raise ReviewError("Missing continuation history")
     for i, entry in enumerate(state["exchanges"], 1):
-        if (not isinstance(entry, dict) or entry.get("round") != i
+        if (not isinstance(entry, dict) or type(entry.get("round")) is not int or entry["round"] != i
                 or not isinstance(entry.get("status"), str) or entry.get("status") not in UNCERTAIN | {
                 "completed", "failed", "invalid_output", "reconciled"}):
             raise ReviewError("Damaged exchange history; reconcile before another invocation")
@@ -260,6 +322,30 @@ def load_state(directory):
             if (entry.get("reconciliation") != note_name or not note.is_file() or note.is_symlink()
                     or digest(note.read_bytes()) != entry["reconciliation_sha256"]):
                 raise ReviewError("Retained reconciliation evidence changed")
+    boundary, previous_round = MAX_EXCHANGES, 0
+    for i, entry in enumerate(state.get("continuations", []), 1):
+        names = continuation_names(i)
+        if (not isinstance(entry, dict) or entry.get("files") != names
+                or not isinstance(entry.get("hashes"), dict) or set(entry["hashes"]) != set(names)
+                or not isinstance(entry.get("recorded_at"), str) or not entry["recorded_at"].strip()):
+            raise ReviewError("Damaged continuation record")
+        content = {}
+        for kind, filename in names.items():
+            file = directory / filename
+            if not file.is_file() or file.is_symlink():
+                raise ReviewError(f"Missing or nonregular continuation evidence: {file}")
+            content[kind] = read_text(file).encode("utf-8")
+            if digest(content[kind]) != entry["hashes"][kind]:
+                raise ReviewError(f"Retained continuation evidence changed: {file}")
+        recorded = decision(content["decision"])
+        if not content["brief"].decode("utf-8").strip() or recorded["brief_sha256"] != digest(content["brief"]):
+            raise ReviewError("Continuation brief identity differs")
+        after = recorded["after_round"]
+        if not previous_round <= after <= min(boundary, len(state["exchanges"])):
+            raise ReviewError("Continuation round is outside its preceding allowance or retained history")
+        boundary, previous_round = after + recorded["allowance"], after
+    if len(state["exchanges"]) > boundary:
+        raise ReviewError("Retained attempts exceed the recorded allowance")
     return state
 
 
@@ -351,7 +437,111 @@ def reconcile(args, directory, state, *, save=True):
     return result
 
 
+def repository(path):
+    supplied = Path(path).resolve()
+    root = Path(decode(git(supplied, "rev-parse", "--show-toplevel")).strip()).resolve()
+    if supplied != root:
+        raise ReviewError("--repo must name the repository/worktree root")
+    common = decode(git(root, "rev-parse", "--path-format=absolute", "--git-common-dir")).strip()
+    return root, common
+
+
+def check_output(directory, root, exclusions, boundary, continuation_count):
+    if not directory.is_relative_to(root):
+        return
+    relative = directory.relative_to(root).as_posix()
+    if git(root, "ls-files", "-z", "--", ":(top,literal)" + relative):
+        raise ReviewError("Review artifacts must not overlap tracked files")
+    if excluded(relative, exclusions):
+        return
+    names = {".review.lock", "review-state.json", ".review-state-probe"}
+    for n in range(1, boundary + 1):
+        names.update(artifact_names(n).values())
+        names.add(f"review-reconciliation-{n}.md")
+    for n in range(1, continuation_count + 1):
+        names.update(continuation_names(n).values())
+    paths = [relative + "/", *[relative + "/" + name for name in sorted(names)]]
+    ignored = git(root, "check-ignore", "-z", "--stdin", check=False,
+                  input=b"\0".join(path.encode() for path in paths) + b"\0") or b""
+    if not {path.encode() for path in paths} <= set(ignored.split(b"\0")):
+        raise ReviewError("The review directory and every artifact must be Git-ignored or explicitly --exclude'd")
+
+
+def continue_review(args, directory, state, *, save=True):
+    if not state:
+        raise ReviewError("Continuation requires existing valid runner history")
+    if any(e["status"] in UNCERTAIN for e in state["exchanges"]):
+        raise ReviewError("Prior execution is uncertain; reconcile it before continuation or replay")
+    if not args.repo or not args.brief:
+        raise ReviewError("Continuation requires --repo and --brief")
+    root, common = repository(args.repo)
+    if state["repo"] != str(root) or state["git_common_dir"] != common:
+        raise ReviewError("Repository differs from the retained review history")
+    if args.base:
+        base = decode(git(root, "rev-parse", "--verify", "--end-of-options", args.base + "^{commit}")).strip()
+        if base != state["base"]:
+            raise ReviewError("Base differs from the retained review history")
+    raw = read_text(Path(args.continue_with).resolve()).encode("utf-8")
+    requested = decision(raw)
+    brief = read_text(Path(args.brief).resolve()).encode("utf-8")
+    if not brief.decode("utf-8").strip() or digest(brief) != requested["brief_sha256"]:
+        raise ReviewError("Supplied brief differs from the continuation decision")
+    exclusions = exclude_paths(args.exclude)
+    records = state.get("continuations", [])
+    boundary = allowance_limit(directory, state)
+    for n, entry in enumerate(records, 1):
+        if (directory / entry["files"]["decision"]).read_bytes() == raw:
+            if (directory / entry["files"]["brief"]).read_bytes() != brief:
+                raise ReviewError("Replay brief differs from the retained snapshot")
+            check_output(directory, root, exclusions, boundary, len(records))
+            return {"execution": "continuation_recorded", "continuation": n, "replayed": True,
+                    **{k: str(directory / v) for k, v in entry["files"].items()},
+                    **allowance_info(directory, state)}
+    if (requested["after_round"] != len(state["exchanges"])
+            or requested["history_sha256"] != digest((directory / "review-state.json").read_bytes())):
+        raise ReviewError("Continuation round or history token is stale; reassess the exact current history")
+    n = len(records) + 1
+    names = continuation_names(n)
+    new_boundary = requested["after_round"] + requested["allowance"]
+    check_output(directory, root, exclusions, max(boundary, new_boundary), n)
+    known = {name for entry in records for name in entry["files"].values()}
+    found = {p.name for pattern in ("review-continuation-*", "review-brief-*") for p in directory.glob(pattern)}
+    if found - known - set(names.values()):
+        raise ReviewError("Unexpected unrecorded continuation evidence; preserve and reconcile it with its owner")
+    content = {"decision": raw, "brief": brief}
+    present = [(directory / filename).exists() or (directory / filename).is_symlink() for filename in names.values()]
+    if any(present):
+        if not all(present):
+            raise ReviewError("Partial unrecorded continuation evidence; refusing to overwrite or complete it")
+        for kind, filename in names.items():
+            file = directory / filename
+            if file.is_symlink() or not file.is_file() or file.read_bytes() != content[kind]:
+                raise ReviewError("Unrecorded continuation evidence differs; refusing to overwrite it")
+    if not save:
+        return None
+    if not any(present):
+        for kind, filename in names.items():
+            write_new(directory / filename, content[kind])
+    updated = {**state, "version": 2, "continuations": [*records, {
+        "files": names, "hashes": {k: digest(v) for k, v in content.items()}, "recorded_at": now()}]}
+    atomic_json(directory / "review-state.json", updated)
+    return {"execution": "continuation_recorded", "continuation": n, "replayed": False,
+            **{k: str(directory / v) for k, v in names.items()}, **allowance_info(directory, updated)}
+
+
 def run(args):
+    if args.continue_with is not None:
+        forbidden = ("checks", "authorization", "author_model", "model", "tool", "effort", "dispositions",
+                     "timeout", "max_packet_bytes", "reconcile_round", "reconciliation")
+        if any(getattr(args, name) is not None for name in forbidden):
+            raise ReviewError("--continue-with is metadata-only; do not combine it with review or reconciliation inputs")
+    else:
+        if args.effort is None:
+            args.effort = DEFAULT_EFFORT
+        if args.timeout is None:
+            args.timeout = 1800
+        if args.max_packet_bytes is None:
+            args.max_packet_bytes = LIMIT
     directory = Path(args.review_dir).absolute()
     with ExitStack() as locks:
         if directory.is_symlink():
@@ -366,19 +556,29 @@ def run(args):
             # any output while arguments and locations are still unvalidated.
             locks.enter_context(locked(directory, create=False))
         state = load_state(directory)
+        if args.continue_with is not None:
+            continue_review(args, directory, state, save=False)
+            if not acquired:
+                locks.enter_context(locked(directory))
+            if load_state(directory) != state:
+                raise ReviewError("Review history changed during continuation preflight; reassess the current history")
+            return continue_review(args, directory, state)
         if args.reconcile_round is not None:
             reconcile(args, directory, state, save=False)
             if not acquired:
                 locks.enter_context(locked(directory))
-            return reconcile(args, directory, load_state(directory))
+            result = reconcile(args, directory, load_state(directory))
+            return {**result, **allowance_info(directory, load_state(directory))}
         for name in ("repo", "brief", "checks", "authorization", "tool", "author_model"):
             if not getattr(args, name):
                 raise ReviewError(f"--{name.replace('_', '-')} is required")
         if state and any(e["status"] in UNCERTAIN for e in state["exchanges"]):
             raise ReviewError("Prior execution is uncertain; stop its possible processes and use --reconcile-round with evidence")
         used = len(state["exchanges"]) if state else 0
-        if used >= MAX_EXCHANGES:
-            raise ReviewError("Three-exchange allowance exhausted; return findings to the coordinator or verifier")
+        boundary = allowance_limit(directory, state) if state else MAX_EXCHANGES
+        if used >= boundary:
+            raise ReviewError("Review allowance exhausted; coordinator or authorized owner reassessment is required",
+                              **allowance_info(directory, state))
         model = (args.model if args.model is not None else DEFAULT_MODELS[args.tool]).strip()
         author_model = args.author_model.strip()
         for value in (model, author_model):
@@ -386,26 +586,9 @@ def run(args):
                 raise ReviewError("Supply resolved model identities; aliases or unknown identity cannot establish independence")
         if model.casefold() == author_model.casefold():
             raise ReviewError("Reviewer and implementer must be separate models")
-        supplied_root = Path(args.repo).resolve()
-        root = Path(decode(git(supplied_root, "rev-parse", "--show-toplevel")).strip()).resolve()
-        if supplied_root != root:
-            raise ReviewError("--repo must name the repository/worktree root")
-        common = decode(git(root, "rev-parse", "--path-format=absolute", "--git-common-dir")).strip()
+        root, common = repository(args.repo)
         exclusions = exclude_paths(args.exclude)
-        if directory.is_relative_to(root):
-            relative = directory.relative_to(root).as_posix()
-            if git(root, "ls-files", "-z", "--", ":(top,literal)" + relative):
-                raise ReviewError("Review artifacts must not overlap tracked files")
-            if not excluded(relative, exclusions):
-                names = {".review.lock", "review-state.json", ".review-state-probe"}
-                for round_number in range(1, MAX_EXCHANGES + 1):
-                    names.update(artifact_names(round_number).values())
-                    names.add(f"review-reconciliation-{round_number}.md")
-                paths = [relative + "/", *[relative + "/" + name for name in sorted(names)]]
-                ignored = git(root, "check-ignore", "-z", "--stdin", check=False,
-                              input=b"\0".join(path.encode() for path in paths) + b"\0") or b""
-                if not {path.encode() for path in paths} <= set(ignored.split(b"\0")):
-                    raise ReviewError("The review directory and every artifact must be Git-ignored or explicitly --exclude'd")
+        check_output(directory, root, exclusions, boundary, len(state.get("continuations", [])) if state else 0)
         inputs = {}
         for name in ("brief", "checks", "authorization"):
             file = Path(getattr(args, name)).resolve()
@@ -414,7 +597,7 @@ def run(args):
                 raise ReviewError(f"Empty {name} input")
             inputs[name] = (str(file), text)
         if state and (state["repo"] != str(root) or state["git_common_dir"] != common
-                      or state["brief_sha256"] != digest(inputs["brief"][1].encode())):
+                      or active_brief(state) != digest(inputs["brief"][1].encode())):
             raise ReviewError("Repository or brief differs from this task's history; reconcile scope with its owner")
         if args.base:
             base = decode(git(root, "rev-parse", "--verify", "--end-of-options", args.base + "^{commit}")).strip()
@@ -451,6 +634,27 @@ def run(args):
                     except UnicodeError:
                         prior += block(f"Invalid original output {e['round']} — complete bytes in base64",
                                        base64.b64encode(data).decode("ascii"))
+        if state and state.get("continuations"):
+            initial_packet = directory / artifact_names(1)["packet"]
+            prior += block("Initial brief provenance", f"SHA-256: {state['brief_sha256']}\n"
+                           f"Original packet: {initial_packet}\n"
+                           f"Packet present: {initial_packet.is_file()}\n"
+                           "Initial brief text is not embedded here; the original packet may be unavailable "
+                           "under the reviewer's access restrictions. Do not invent missing requirements.")
+            prior_boundary = MAX_EXCHANGES
+            records = state["continuations"]
+            for i, record in enumerate(records, 1):
+                raw = read_text(directory / record["files"]["decision"])
+                recorded = decision(raw.encode())
+                after = recorded["after_round"]
+                prior += block(f"Continuation {i} — retained caller claims, not authenticated authority", raw)
+                prior += block(f"Continuation {i} allowance replacement",
+                               f"After cumulative round: {after}\nUnused slots retired: {prior_boundary - after}\n"
+                               f"New boundary: {after + recorded['allowance']}")
+                label = "Current" if i == len(records) else "Historical"
+                prior += block(f"{label} brief snapshot from continuation {i}",
+                               read_text(directory / record["files"]["brief"]))
+                prior_boundary = after + recorded["allowance"]
         change = capture(root, base, exclusions, args.max_packet_bytes)
         prompt = read_text(REFERENCES / "reviewer-instructions.md") + "\n\n"
         prompt += read_text(REFERENCES / "results.md") + "\n\n"
@@ -475,8 +679,8 @@ def run(args):
         if load_state(directory) != state:
             raise ReviewError("Review history changed during preflight; retry with the current history and dispositions")
         if state is None:
-            state = {"version": 1, "repo": str(root), "git_common_dir": common, "base": base,
-                     "brief_sha256": digest(inputs["brief"][1].encode()), "exchanges": []}
+            state = {"version": 2, "repo": str(root), "git_common_dir": common, "base": base,
+                     "brief_sha256": digest(inputs["brief"][1].encode()), "exchanges": [], "continuations": []}
         entry = {"round": n, "status": "starting", "tool": args.tool, "model": model,
                  "effort": args.effort, "author_model": author_model, "files": files,
                  "exclusions": exclusions,
@@ -539,8 +743,8 @@ def run(args):
         entry["hashes"] = {kind: digest((directory / name).read_bytes()) for kind, name in files.items()}
         atomic_json(directory / "review-state.json", state)
         return {"execution": status, "outcome": entry["outcome"], "round": n,
-                "allowance_used": n, "model": model, "effort": args.effort, "error": error,
-                **{key: str(directory / value) for key, value in files.items()}}
+                "model": model, "effort": args.effort, "error": error,
+                **{key: str(directory / value) for key, value in files.items()}, **allowance_info(directory, state)}
 
 
 def parser():
@@ -548,11 +752,12 @@ def parser():
     for name in ("repo", "brief", "checks", "authorization", "author-model", "model", "base", "dispositions"):
         p.add_argument("--" + name)
     p.add_argument("--tool", choices=sorted(DEFAULT_MODELS))
-    p.add_argument("--effort", default=DEFAULT_EFFORT)
+    p.add_argument("--effort", help=f"Reviewer effort (default: {DEFAULT_EFFORT})")
     p.add_argument("--review-dir", required=True)
     p.add_argument("--exclude", action="append", default=[], help="Literal repository-relative path/subtree; repeatable")
-    p.add_argument("--timeout", type=float, default=1800)
-    p.add_argument("--max-packet-bytes", type=int, default=LIMIT)
+    p.add_argument("--timeout", type=float, help="Reviewer timeout in seconds (default: 1800)")
+    p.add_argument("--max-packet-bytes", type=int, help=f"Packet size limit (default: {LIMIT})")
+    p.add_argument("--continue-with", help="Record a bounded continuation decision JSON without invoking a reviewer")
     p.add_argument("--reconcile-round", type=int)
     p.add_argument("--reconciliation", help="Evidence that all possible prior reviewer processes stopped")
     return p
@@ -561,15 +766,17 @@ def parser():
 def main():
     args = parser().parse_args()
     try:
-        if not math.isfinite(args.timeout) or args.timeout <= 0 or args.max_packet_bytes <= 0:
+        if ((args.timeout is not None and (not math.isfinite(args.timeout) or args.timeout <= 0))
+                or (args.max_packet_bytes is not None and args.max_packet_bytes <= 0)):
             raise ReviewError("Timeout and packet size must be positive")
         result = run(args)
         print(json.dumps(result, ensure_ascii=False))
-        return 0 if result["execution"] in {"completed", "reconciled"} else 1
+        return 0 if result["execution"] in {"completed", "reconciled", "continuation_recorded"} else 1
     except (ReviewError, AdapterError, OSError, ValueError, subprocess.SubprocessError) as exc:
         reserved = getattr(args, "reserved_round", None)
         print(json.dumps({"execution": "unknown" if reserved else "not_run", "error": str(exc),
-                          "round": reserved, "review_dir": str(Path(args.review_dir).absolute())}, ensure_ascii=False))
+                          "round": reserved, "review_dir": str(Path(args.review_dir).absolute()),
+                          **getattr(exc, "details", {})}, ensure_ascii=False))
         return 1 if reserved else 2
 
 

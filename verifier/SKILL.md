@@ -40,3 +40,14 @@ Clean up the instances and scratch state this run created, including after failu
 Use the project's receipt format when available. Otherwise give the review basis and state, methods used, evidence locations, findings, uncovered behavior, method changes, and limitations. Distinguish observed facts, carried-forward evidence, and inference.
 
 For each required claim, distinguish **verified**, **failed**, and **inconclusive**, or the project's equivalent terms. A contradicted requirement fails; insufficient or unavailable evidence is inconclusive. An overall verified conclusion requires adequate evidence for every required criterion. Report product defects without fixing them or weakening the criteria. State any remaining independent decision or approval without claiming it occurred.
+
+Compare recurring findings with prior repair and review evidence, including
+other reporters and checks. When repeated remediation appears to leave the same
+root cause unresolved, return the recurrence evidence and uncertainty to the
+coordinator for diagnosis or design reassessment before more retries. Do not
+count a changed label, context, model or commit alone as resolution. Keep the
+current failed or inconclusive judgment; a continuation decision or another
+pair-review report does not override it. The coordinator or authorized owner
+decides workflow continuation, and the appropriate specialist owns the repair
+or design recommendation. Verification does not grant extra review slots or
+require automatic implementer replacement.

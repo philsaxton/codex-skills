@@ -63,7 +63,8 @@ working-tree tests do not establish that a different index version passes.
 
 Prepare these small inputs in the project's retained evidence location:
 
-- The existing brief or contract, unchanged.
+- The current authorized brief or contract. Record a continuation before using
+  a revised brief; retain the previous requirements and their provenance.
 - A Markdown checks file containing commands, observed results, state tested,
   and relevant output or durable artifact links, including failures and unknowns.
 - A Markdown authorization file recording the actual source and scope of consent:
@@ -103,7 +104,7 @@ Do not commit staged content the reviewer has not seen.
 
 Each invocation prints JSON with execution status, the separate advisory
 outcome, and absolute artifact paths. Exit zero means a valid report was
-obtained (or an explicit reconciliation completed), never that the change
+obtained (or a reconciliation or continuation was recorded), never that the change
 passed. Read the actual report. `BLOCKED` is an incomplete review even when the
 native call completed. Missing, malformed, failed, cancelled or timed-out output
 is never a successful review. Do not silently retry or switch reviewers.
@@ -119,14 +120,33 @@ Assign stable IDs to the reviewer's observations and record your disposition
 for each. Accept and fix findings you judge correct; decline with rationale and
 evidence, or defer explicitly. Return coordinator- or user-owned choices to
 them. Re-run affected checks after fixes and refresh the checks and dispositions
-inputs. Call the runner again against the same brief, base, and review directory.
+inputs. Use the same pinned base and review directory, and the current recorded
+brief. Keep cumulative round numbering across tools, sessions and implementers.
 
-There are at most **three launched exchanges per task**, across tools and
-sessions. Failed or uncertain launches consume a reserved slot but are recorded
-separately from completed reviews; preflight refusals do not launch or spend a
-slot. Stop when there are no further suggestions, the cap is reached, or the
-remaining disagreements should be weighed by the coordinator, verifier, or user.
-Do not keep looping to manufacture agreement.
+The initial allowance is **three reserved launches**, followed by a mandatory
+reassessment checkpoint. Failed or uncertain launches consume slots; preflight
+refusals do not. Stop at the boundary and return the evidence and open findings
+to the coordinator or authorized owner. Stop earlier when repeated remediation
+of the same unresolved root cause shows nonprogress, whether identified by you,
+a pair reviewer, verifier, user, or checks. Changing the reporter, context,
+implementer, tool, commit or finding label alone does not make it a new cause.
+
+The owner may end pair review, route diagnosis or consequential design choices,
+or record a continuation for **one to three launches**. A continuation needs
+materially new authorized work, a distinct finding, an evidence-backed changed
+approach, or a repaired review-execution prerequisite. It can occur before the
+checkpoint: unused old slots retire, and the new bounded allowance replaces
+them. It never erases attempts, failures, contested findings or dispositions.
+Routine in-scope continuation uses existing authority; changed requirements or
+protected product choices retain their existing owners. Do not loop to obtain
+agreement or automatically replace the implementer.
+
+Use the metadata-only `--continue-with` operation described in
+[the runner interface](references/runner.md#reassessment-and-continuation), then
+request a review separately with fresh checks, provider authorization and
+dispositions. The runner records the owner's claims and enforces bounds; it
+cannot authenticate authority or judge the rationale's substance. A changed
+brief requires this recorded decision even while old slots remain.
 
 An interrupted/unknown execution requires confirming that its reviewer and
 possible children stopped, then recording reconciliation as described by the
@@ -138,7 +158,8 @@ relax the reviewer's read-only controls to work around it.
 ## Return the findings
 
 The finish report must identify the actual reviewer tool/model/effort and native
-command, separate authorship, exchanges used, execution status, final advisory
+command, separate authorship, cumulative exchanges used, current allowance and
+continuation decisions, execution status, final advisory
 outcome, and each finding's disposition, including contested items. Include
 check commands, results and the state tested, with their durable evidence.
 **Link the original `review-round-*.md` reports.** A paraphrase in your summary
