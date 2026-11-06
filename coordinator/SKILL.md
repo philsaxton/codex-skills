@@ -53,7 +53,7 @@ A role defines responsibility and authority; skills supply methods. Use this men
 
 | Role | Skills |
 |---|---|
-| Coordinator / tracker maintainer | `implementation-tracker`, when the project uses its normalized Markdown records; `agent-handoff` for transferring unfinished implementation between sessions or tools. |
+| Coordinator | `implementation-tracker`, when the project uses its normalized Markdown records; `agent-handoff` for transferring unfinished implementation between sessions or tools. |
 | Solution designer | `solution-design` |
 | Contract author | `contract-author` |
 | Contract reviewer | `contract-reviewer` |
@@ -64,9 +64,15 @@ A role defines responsibility and authority; skills supply methods. Use this men
 
 Across roles, add domain, technology, research, artifact, or workspace skills only when their stated purposes apply. Skills may come from any available installed source. Keep their detailed procedures in the skills themselves. `contract-reviewer` covers pre-implementation readiness; `verifier` covers completed application behavior. Select other review guidance for non-application deliverables. A role does not require a same-named skill, and experimental or unshipped skills are not defaults.
 
-For a record-maintenance handoff, supply the authoritative tracker path, the read revision, and the exact decisions to record. `implementation-tracker` retrieves and records those decisions deterministically; readiness, priority, approval, gates, and conflict reconciliation remain with the responsible agent and project workflow.
-
 Use the walkthrough guide when a human wants to understand a change through paced explanation and questions. Its outcome is comprehension; it does not replace an independent final review or grant approval.
+
+### Maintain implementation tracking
+
+The coordinator normally performs routine tracking as part of authorized coordination; individual in-scope record updates need no separate permission. Commits, publication, and integration still follow the project's resolved Git completion rules and authorizations. On resuming work, identify and read the authoritative tracker when one exists and reconcile its recorded state with current evidence before assigning work. Record owners and evidence-supported state at dispatch, work start, handoffs, blockers, review, and completion. Specialists return results and evidence; recording those outcomes does not transfer their independent judgment to the coordinator. Mark completion only when the project's acceptance and integration conditions, including required independent review and approval, are satisfied.
+
+When the project uses normalized Markdown records, use `implementation-tracker` for retrieval, revision-checked writes, and validation. Preserve one authoritative current record. For concurrent worktrees, use the project's designated shared tracker or reconcile copies through its Git workflow before treating them as current. Where normalized records are not used, follow the project's existing tracking practice without an unrequested migration.
+
+Delegate initial normalization or substantial tracker maintenance, such as format conversion, bulk status remapping, or history reconstruction. Routine lifecycle updates remain coordinator work even when several slices change. Supply the exact authoritative path, read revision, decisions and status mappings to record, preservation constraints, and a clear owner and return to the coordinator. Readiness, priority, approval, gates, and conflict reconciliation remain with their responsible owners and project workflow.
 
 ### Cross-model pair review
 
@@ -86,9 +92,9 @@ If an optional skill is unavailable, state the gap and assign the responsibility
 
 For implementation assignments, include a return path for design consultation when a chosen approach proves infeasible, a key assumption fails, a local adaptation grows into substantial custom infrastructure, or a newly discovered tool could substantially simplify the feature or application through a different architecture. Route material opportunities promptly even when implementation is progressing successfully. Carry the current requirements and evidence into the reassessment; past effort alone does not settle whether to continue. Preserve required review and acceptance for semantic changes while allowing authorized local repairs and unaffected work to continue.
 
-Keep coordination distinct from delegated specialist roles. Where separation is relied upon, remain outside every specialist role whose independence matters. Do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer. Perform administrative tracking or mechanical transitions only when explicitly authorized, and do not introduce governed semantic judgment while doing so.
+Keep coordination distinct from delegated specialist roles. Where separation is relied upon, remain outside every specialist role whose independence matters. Do not treat a renamed, resumed, or reasoning-inheriting context as an independent reviewer. Mechanical transitions still require applicable authorization; routine record maintenance does not grant decision or approval authority.
 
-The coordinator owns workflow selection, assignment, routing, scope protection, blocker handling, and evidence collection. Authors own their specifications or plans, implementers own changes within the authorized boundary, and reviewers own their independent findings. Product choices, protected scope changes, and external actions remain with the authority designated by the user or project.
+The coordinator owns workflow selection, assignment, routine implementation tracking, routing, scope protection, blocker handling, and evidence collection. Authors own their specifications or plans, implementers own changes within the authorized boundary, and reviewers own their independent findings. Product choices, protected scope changes, and external actions remain with the authority designated by the user or project.
 
 ## Preserve scope
 
