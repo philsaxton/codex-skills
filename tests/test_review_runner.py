@@ -199,6 +199,63 @@ class ReviewRunnerTests(unittest.TestCase):
         for subject in ("Intentional empty commit", "Public branch commit", "Merge public history"):
             self.assertIn(subject, packet)
 
+    def test_signed_history_ignores_signature_display_and_preserves_exclusions(self):
+        keygen = shutil.which("ssh-keygen")
+        if not keygen:
+            self.skipTest("Signed-history fixture requires ssh-keygen")
+        version = self.git("--version").decode().split()[2]
+        if tuple(map(int, version.split(".")[:2])) < (2, 34):
+            self.skipTest("SSH commit signing requires Git 2.34 or newer")
+        probe = subprocess.run([keygen, "-Y", "sign"], input=b"", capture_output=True,
+                               env={**self.env, "LC_ALL": "C"}, timeout=5)
+        if b"unknown option" in probe.stderr or b"illegal option" in probe.stderr:
+            self.skipTest("Installed ssh-keygen does not support SSH signatures")
+        key = self.home / "fixture-signing-key"
+        subprocess.run([keygen, "-q", "-t", "ed25519", "-N", "", "-f", str(key)],
+                       env=self.env, check=True, capture_output=True, timeout=5)
+        signers = self.home / "allowed-signers"
+        signers.write_text("fixture@example.invalid " + key.with_suffix(".pub").read_text())
+        self.git("config", "gpg.format", "ssh")
+        self.git("config", "gpg.ssh.program", keygen)
+        self.git("config", "user.signingkey", str(key))
+        self.git("config", "gpg.ssh.allowedSignersFile", str(signers))
+        (self.repo / "private.txt").write_text("PRIVATE_SIGNED_CONTENT\n")
+        self.git("add", "private.txt")
+        self.git("commit", "-S", "-qm", "PRIVATE_SIGNED_SUBJECT")
+        self.git("verify-commit", "HEAD")
+        private_commit = self.git("rev-parse", "--short", "HEAD").decode().strip()
+        (self.repo / "calc.py").write_text("# Public signed content\n")
+        self.git("add", "calc.py")
+        self.git("commit", "-S", "-qm", "Public signed change")
+        self.git("verify-commit", "HEAD")
+        self.git("config", "log.showSignature", "true")
+        # Prove this fixture actually adds presentation text to formatted log output.
+        shown = self.git("log", "--format=%H", self.base + "..HEAD")
+        self.assertIn(b'Good "git" signature', shown)
+        before_status = self.git("status", "--porcelain")
+        before_index = (self.repo / ".git/index").read_bytes()
+        before_config = (self.repo / ".git/config").read_bytes()
+        for name, extra in (("complete", ()), ("unrelated", ("--exclude", "absent.txt")),
+                            ("private", ("--exclude", "private.txt"))):
+            with self.subTest(scope=name):
+                self.review = self.home / ("signed-review-" + name)
+                code, result = self.call(*extra)
+                self.assertEqual(code, 0, result)
+                packet = Path(result["packet"]).read_text()
+                history = packet.split("## Committed history\n", 1)[1].split("\n## ", 1)[0]
+                self.assertIn("Public signed change", history)
+                self.assertIn("Public signed content", packet)
+                if name == "private":
+                    self.assertNotIn("PRIVATE_SIGNED_", packet)
+                    self.assertNotIn(private_commit, history)
+                else:
+                    self.assertIn("PRIVATE_SIGNED_SUBJECT", history)
+                    self.assertIn("PRIVATE_SIGNED_CONTENT", packet)
+                self.assertEqual((self.repo / ".git/index").read_bytes(), before_index)
+                self.assertEqual((self.repo / ".git/config").read_bytes(), before_config)
+        self.assertEqual(self.git("status", "--porcelain"), before_status)
+        self.assertEqual(len(self.calls()), 3)
+
     def test_excluded_only_history_and_merges_do_not_leak_metadata(self):
         private = "private[1].txt"
         (self.repo / private).write_text("PRIVATE_LINEAR_CONTENT\n")

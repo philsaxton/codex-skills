@@ -108,7 +108,8 @@ def committed_history(root, base, head, exclusions):
         return decode(git(root, "log", "--oneline", "--no-color", "--no-decorate", base + ".." + head))
     # Path-limited git log simplifies away empty commits and merge topology.
     # Walk the full graph, then omit only history confined to excluded paths.
-    records = git(root, "log", "--topo-order", "--format=%H %P%x00%h %s", "-z",
+    # An explicit format alone does not suppress configured signature display.
+    records = git(root, "log", "--no-show-signature", "--topo-order", "--format=%H %P%x00%h %s", "-z",
                   "--no-color", "--no-decorate", base + ".." + head).split(b"\0")
     commits = list(zip(records[::2], records[1::2]))
     visible = set()
