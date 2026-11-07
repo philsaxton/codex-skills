@@ -6,6 +6,7 @@
 # must contain the tool, model, and effort you want — the agent will not
 # choose or change them. Never put secrets or API keys in AGENTS.md; the
 # reviewer's stored CLI authentication is used.
+# Apply the shared configuration-confidence standard in ../SKILL.md.
 
 # Codex reviewer (replace MODEL, EFFORT, and MCP_OVERRIDES):
 # --ignore-user-config keeps MCP servers defined in your user config out
@@ -17,16 +18,17 @@
 # shadowing their registration without its transport breaks config load.
 # MCP_OVERRIDES covers only servers defined in config files (the target
 # repository's .codex/config.toml, system, or managed configuration).
-# From the target repository, inspect `codex mcp list --json`, identify
-# those config-file servers, and replace MCP_OVERRIDES with one -c
-# argument disabling each by its exact name, for example:
+# Identify config-file servers using available configuration and supported
+# `codex mcp list --json` inspection from the target repository; replace
+# MCP_OVERRIDES with one -c argument disabling each by its exact name, for example:
 # -c 'mcp_servers={"server.with-dots"={enabled=false},"another"={enabled=false}}'
 # If no config-file servers exist, remove MCP_OVERRIDES. An empty
 # mcp_servers={} merges with existing settings; it does not clear servers.
-# Before running the review, read back `codex mcp list --json` and
-# `codex features list` from the target repository with the same -c and
-# --disable options: no config-file MCP server may be enabled, and apps,
-# plugins, hooks, and multi_agent must all be false. If a remaining enabled
+# Use supported `codex mcp list --json` and `codex features list` readback
+# from the target repository with the same -c and --disable options to check
+# for conflicts. Resolve enabled config-file MCP servers or enabled apps,
+# plugins, hooks, or multi_agent before review. Missing fields or unavailable
+# inspection alone do not negate the documented disable controls. If a known
 # server cannot be disabled without breaking config load, stop.
 # --ignore-rules also prevents inherited execution rules from permitting
 # shell commands outside the read-only sandbox.
@@ -38,7 +40,8 @@
 # Muse reviewer (replace MODEL and EFFORT; add your read-only
 # permission/workspace restrictions):
 # The bare command below is incomplete: do not run it unchanged under this
-# skill. First include and verify the installed Muse version's read-only
-# controls and isolation of write-capable integrations. If those restrictions
-# cannot be verified, report that gap instead of relying on prompt wording.
+# skill. First include the installed Muse version's documented read-only
+# controls and isolation of write-capable integrations. Resolve missing,
+# rejected or conflicting controls; unavailable or incomplete inspection
+# alone is not a reason to skip the requested review.
 # muse exec --model MODEL --reasoning-effort EFFORT --prompt-file {packet} > {report}

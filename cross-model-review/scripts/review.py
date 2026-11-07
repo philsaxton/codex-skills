@@ -619,6 +619,7 @@ def run(args):
             for e in state["exchanges"]:
                 prior_scope = {k: e.get(k) for k in ("status", "outcome", "tool", "model", "effort", "author_model", "error")}
                 prior_scope["exclusions"] = e.get("exclusions", "Not indexed by the earlier runner; consult the original packet")
+                prior_scope["configuration_notes"] = e.get("configuration_notes", "No notes recorded by the earlier runner; inspection success is not established")
                 prior_scope["original_packet"] = str(directory / e["files"]["packet"])
                 prior += block(f"Prior exchange {e['round']} execution and scope", json.dumps(prior_scope, indent=2))
                 report = directory / e["files"]["report"]
@@ -670,7 +671,11 @@ def run(args):
         if any((directory / file).exists() or (directory / file).is_symlink() for file in files.values()):
             raise ReviewError("Round artifacts already exist; refusing to overwrite evidence")
         env = environment()
-        argv = build(args.tool, model, args.effort, root, directory / files["packet"], directory / files["report"], env)
+        argv, args.configuration_notes = build(args.tool, model, args.effort, root, directory / files["packet"], directory / files["report"], env)
+        prompt += block("Configuration inspection notes — limits, not proof of isolation", json.dumps(args.configuration_notes, indent=2))
+        encoded = prompt.encode("utf-8")
+        if len(encoded) > args.max_packet_bytes:
+            raise ReviewError("Complete packet exceeds --max-packet-bytes; split the task or explicitly raise the limit")
         # A configuration probe must not race a changing index/worktree.
         if capture(root, base, exclusions, args.max_packet_bytes) != change:
             raise ReviewError("Repository changed while assembling the packet; capture again after writers stop")
@@ -684,6 +689,7 @@ def run(args):
         entry = {"round": n, "status": "starting", "tool": args.tool, "model": model,
                  "effort": args.effort, "author_model": author_model, "files": files,
                  "exclusions": exclusions,
+                 "configuration_notes": args.configuration_notes,
                  "started_at": now(), "argv": argv, "pid": None, "outcome": None}
         state["exchanges"].append(entry)
         args.reserved_round = n
@@ -744,6 +750,7 @@ def run(args):
         atomic_json(directory / "review-state.json", state)
         return {"execution": status, "outcome": entry["outcome"], "round": n,
                 "model": model, "effort": args.effort, "error": error,
+                "configuration_notes": args.configuration_notes,
                 **{key: str(directory / value) for key, value in files.items()}, **allowance_info(directory, state)}
 
 
@@ -776,6 +783,7 @@ def main():
         reserved = getattr(args, "reserved_round", None)
         print(json.dumps({"execution": "unknown" if reserved else "not_run", "error": str(exc),
                           "round": reserved, "review_dir": str(Path(args.review_dir).absolute()),
+                          "configuration_notes": getattr(args, "configuration_notes", []),
                           **getattr(exc, "details", {})}, ensure_ascii=False))
         return 1 if reserved else 2
 

@@ -61,7 +61,8 @@ building a review packet:
    unclear, whether or not files already exist. Do not ask the user to edit
    the file or supply a finished shell command. Record only the authorization
    actually granted; keep one-review consent scoped to this review.
-5. Read back the saved effective configuration and continue the review.
+5. Read back the saved reviewer selection, command and authorization in
+   `AGENTS.md`, then continue the review.
 
 Reuse an existing complete assignment once its model is confirmed to differ
 from yours. In coordinated work, the coordinator can perform setup before
@@ -89,18 +90,17 @@ reconfirmation. If the effective command is ambiguous, ask which to use.
 A coordinator-supplied command is unaffected by changes to an unused
 default, but remains bound by applicable authorization limits.
 
-The configured command must be read-only in fact, whichever source
-supplied the command, not only by prompt:
-it must carry its CLI's sandbox or tool-allowlist restrictions and disable
-write-capable integrations (MCP servers, apps, plugins, hooks) for that
-CLI. Check the effective configuration from the target repository, including
-project and managed settings, using the CLI's read-only configuration
-inspection commands with the same configuration and feature overrides.
-Follow the Codex readback instructions in the example when using Codex.
-If restrictions are missing, overridden, or cannot be verified, stop and
-report the gap before saving or running the command. Ask only for missing
-decisions or authorization; make agreed corrections yourself, or have the
-coordinator make them, rather than asking the user to edit the file.
+Configure the CLI's documented sandbox or tool-allowlist restrictions and
+disable write-capable integrations (MCP servers, apps, plugins, hooks);
+prompt wording alone does not replace those controls. Apply the
+[shared configuration-confidence standard](../SKILL.md#resolve-the-assignment).
+Use supported read-only inspection from the target repository with the same
+configuration and feature overrides, including project and managed settings
+where exposed. Follow the Codex example when using Codex. Resolve evidence of
+missing, rejected or overridden controls before saving or running the command.
+Ask only for missing decisions or authorization; make agreed corrections
+yourself, or have the coordinator make them, rather than asking the user to edit
+the file.
 
 Treat the reviewer configuration as trusted user configuration (like a
 Makefile): it must never contain secrets or API keys — the CLI's stored

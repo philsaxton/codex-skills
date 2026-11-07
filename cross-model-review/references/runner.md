@@ -230,17 +230,34 @@ removed automatically.
 - **Codex:** ephemeral execution in a read-only sandbox, no inherited execution
   rules, approvals disabled, and apps/plugins/hooks/subagents/browser/image/web
   capabilities disabled. It enumerates config-file MCP servers, disables each
-  by exact name, and reads back the effective MCP and feature configuration from
-  the target checkout before calling the model. Its shell remains available:
+  by exact name, and uses supported MCP and feature readback from the target
+  checkout. The initial inventory is required to construct those exact-name
+  overrides; unavailable or unusable inventory leaves the review unrun.
+  Its shell remains available:
   the sandbox prevents repository writes, while no tests/project execution is
   an instruction rather than a technical command filter.
 - **Muse:** native-basic preset restricted to read_file, shell and write
   tools disabled, hooks overridden empty, no session log, no reminders/web tools
-  or foreign personal context. The current adapter refuses every non-absent or
-  unknown source reported by `muse config status` (currently enterprise defaults
-  and policy planes), user hooks, installed plugins, configured MCP servers and project Muse
-  configuration rather than assume it can isolate them. Its supported baseline
-  is a normal native login without those integrations.
+  or foreign personal context. Known hook, MCP or plugin configuration in user
+  or project settings, parsed installed plugins, and malformed local settings
+  require resolution. A configuration source or file's presence alone is not
+  a conflict; empty settings and hooks are allowed.
+
+MCP/feature readback after Codex control construction and Muse status, plugin
+inventory and local echo are corroborating inspection. Unavailable, incomplete
+or unparseable inspection records a limit and permits the unchanged native
+command; it does not require proof of internal enforcement. Parsed enabled
+Codex capabilities or servers still refuse, as does a newly observed server
+outside the constructed disable map. Local settings that cannot be read record
+a limit; malformed actual settings still refuse. The runner never strips a flag
+or changes reviewers when the native command rejects a control: that attempt
+fails and the requested review remains incomplete.
+
+Sanitized `configuration_notes` identify inspection limits in the packet,
+exchange state, result and later review scope, and in preflight refusal results
+when available. They omit raw probe output and configuration values. Earlier
+records without this optional field have no recorded notes; they do not
+establish successful inspection. Notes count toward the complete packet budget.
 
 Reviewer instructions permit relevant file inspection and prohibit test/project
 code execution. File readers and the read-only sandbox constrain changes;

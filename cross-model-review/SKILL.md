@@ -44,6 +44,14 @@ Record these limits in the authorization input. They grant no permission to run
 tests or read excluded material. If the assignment requires stronger technical
 confinement, return that constraint to its owner before invoking this adapter.
 
+For runner and legacy commands, use documented read-only controls and supported
+inspection to establish reasonable configuration confidence. Complete visibility
+or proof of internal CLI enforcement is not required. Record unavailable or
+incomplete inspection as a limitation and continue the requested review when
+the controls are configured and no concrete conflict is known. Resolve missing,
+rejected or conflicting controls before invoking. Keep the assigned reviewer,
+provider consent, secret exclusions and reviewer action restrictions.
+
 If setup is missing, resolve only the missing choices and authorization with
 the user, then update the applicable `AGENTS.md` using
 [the configuration example](references/agents-example.md). Preserve valid

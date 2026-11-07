@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import shutil
 import subprocess
@@ -36,14 +37,24 @@ tool=Path(sys.argv[0]).name
 if os.getenv("ALL_CALL_LOG"):
  Path(os.environ["ALL_CALL_LOG"]).open("a").write(json.dumps([tool,*args])+"\\n")
 if os.getenv("FAIL_ANY_CLI"): sys.exit(91)
+def probe_output(label):
+ case=json.loads(os.getenv("PROBE_OUTPUTS", "{}")).get(label)
+ if case is not None:
+  sys.stdout.buffer.write(bytes.fromhex(case["hex"]) if "hex" in case else case.get("stdout", "").encode())
+  sys.stderr.write(case.get("stderr", ""))
+  sys.exit(case.get("exit", 0))
 if args[:2]==["config","status"]:
+ probe_output("muse_status")
  print("  plane=defaults source_class=system_file state="+("active" if os.getenv("BAD_POLICY") else "absent")); sys.exit(0)
 if args[:2]==["plugins","list"]:
+ probe_output("muse_plugins")
  print(json.dumps({"plugins": ["fixture"] if os.getenv("BAD_PLUGINS") else []})); sys.exit(0)
 if "mcp" in args and "list" in args:
  disabled=any("mcp_servers=" in x for x in args)
+ probe_output("codex_mcp" if disabled else "codex_inventory")
  print(json.dumps([{"name":"server.with-dots","enabled": bool(os.getenv("BAD_MCP")) or not disabled}])); sys.exit(0)
 if "features" in args and "list" in args:
+ probe_output("codex_features")
  gate=os.getenv("PROBE_GATE")
  if gate:
   Path(gate+".ready").write_text("Configuration probe reached")
@@ -52,6 +63,7 @@ if "features" in args and "list" in args:
   print(x,"stable", "true" if os.getenv("BAD_FEATURE") else "false")
  sys.exit(0)
 if "--provider" in args and args[args.index("--provider")+1]=="echo":
+ probe_output("muse_echo")
  print("echo: configuration probe"); sys.exit(0)
 Path(os.environ["CALL_LOG"]).open("a").write(json.dumps([tool,*args])+"\\n")
 print("original diagnostic",file=sys.stderr,flush=True)
@@ -163,6 +175,28 @@ class ReviewRunnerTests(unittest.TestCase):
         self.assertEqual(result["reassessment_required"], used == limit)
         self.assertEqual(result["history_sha256"],
                          hashlib.sha256((self.review / "review-state.json").read_bytes()).hexdigest())
+
+    def packet_json(self, result):
+        values = []
+        for _, raw in re.findall(r"(?ms)^(`{3,})[^\n]*\n(.*?)^\1[ \t]*$", Path(result["packet"]).read_text()):
+            try:
+                values.append(json.loads(raw))
+            except ValueError:
+                pass
+        return values
+
+    def assert_configuration_notes(self, result, *labels):
+        notes = result["configuration_notes"]
+        self.assertTrue(set(labels) <= {n["inspection"] for n in notes}, notes)
+        self.assertEqual(self.state()["exchanges"][-1]["configuration_notes"], notes)
+        self.assertIn(notes, self.packet_json(result))
+        return notes
+
+    def adapter_module(self):
+        spec = importlib.util.spec_from_file_location("adapter_for_visibility_fixture", RUNNER.parent / "adapters.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
     def test_complete_capture_and_original_reports(self):
         (self.repo / "calc.py").write_text("def f(n):\n    return abs(n)  # staged bug\n")
@@ -1263,11 +1297,10 @@ class ReviewRunnerTests(unittest.TestCase):
             self.assertEqual(self.call("--tool", "codex", env={key:"1"})[0], 2)
         self.assertEqual(self.calls(), [])
 
-    def test_preflight_rejects_unknown_muse_configuration(self):
-        for key in ("BAD_POLICY", "BAD_PLUGINS"):
-            self.assertEqual(self.call("--tool", "muse", env={key:"1"})[0], 2)
+    def test_preflight_rejects_configured_muse_integrations(self):
+        self.assertEqual(self.call("--tool", "muse", env={"BAD_PLUGINS":"1"})[0], 2)
         (self.repo / ".muse").mkdir()
-        (self.repo / ".muse/hooks.json").write_text('{"hooks":{}}')
+        (self.repo / ".muse/hooks.json").write_text('{"hooks":{"PreToolUse":["fixture"]}}')
         self.assertEqual(self.call("--tool", "muse")[0], 2)
         self.assertEqual(self.calls(), [])
 
@@ -1275,10 +1308,173 @@ class ReviewRunnerTests(unittest.TestCase):
         settings = Path(self.env["XDG_CONFIG_HOME"]) / "muse/settings.json"
         settings.parent.mkdir(parents=True)
         for config in ({"hooks":{"SessionStart":["fixture"]}}, {"managed_hooks_path":"fixture"},
-                       {"mcp_servers":{"fixture":{}}}, {"mcpServers":{"fixture":{}}}, []):
+                       {"mcp_servers":{"fixture":{}}}, {"mcpServers":{"fixture":{}}}, {"plugins":["fixture"]}, []):
             settings.write_text(json.dumps(config))
             self.assertEqual(self.call("--tool", "muse")[0], 2)
         self.assertEqual(self.calls(), [])
+
+    def test_codex_optional_readback_gaps_retain_controls_and_sanitized_notes(self):
+        secret = "synthetic-secret-not-for-retention"
+        cases = [
+            ("codex_features", {"stdout":"apps stable false\n"}, "codex-features"),
+            ("codex_mcp", {"stdout":json.dumps([{"name":"server.with-dots"}])}, "codex-mcp-readback"),
+            ("codex_mcp", {"stdout":json.dumps([{"name":[]}, {"name":"server.with-dots", "enabled":False}])}, "codex-mcp-readback"),
+            ("codex_features", {"exit":71, "stderr":secret}, "codex-features"),
+            ("codex_mcp", {"stdout":"invalid JSON " + secret}, "codex-mcp-readback"),
+            ("codex_features", {"hex":"ff"}, "codex-features"),
+        ]
+        for i, (probe, output, label) in enumerate(cases):
+            with self.subTest(probe=probe, output=output):
+                self.review = self.home / f"review-{i}"
+                code, result = self.call("--tool", "codex", env={"PROBE_OUTPUTS":json.dumps({probe:output})})
+                self.assertEqual(code, 0, result)
+                self.assert_configuration_notes(result, label)
+                argv = self.calls()[-1]
+                self.assertIn('mcp_servers={"server.with-dots"={enabled=false}}', argv)
+                self.assertIn("--sandbox", argv)
+                self.assertIn("read-only", argv)
+                self.assertIn('approval_policy="never"', argv)
+                self.assertIn('web_search="disabled"', argv)
+                for feature in ("apps", "plugins", "hooks", "multi_agent", "computer_use", "browser_use", "in_app_browser", "image_generation"):
+                    self.assertIn(["--disable", feature], [argv[j:j+2] for j in range(len(argv)-1)])
+                self.assertNotIn(secret, json.dumps(result))
+                self.assertTrue(all(secret.encode() not in data for data in self.evidence().values()))
+
+    def test_codex_required_inventory_failure_leaves_review_outstanding_without_artifacts(self):
+        for output in ({"exit":74, "stderr":"synthetic-secret"}, {"stdout":"not JSON"},
+                       {"stdout":"{}"}, {"stdout":"[{\"name\":\"\"}]"}, {"stdout":"[{\"name\":[]}]"}):
+            with self.subTest(output=output):
+                code, result = self.call("--tool", "codex", env={"PROBE_OUTPUTS":json.dumps({"codex_inventory":output})})
+                self.assertEqual(code, 2, result)
+                self.assertEqual(result["execution"], "not_run")
+                self.assertIn("construct required exact-name disable overrides", result["error"])
+                self.assertNotIn("synthetic-secret", json.dumps(result))
+                self.assertFalse(self.review.exists())
+        self.assertEqual(self.calls(), [])
+
+    def test_codex_partial_readback_cannot_hide_conflicts_or_new_servers(self):
+        cases = [
+            {"codex_features":{"stdout":"apps stable true\n"}},
+            {"codex_mcp":{"stdout":json.dumps([{}, {"enabled":True}])}},
+            {"codex_mcp":{"stdout":json.dumps([{"name":"new.server", "enabled":False}])}},
+            {"codex_mcp":{"stdout":"incomplete secret-value"}, "codex_features":{"stdout":"hooks stable true\n"}},
+        ]
+        for outputs in cases:
+            with self.subTest(outputs=outputs):
+                code, result = self.call("--tool", "codex", env={"PROBE_OUTPUTS":json.dumps(outputs)})
+                self.assertEqual(code, 2, result)
+                self.assertEqual(result["execution"], "not_run")
+                self.assertNotIn("secret-value", json.dumps(result))
+                self.assertFalse(self.review.exists())
+        self.assertTrue(result["configuration_notes"])
+        self.assertEqual(self.calls(), [])
+
+    def test_configuration_notes_survive_revisit_and_older_history_has_no_invented_notes(self):
+        code, first = self.call("--tool", "codex", env={"PROBE_OUTPUTS":json.dumps({"codex_features":{"stdout":""}})})
+        self.assertEqual(code, 0, first)
+        notes = self.assert_configuration_notes(first, "codex-features")
+        first_packet = Path(first["packet"]).read_bytes()
+        code, second = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, second)
+        self.assertTrue(any(isinstance(v, dict) and v.get("configuration_notes") == notes for v in self.packet_json(second)))
+        self.assertEqual(Path(first["packet"]).read_bytes(), first_packet)
+        state = self.state()
+        state["version"] = 1
+        state.pop("continuations")
+        for entry in state["exchanges"]:
+            entry.pop("configuration_notes")
+        (self.review / "review-state.json").write_text(json.dumps(state))
+        code, third = self.call("--dispositions", str(self.dispositions))
+        self.assertEqual(code, 0, third)
+        prior = [v for v in self.packet_json(third) if isinstance(v, dict) and "original_packet" in v]
+        self.assertEqual(len(prior), 2)
+        self.assertTrue(all(isinstance(v["configuration_notes"], str) for v in prior))
+        self.assertEqual(self.state()["exchanges"][:2], state["exchanges"])
+
+    def test_configuration_notes_are_included_in_packet_budget_before_reservation(self):
+        code, first = self.call("--tool", "codex")
+        self.assertEqual(code, 0, first)
+        budget = Path(first["packet"]).stat().st_size + 1
+        self.review = self.home / "budget-review"
+        code, result = self.call("--tool", "codex", "--max-packet-bytes", str(budget),
+                                 env={"PROBE_OUTPUTS":json.dumps({"codex_features":{"stdout":""}})})
+        self.assertEqual(code, 2, result)
+        self.assertTrue(result["configuration_notes"])
+        self.assertFalse(self.review.exists())
+        self.assertEqual(len(self.calls()), 1)
+
+    def test_muse_visibility_limits_and_empty_project_config_preserve_native_controls(self):
+        (self.repo / ".muse").mkdir()
+        (self.repo / ".muse/hooks.json").write_text('{"hooks":{}}')
+        (self.repo / ".muse/settings.json").write_text('{}')
+        for i, status in enumerate(("plane=defaults source_class=system_file state=active", "unrecognized source")):
+            self.review = self.home / f"muse-review-{i}"
+            outputs = {"muse_status":{"stdout":status}, "muse_plugins":{"stdout":'{"unrecognized":"synthetic-secret"}'},
+                       "muse_echo":{"exit":70, "stderr":"synthetic-secret"}}
+            code, result = self.call("--tool", "muse", "--exclude", ".muse", env={"PROBE_OUTPUTS":json.dumps(outputs)})
+            self.assertEqual(code, 0, result)
+            self.assert_configuration_notes(result, "muse-config-status", "muse-plugins", "muse-echo")
+            argv = self.calls()[-1]
+            for flag in ("--disable-write", "--disable-shell", "--disable-web-tools", "--disable-reminders",
+                         "--disable-request-user-input", "--no-foreign-personal-context", "--no-session-log"):
+                self.assertIn(flag, argv)
+            for setting in ('run.toolset=["read_file"]', 'hooks={}', 'managed_hooks_path=null'):
+                self.assertIn(setting, argv)
+            self.assertNotIn("--provider", argv)
+            self.assertTrue(all(b"synthetic-secret" not in data for data in self.evidence().values()))
+
+    def test_optional_probe_timeout_unavailability_and_muse_unreadable_config_are_notes(self):
+        module = self.adapter_module()
+        with patch.object(module.shutil, "which", return_value="/stub/codex"), \
+                patch.object(module.subprocess, "run", side_effect=[
+                    subprocess.CompletedProcess([], 0, b'[{"name":"fixture"}]', b''),
+                    subprocess.TimeoutExpired("inspection", 30, stderr=b"synthetic-secret"),
+                    OSError(5, "synthetic-secret")]):
+            argv, notes = module.build("codex", "fixture", "max", self.repo, self.brief, self.checks, self.env)
+        self.assertIn('mcp_servers={"fixture"={enabled=false}}', argv)
+        self.assertEqual({n["inspection"] for n in notes}, {"codex-mcp-readback", "codex-features"})
+        self.assertNotIn("synthetic-secret", json.dumps(notes))
+        original = Path.read_text
+        def read(path, *args, **kwargs):
+            if path == self.repo / ".muse/hooks.json":
+                raise PermissionError(13, "synthetic-secret")
+            return original(path, *args, **kwargs)
+        with patch.object(module.shutil, "which", return_value="/stub/muse"), \
+                patch.object(module.subprocess, "run", side_effect=[
+                    subprocess.CompletedProcess([], 73, b'', b'synthetic-secret'),
+                    subprocess.CompletedProcess([], 0, b'not JSON synthetic-secret', b''),
+                    subprocess.CompletedProcess([], 0, b'echo', b'')]), \
+                patch.object(Path, "read_text", read):
+            argv, notes = module.build("muse", "fixture", "max", self.repo, self.brief, self.checks, self.env)
+        self.assertIn("--disable-write", argv)
+        self.assertTrue({"muse-config-status", "project-hooks", "muse-plugins"} <= {n["inspection"] for n in notes})
+        self.assertNotIn("synthetic-secret", json.dumps(notes))
+
+    def test_muse_actual_malformed_configuration_and_project_integrations_refuse(self):
+        project = self.repo / ".muse"
+        project.mkdir()
+        path = project / "settings.json"
+        for content in (b'{"plugins":["synthetic-secret"]}', b'{"mcp_servers":{"synthetic-secret":{}}}',
+                        b'{"hooks":{"PreToolUse":["synthetic-secret"]}}', b'not JSON synthetic-secret', b'[]', b'\xff'):
+            path.write_bytes(content)
+            code, result = self.call("--tool", "muse", "--exclude", ".muse")
+            self.assertEqual(code, 2, result)
+            self.assertNotIn("synthetic-secret", json.dumps(result))
+            self.assertFalse(self.review.exists())
+        self.assertEqual(self.calls(), [])
+
+    def test_native_failure_after_optional_probe_failure_is_not_success_or_fallback(self):
+        for tool, label, probe in (("muse", "muse-echo", "muse_echo"), ("codex", "codex-features", "codex_features")):
+            self.review = self.home / (tool + "-failed-review")
+            code, result = self.call("--tool", tool, env={"FAKE_MODE":"exit", "PROBE_OUTPUTS":json.dumps({probe:{"exit":72, "stderr":"synthetic-secret"}})})
+            self.assertEqual(code, 1, result)
+            self.assertEqual(result["execution"], "failed")
+            self.assertIsNone(result["outcome"])
+            self.assertEqual(len(self.state()["exchanges"]), 1)
+            self.assertEqual(self.state()["exchanges"][0]["returncode"], 7)
+            self.assert_configuration_notes(result, label)
+            self.assertTrue(all(b"synthetic-secret" not in data for data in self.evidence().values()))
+        self.assertEqual([call[0] for call in self.calls()], ["muse", "codex"])
 
 
 if __name__ == "__main__":
