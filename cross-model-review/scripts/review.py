@@ -280,7 +280,7 @@ def load_state(directory):
         raise ReviewError("Review state must not be a symlink")
     if not path.exists():
         if any(directory.glob("review-*")):
-            raise ReviewError("Existing artifacts have no runner history; reconcile the legacy history, do not reset its allowance")
+            raise ReviewError("Existing review artifacts have no runner history; preserve that task's records and allowance")
         return None
     state = json.loads(read_text(path))
     if (not isinstance(state, dict) or type(state.get("version")) is not int
@@ -532,7 +532,7 @@ def continue_review(args, directory, state, *, save=True):
 def run(args):
     if args.continue_with is not None:
         forbidden = ("checks", "authorization", "author_model", "model", "tool", "effort", "dispositions",
-                     "timeout", "max_packet_bytes", "reconcile_round", "reconciliation")
+                     "timeout", "max_packet_bytes", "reconcile_round", "reconciliation", "muse_access", "verify_muse_tools")
         if any(getattr(args, name) is not None for name in forbidden):
             raise ReviewError("--continue-with is metadata-only; do not combine it with review or reconciliation inputs")
     else:
@@ -572,6 +572,8 @@ def run(args):
         for name in ("repo", "brief", "checks", "authorization", "tool", "author_model"):
             if not getattr(args, name):
                 raise ReviewError(f"--{name.replace('_', '-')} is required")
+        if args.tool != "muse" and (args.muse_access or args.verify_muse_tools):
+            raise ReviewError("Muse access and tool inspection options require --tool muse")
         if state and any(e["status"] in UNCERTAIN for e in state["exchanges"]):
             raise ReviewError("Prior execution is uncertain; stop its possible processes and use --reconcile-round with evidence")
         used = len(state["exchanges"]) if state else 0
@@ -579,6 +581,10 @@ def run(args):
         if used >= boundary:
             raise ReviewError("Review allowance exhausted; coordinator or authorized owner reassessment is required",
                               **allowance_info(directory, state))
+        if args.tool == "muse" and not args.muse_access and state:
+            last = next((e for e in reversed(state["exchanges"]) if e.get("tool") == "muse"), None)
+            if last and (last.get("provider"), last.get("muse_access")) != ("meta", "packet"):
+                raise ReviewError("Earlier Muse access was different or used a previous adapter. Confirm Meta and the authorized scope, then specify --muse-access packet or read-search in this history")
         model = (args.model if args.model is not None else DEFAULT_MODELS[args.tool]).strip()
         author_model = args.author_model.strip()
         for value in (model, author_model):
@@ -618,6 +624,9 @@ def run(args):
             prior += block("Implementer dispositions", dispositions)
             for e in state["exchanges"]:
                 prior_scope = {k: e.get(k) for k in ("status", "outcome", "tool", "model", "effort", "author_model", "error")}
+                if e.get("tool") == "muse":
+                    prior_scope["provider"] = e.get("provider", "Not recorded by the earlier adapter")
+                    prior_scope["muse_access"] = e.get("muse_access", "See the original command for this earlier round")
                 prior_scope["exclusions"] = e.get("exclusions", "Not indexed by the earlier runner; consult the original packet")
                 prior_scope["configuration_notes"] = e.get("configuration_notes", "No notes recorded by the earlier runner; inspection success is not established")
                 prior_scope["original_packet"] = str(directory / e["files"]["packet"])
@@ -662,6 +671,8 @@ def run(args):
         for name in ("brief", "authorization"):
             prompt += block(name.title() + " — " + inputs[name][0], inputs[name][1])
         prompt += block("Review scope", f"Repository: {root}\nAuthor model: {author_model}\nReviewer: {args.tool} / {model}\nEffort: {args.effort}\nExclusions (literal paths and subtrees): {json.dumps(exclusions)}\nDo not inspect excluded paths or unrelated private material.")
+        if args.tool == "muse":
+            prompt += block("Muse access", args.muse_access or "packet")
         prompt += change + block("Implementer's check evidence — " + inputs["checks"][0], inputs["checks"][1]) + prior
         encoded = prompt.encode("utf-8")
         if len(encoded) > args.max_packet_bytes:
@@ -671,7 +682,8 @@ def run(args):
         if any((directory / file).exists() or (directory / file).is_symlink() for file in files.values()):
             raise ReviewError("Round artifacts already exist; refusing to overwrite evidence")
         env = environment()
-        argv, args.configuration_notes = build(args.tool, model, args.effort, root, directory / files["packet"], directory / files["report"], env)
+        argv, args.configuration_notes = build(args.tool, model, args.effort, root, directory / files["packet"], directory / files["report"], env,
+                                              muse_access=args.muse_access or "packet", verify_muse_tools=args.verify_muse_tools)
         prompt += block("Configuration inspection notes — limits, not proof of isolation", json.dumps(args.configuration_notes, indent=2))
         encoded = prompt.encode("utf-8")
         if len(encoded) > args.max_packet_bytes:
@@ -691,6 +703,9 @@ def run(args):
                  "exclusions": exclusions,
                  "configuration_notes": args.configuration_notes,
                  "started_at": now(), "argv": argv, "pid": None, "outcome": None}
+        if args.tool == "muse":
+            entry["provider"] = "meta"
+            entry["muse_access"] = args.muse_access or "packet"
         state["exchanges"].append(entry)
         args.reserved_round = n
         atomic_json(directory / "review-state.json", state)
@@ -754,12 +769,24 @@ def run(args):
                 **{key: str(directory / value) for key, value in files.items()}, **allowance_info(directory, state)}
 
 
+class ReviewerSelection(argparse.Action):
+    """A project launcher may pin the reviewer before forwarding other inputs."""
+    def __call__(self, parser, namespace, value, option_string=None):
+        previous = getattr(namespace, self.dest, None)
+        if previous is not None and previous != value:
+            parser.error(f"conflicting values for {option_string}")
+        setattr(namespace, self.dest, value)
+
+
 def parser():
     p = argparse.ArgumentParser(description=__doc__)
-    for name in ("repo", "brief", "checks", "authorization", "author-model", "model", "base", "dispositions"):
+    for name in ("repo", "brief", "checks", "authorization", "author-model", "base", "dispositions"):
         p.add_argument("--" + name)
-    p.add_argument("--tool", choices=sorted(DEFAULT_MODELS))
-    p.add_argument("--effort", help=f"Reviewer effort (default: {DEFAULT_EFFORT})")
+    p.add_argument("--tool", choices=sorted(DEFAULT_MODELS), action=ReviewerSelection)
+    p.add_argument("--model", action=ReviewerSelection)
+    p.add_argument("--muse-access", choices=("packet", "read-search"), action=ReviewerSelection, help="Muse tools allowed by the assignment (default: packet only)")
+    p.add_argument("--verify-muse-tools", action="store_true", default=None, help="Require a local exec inspection of the tools offered by Muse")
+    p.add_argument("--effort", action=ReviewerSelection, help=f"Reviewer effort (default: {DEFAULT_EFFORT})")
     p.add_argument("--review-dir", required=True)
     p.add_argument("--exclude", action="append", default=[], help="Literal repository-relative path/subtree; repeatable")
     p.add_argument("--timeout", type=float, help="Reviewer timeout in seconds (default: 1800)")

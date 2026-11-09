@@ -102,7 +102,7 @@ def muse_preflight(executable, root, env, notes):
         note(notes, "muse-plugins", "plugin list is unavailable in the inspection output")
 
 
-def build(tool, model, effort, root, packet, report, env):
+def build(tool, model, effort, root, packet, report, env, *, muse_access="packet", verify_muse_tools=False):
     notes = []
     executable = shutil.which(tool, path=env.get("PATH"))
     if not executable:
@@ -116,20 +116,35 @@ def build(tool, model, effort, root, packet, report, env):
                 "--disallowedTools", "mcp__*", "--permission-mode", "dontAsk",
                 "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}'], notes
     if tool == "muse":
+        if muse_access not in ("packet", "read-search"):
+            raise AdapterError("Unsupported Muse access profile")
         muse_preflight(executable, root, env, notes)
-        command = [executable, "exec", "--model", model, "--reasoning-effort", effort,
-                "--preset", "native-basic", "--disable-write", "--disable-shell",
+        tool_names = [] if muse_access == "packet" else ["read_file", "search"]
+        controls = ["--preset", "empty" if not tool_names else "native-basic",
+                "--disable-write", "--disable-shell",
                 "--disable-web-tools", "--disable-reminders", "--disable-request-user-input",
-                "--no-foreign-personal-context", "--no-session-log",
+                "--no-foreign-personal-context", "--no-session-log", "--contributor-mode", "off",
                 "--approval-mode", "never", "--approval-judge", "off",
-                "-c", 'run.toolset=["read_file"]',
+                "-c", "run.toolset=" + json.dumps(tool_names, separators=(",", ":")),
+                "-c", "plugins.enabled=false", "-c", "agent_definitions.safe_mode=true",
+                "-c", "local_session_messaging.enabled=false",
                 "-c", "hooks={}", "-c", "managed_hooks_path=null",
-                "--workspace", str(root), "--prompt-file", str(packet)]
-        # The local echo provider validates this preset/tool registry without
-        # sending a packet or consuming a reviewer exchange.
-        probe([*command[:2], *command[6:-2], "--provider", "echo",
-               "review adapter configuration probe"], root, env, notes, "muse-echo")
-        return command, notes
+                "--workspace", str(root)]
+        command = [executable, "exec", "--provider", "meta", "--model", model,
+                   "--reasoning-effort", effort, *controls]
+        if verify_muse_tools:
+            from muse_tools import offered_tools
+            try:
+                offered = offered_tools(command, root, env)
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
+                raise AdapterError(f"Muse exec tool inspection failed: {exc}", notes) from None
+            if sorted(offered) != sorted(tool_names):
+                raise AdapterError("Muse exec offered tools outside the selected access profile or omitted a required tool", notes)
+            notes.append({"inspection": "muse-exec-tools", "offered_tools": offered})
+        else:
+            probe([executable, "exec", "--provider", "echo", *controls,
+                   "review adapter configuration probe"], root, env, notes, "muse-echo")
+        return [*command, "--prompt-file", str(packet)], notes
     if tool == "codex":
         disabled = ("apps", "plugins", "hooks", "multi_agent", "computer_use",
                     "browser_use", "in_app_browser", "image_generation")

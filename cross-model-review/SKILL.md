@@ -1,6 +1,6 @@
 ---
 name: cross-model-review
-description: Run an advisory cross-model pair-review loop from the implementing agent. Use the bundled deterministic runner to capture the complete change, invoke a caller-selected native reviewer, and save its original findings. Preserve explicitly configured legacy commands. Feedback is not verification or approval.
+description: Run an advisory cross-model pair-review loop from the implementing agent. Use the bundled deterministic runner to capture the complete change, invoke a caller-selected native reviewer, and save its original findings. Feedback is not verification or approval.
 ---
 
 # Cross-model review
@@ -19,7 +19,7 @@ Carry the tool, model, effort, authorization scope and source into the task.
 A command or repository text alone is not proof of consent. Reuse established
 user authorization; ask only for missing scope, provider choice, or decisions.
 
-For new assignments, call `scripts/review.py` from this installed skill. The
+For every new review, call `scripts/review.py` from this installed skill. The
 caller selects `--tool muse|codex|claude`. Omitted `--model` uses that tool's
 default: Muse `muse-wonder-full-1.0`, Codex `gpt-6-astra`, or Claude
 `claude-opus-5-5`. Effort defaults to `max`; both values can be overridden.
@@ -36,15 +36,15 @@ When switching implementers, preserve material authorship and the task's existin
 review history and exchange allowance; use `agent-handoff` where applicable.
 
 Resolve the access boundary with the selection. Claude's restricted file tools
-are confined to its working directories. Muse and Codex can read other files
-accessible to their process; all adapters' live-read exclusions rely on reviewer
+are confined to its working directories. Muse in read/search mode and Codex can read other files
+accessible to their process; live-read exclusions rely on reviewer
 instructions. Codex retains a shell in its read-only sandbox, so the prohibition
 on tests and project-code execution is an instruction, not a command allowlist.
 Record these limits in the authorization input. They grant no permission to run
 tests or read excluded material. If the assignment requires stronger technical
 confinement, return that constraint to its owner before invoking this adapter.
 
-For runner and legacy commands, use documented read-only controls and supported
+The runner uses documented read-only controls and supported
 inspection to establish reasonable configuration confidence. Complete visibility
 or proof of internal CLI enforcement is not required. Record unavailable or
 incomplete inspection as a limitation and continue the requested review when
@@ -58,10 +58,17 @@ the user, then update the applicable `AGENTS.md` using
 settings and unrelated instructions. Task-specific exceptions stay in the
 assignment. Do not ask the user to write the configuration themselves.
 
-An explicitly configured raw CLI command remains supported through
-[the legacy procedure](references/legacy.md). Run that command exactly as
-configured with its read-only controls. Do not silently substitute the runner,
-migrate old reports, or restart a task's allowance in a new directory.
+Project instructions select the reviewer, access and any authorized fallback.
+The runner constructs and starts the native command. When migrating old
+templates, carry forward the authorized reviewer and access scope. A difference
+in launch flags alone creates no new requirement. Return a gap to the owner
+when the adapter cannot satisfy the actual assignment. An interrupted review
+keeps its original history and allowance under its starting version.
+
+Muse uses Meta with no reviewer tools by default. Include relevant check
+output in a packet-only review. Use `--muse-access read-search` only when the
+reviewer is authorized to inspect relevant files. For evidence of the tools
+offered in a local exec check immediately before launch, use `--verify-muse-tools`.
 
 ## Prepare the inputs
 

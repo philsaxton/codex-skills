@@ -18,6 +18,14 @@ records permission already established by the caller; writing it grants none.
 | Codex | `gpt-6-astra` | `max` |
 | Claude Code | `claude-opus-5-5` | `max` |
 
+Muse defaults to packet-only access. Use `--muse-access read-search` for an
+assignment that authorizes live inspection. When the assignment requires
+evidence of the effective tool list, `--verify-muse-tools` inspects an exec
+request with a synthetic prompt and dummy key at a rejecting loopback endpoint.
+It requires a matching tool list before launch and records only the tool names.
+This observes a separate local invocation with the same tool controls. It cannot
+attest the subsequent remote request. Both profiles were checked with Muse 1.4.14.
+
 Use `--model` / `--effort` to override. These defaults were selected on
 2026-10-29. Opus's ID is confirmed in the [Anthropic documentation](https://platform.claude.com/docs/en/models/opus-5-5/overview);
 Astra and `max` in the [OpenAI documentation](https://developers.openai.com/api/docs/models/gpt-6-astra).
@@ -26,6 +34,11 @@ There is no automatic fallback. Supply resolved identities for independence;
 the caller is responsible for resolving aliases and actual model changes.
 Leading and trailing whitespace is removed from both model identities before
 validation, recording and invocation; identity comparisons ignore case.
+Select tool, model, effort and Muse access once. Conflicting duplicate flags
+are rejected. Launchers that previously appended an override must replace the
+selection instead. A project-authorized fallback specifies both its trigger
+and reviewer. Invoke that reviewer through the runner in the same directory,
+with its authorization, dispositions, and remaining allowance.
 
 `--base REF` pins a commit. Initially the default is the merge-base with
 `origin/main`, falling back to `main`. Revisits reuse that pinned commit.
@@ -166,7 +179,13 @@ a directory or lock. Existing locks remain in place after refusals and completed
 calls so concurrent callers continue to use the same lock file.
 Do not edit, delete or copy these to reset the task. Existing legacy reports
 remain readable, but a directory without runner state is not silently adopted:
-continue its explicit legacy procedure and retain its original allowance.
+finish that review from the version that began it. For migrations from
+`e196265`, the [pre-migration skill](https://github.com/philsaxton/codex-skills/tree/e196265e84010fb215353a3d1c2576094bdfbd71/cross-model-review)
+is available at that revision in Git, independently of the active installation.
+For an earlier runner history that used Muse, confirm the provider is Meta and
+select the currently authorized `--muse-access` explicitly when resuming.
+The runner retains earlier reports and records the provider and access for each
+new Muse exchange.
 
 The review JSON result identifies `execution`, `outcome`, round, selected model/effort,
 and absolute artifact paths. Successful review, reconciliation and continuation
@@ -236,12 +255,13 @@ removed automatically.
   Its shell remains available:
   the sandbox prevents repository writes, while no tests/project execution is
   an instruction rather than a technical command filter.
-- **Muse:** native-basic preset restricted to read_file, shell and write
-  tools disabled, hooks overridden empty, no session log, no reminders/web tools
-  or foreign personal context. Known hook, MCP or plugin configuration in user
-  or project settings, parsed installed plugins, and malformed local settings
-  require resolution. A configuration source or file's presence alone is not
-  a conflict; empty settings and hooks are allowed.
+- **Muse:** the adapter pins the Meta provider, disables contributor mode, sets
+  `MUSE_NO_AUTO_UPDATE=1`, and selects either an empty toolset or only `read_file`
+  and `search`. Both profiles disable shell, writes, web tools, reminders, user
+  input, session logging, local messaging, plugins and foreign personal
+  context. They clear hooks, select safe agent definitions and disable the
+  approval judge. Known hook, MCP or plugin configuration and malformed local
+  settings require resolution. An empty settings file is accepted.
 
 MCP/feature readback after Codex control construction and Muse status, plugin
 inventory and local echo are corroborating inspection. Unavailable, incomplete
@@ -259,10 +279,10 @@ when available. They omit raw probe output and configuration values. Earlier
 records without this optional field have no recorded notes; they do not
 establish successful inspection. Notes count toward the complete packet budget.
 
-Reviewer instructions permit relevant file inspection and prohibit test/project
-code execution. File readers and the read-only sandbox constrain changes;
-authorization still determines which material may be inspected. Muse/Codex can
-read outside the repository within their process's access, and exclusion filters
+Reviewer instructions limit inspection to the assigned access and prohibit
+test/project code execution. File readers and the read-only sandbox constrain
+changes. With live inspection enabled, Muse and Codex can read outside the
+repository within their process's access, and exclusion filters
 apply technically to packet capture only, not to live file reads. Record these
 limits in the authorization input before selection; when the assignment requires
 technical confinement that an adapter lacks, that adapter is unsuitable without

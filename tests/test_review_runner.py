@@ -126,10 +126,11 @@ class ReviewRunnerTests(unittest.TestCase):
                               check=True, capture_output=True).stdout
 
     def command(self, *extra):
+        tool = [] if "--tool" in extra else ["--tool", "claude"]
         return [sys.executable, "-B", str(RUNNER), "--repo", str(self.repo),
                 "--brief", str(self.brief), "--checks", str(self.checks),
                 "--authorization", str(self.auth), "--author-model", "fixture-author-v1",
-                "--tool", "claude", "--review-dir", str(self.review), *extra]
+                *tool, "--review-dir", str(self.review), *extra]
 
     def call(self, *extra, env=None):
         result = subprocess.run(self.command(*extra), env={**self.env, **(env or {})},
@@ -239,7 +240,9 @@ class ReviewRunnerTests(unittest.TestCase):
         muse = self.calls()[2]
         self.assertIn("--disable-write", muse)
         self.assertIn("--disable-shell", muse)
-        self.assertIn('run.toolset=["read_file"]', muse)
+        self.assertIn("run.toolset=[]", muse)
+        self.assertEqual(muse[muse.index("--preset") + 1], "empty")
+        self.assertEqual(muse[muse.index("--provider") + 1], "meta")
 
     def test_committed_change_cancelled_in_index_and_empty_commit_are_preserved(self):
         original = (self.repo / "calc.py").read_text()
@@ -1297,6 +1300,83 @@ class ReviewRunnerTests(unittest.TestCase):
             self.assertEqual(self.call("--tool", "codex", env={key:"1"})[0], 2)
         self.assertEqual(self.calls(), [])
 
+    def test_muse_access_is_explicit_and_separate_from_the_model(self):
+        code, result = self.call("--tool", "muse", "--effort", "xhigh", "--muse-access", "read-search")
+        self.assertEqual(code, 0, result)
+        argv = self.calls()[0]
+        self.assertIn('run.toolset=["read_file","search"]', argv)
+        self.assertEqual(argv[argv.index("--reasoning-effort") + 1], "xhigh")
+        self.assertIn("read-search", Path(result["packet"]).read_text())
+        code, result = self.call("--tool", "claude", "--muse-access", "packet")
+        self.assertEqual(code, 2, result)
+        self.assertEqual(len(self.calls()), 1)
+
+    def test_pinned_reviewer_cannot_be_overridden_by_forwarded_arguments(self):
+        for option, pinned, other in [("--tool", "codex", "muse"), ("--model", "gpt-6-astra", "other"),
+                                     ("--effort", "max", "low"), ("--muse-access", "packet", "read-search")]:
+            run = subprocess.run(self.command(option, pinned, option, other), env=self.env, capture_output=True)
+            self.assertEqual(run.returncode, 2)
+            self.assertIn(b"conflicting values", run.stderr)
+        self.assertEqual(self.calls(), [])
+
+    def test_old_muse_history_requires_explicit_access_and_keeps_its_round(self):
+        code, result = self.call("--tool", "muse")
+        self.assertEqual(code, 0, result)
+        state = self.state()
+        original = state["exchanges"][0]
+        del original["provider"], original["muse_access"]
+        (self.review / "review-state.json").write_text(json.dumps(state))
+        before = self.evidence()
+        args = ["--tool", "muse", "--dispositions", str(self.dispositions)]
+        self.assertEqual(self.call(*args)[0], 2)
+        self.assertEqual(self.evidence(), before)
+        code, result = self.call(*args, "--muse-access", "read-search")
+        self.assertEqual(code, 0, result)
+        first, second = self.state()["exchanges"]
+        self.assertEqual(first, original)
+        self.assertEqual((second["round"], second["provider"], second["muse_access"]), (2, "meta", "read-search"))
+        self.assertEqual(self.call(*args)[0], 2)
+        self.assertEqual(len(self.calls()), 2)
+
+    def test_muse_wire_tool_declarations(self):
+        sys.path.insert(0, str(RUNNER.parent))
+        self.addCleanup(sys.path.remove, str(RUNNER.parent))
+        from muse_tools import tool_names
+        request = {"input": [], "model": "fixture"}
+        tools = [{"type":"function", "name":"read_file"}, {"type":"function", "name":"search"}]
+        def namespace(items):
+            return [{"type":"namespace", "name":"muse", "tools":items}]
+        self.assertEqual(tool_names(request), [])
+        for empty in ([], namespace([])):
+            self.assertEqual(tool_names({**request, "tools":empty}), [])
+        for permitted in (tools, namespace(tools)):
+            self.assertEqual(tool_names({**request, "tools":permitted}), ["read_file", "search"])
+        for unexpected in ([{"type":"web_search"}], namespace([{"type":"custom", "name":"shell"}]),
+                           namespace(tools) + tools, [{"type":"namespace", "name":"another", "tools":tools}]):
+            with self.assertRaises(ValueError):
+                tool_names({**request, "tools":unexpected})
+
+    def test_required_muse_tool_check_cannot_launch_on_mismatch_or_failure(self):
+        sys.path.insert(0, str(RUNNER.parent))
+        self.addCleanup(sys.path.remove, str(RUNNER.parent))
+        import review
+        import muse_tools
+        args = review.parser().parse_args(["--repo", str(self.repo), "--brief", str(self.brief),
+                    "--checks", str(self.checks), "--authorization", str(self.auth), "--author-model", "other",
+                    "--tool", "muse", "--verify-muse-tools", "--review-dir", str(self.review)])
+        with patch.dict(os.environ, self.env, clear=True):
+            for tools in (["read_file"], ["shell"]):
+                with patch.object(muse_tools, "offered_tools", return_value=tools), self.assertRaises(review.AdapterError):
+                    review.run(args)
+            with patch.object(muse_tools, "offered_tools", side_effect=ValueError("missing")), self.assertRaises(review.AdapterError):
+                review.run(args)
+            self.assertEqual(self.calls(), [])
+            self.assertFalse(self.review.exists())
+            with patch.object(muse_tools, "offered_tools", return_value=[]):
+                result = review.run(args)
+            self.assertEqual(result["execution"], "completed")
+            self.assertIn({"inspection":"muse-exec-tools", "offered_tools":[]}, result["configuration_notes"])
+
     def test_preflight_rejects_configured_muse_integrations(self):
         self.assertEqual(self.call("--tool", "muse", env={"BAD_PLUGINS":"1"})[0], 2)
         (self.repo / ".muse").mkdir()
@@ -1418,9 +1498,9 @@ class ReviewRunnerTests(unittest.TestCase):
             for flag in ("--disable-write", "--disable-shell", "--disable-web-tools", "--disable-reminders",
                          "--disable-request-user-input", "--no-foreign-personal-context", "--no-session-log"):
                 self.assertIn(flag, argv)
-            for setting in ('run.toolset=["read_file"]', 'hooks={}', 'managed_hooks_path=null'):
+            for setting in ('run.toolset=[]', 'hooks={}', 'managed_hooks_path=null'):
                 self.assertIn(setting, argv)
-            self.assertNotIn("--provider", argv)
+            self.assertEqual(argv[argv.index("--provider") + 1], "meta")
             self.assertTrue(all(b"synthetic-secret" not in data for data in self.evidence().values()))
 
     def test_optional_probe_timeout_unavailability_and_muse_unreadable_config_are_notes(self):
