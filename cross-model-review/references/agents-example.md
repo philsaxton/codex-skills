@@ -8,14 +8,16 @@ Task-only exceptions belong in the assignment rather than standing configuration
 ```markdown
 ### Cross-model-review instructions
 
-Requested reviews may send the task's change, requirements and check evidence
+After each implementation run and its checks, run the configured advisory review.
+Reviews may send the task's change, requirements and check evidence
 to PROVIDER. Exclude credentials and unrelated private records.
 This is standing authorization; do not ask again
 within its scope. Tests remain the implementer's responsibility.
 
 ### Cross-model-review model
 
-Use the installed cross-model-review skill's scripts/review.py with --tool muse.
+Use the exact host-approved invocation:
+`python3 /absolute/installed/cross-model-review/scripts/review.py --tool muse`.
 Use its Wonder-Full/max defaults unless the assignment supplies an override.
 Muse uses packet-only access unless this project authorizes read/search.
 The implementer must supply its actual model identity, the brief, check evidence,
@@ -26,6 +28,7 @@ original review-round-*.md reports and link them in the finish report.
 Replace PROVIDER, tool and overrides with the agreed choices. The available
 tool defaults and complete command are in [runner.md](runner.md). Do not put
 credentials into the file; native CLIs use their existing authentication.
+Configure the host command permission once using [host setup](runner.md#host-setup).
 Verify that the selected reviewer differs from the actual implementer before
 invocation. A default collision requires a caller-owned selection change.
 

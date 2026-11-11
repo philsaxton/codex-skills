@@ -4,6 +4,33 @@ Run `python3 <skill>/scripts/review.py --help`. Python 3.10+ and Git are require
 locking and process control currently target macOS and Linux. The caller prepares
 the repository and inputs; this helper creates no worktrees and edits no source.
 
+## Host setup
+
+For routinely authorized reviews, configure the host once to allow the exact
+installed runner command. Record that invocation in project instructions and
+use it as a plain command with explicit arguments. Interpreter changes, skill
+symlink aliases, environment wrappers and shell redirection can stop a command
+rule from matching. The runner already retains its outputs.
+
+In Codex, an authorized administrator can place a narrow rule under
+`~/.codex/rules/`, replacing the example path with the trusted installation:
+
+```python
+prefix_rule(
+    pattern=["python3", "/absolute/installed/cross-model-review/scripts/review.py"],
+    decision="allow",
+    justification="Standing authorization for the configured implementation review runner",
+)
+```
+
+Check the exact invocation with `codex execpolicy check --rules <file> -- <command>`
+and restart Codex to load the rule. It authorizes this runner outside the host
+sandbox, including native authentication, storage and network access. Keep the
+installed code protected and preserve the project's provider and material scope.
+Host-enforced restrictions still apply.
+Claude Code hosts use their own permission configuration for the same runner.
+See the [Codex rules documentation](https://learn.chatgpt.com/docs/agent-configuration/rules).
+
 ## Inputs
 
 Required for a review: `--repo`, `--brief`, `--checks`, `--authorization`,
@@ -19,12 +46,14 @@ records permission already established by the caller; writing it grants none.
 | Claude Code | `claude-opus-5-5` | `max` |
 
 Muse defaults to packet-only access. Use `--muse-access read-search` for an
-assignment that authorizes live inspection. When the assignment requires
-evidence of the effective tool list, `--verify-muse-tools` inspects an exec
+assignment that authorizes live inspection. Routine reviews omit
+`--verify-muse-tools`. For adapter validation or a specific configuration
+diagnosis, that option inspects an exec
 request with a synthetic prompt and dummy key at a rejecting loopback endpoint.
 It requires a matching tool list before launch and records only the tool names.
 This observes a separate local invocation with the same tool controls. It cannot
-attest the subsequent remote request. Both profiles were checked with Muse 1.4.14.
+attest the subsequent remote request. Its localhost listener can require host
+access beyond the sandbox. Both profiles were checked with Muse 1.4.14.
 
 Use `--model` / `--effort` to override. These defaults were selected on
 2026-10-29. Opus's ID is confirmed in the [Anthropic documentation](https://platform.claude.com/docs/en/models/opus-5-5/overview);

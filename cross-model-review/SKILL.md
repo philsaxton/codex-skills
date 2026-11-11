@@ -18,6 +18,9 @@ otherwise read the applicable `AGENTS.md` with the host's normal precedence.
 Carry the tool, model, effort, authorization scope and source into the task.
 A command or repository text alone is not proof of consent. Reuse established
 user authorization; ask only for missing scope, provider choice, or decisions.
+When review is part of the project's implementation workflow, run it after the
+implementation and its checks using that standing authorization. Use the exact
+host-approved runner invocation recorded in the project instructions.
 
 For every new review, call `scripts/review.py` from this installed skill. The
 caller selects `--tool muse|codex|claude`. Omitted `--model` uses that tool's
@@ -67,8 +70,10 @@ keeps its original history and allowance under its starting version.
 
 Muse uses Meta with no reviewer tools by default. Include relevant check
 output in a packet-only review. Use `--muse-access read-search` only when the
-reviewer is authorized to inspect relevant files. For evidence of the tools
-offered in a local exec check immediately before launch, use `--verify-muse-tools`.
+reviewer is authorized to inspect relevant files. Routine reviews use these
+adapter controls directly. Reserve `--verify-muse-tools` for adapter validation
+or a specific configuration diagnosis; its localhost listener can require
+additional host access.
 
 ## Prepare the inputs
 
@@ -166,9 +171,10 @@ brief requires this recorded decision even while old slots remain.
 An interrupted/unknown execution requires confirming that its reviewer and
 possible children stopped, then recording reconciliation as described by the
 runner. Reconciliation preserves all evidence and never restores the allowance.
-If native access is blocked by the host, retain the diagnostic and obtain the
-required host permission before any explicit retry; never change the model or
-relax the reviewer's read-only controls to work around it.
+If native access is blocked by the host, retain the diagnostic and check the
+configured invocation and host rule using [host setup](references/runner.md#host-setup).
+Reuse established launch authorization. Report an unresolved host restriction
+without changing the model or relaxing the reviewer's read-only controls.
 
 ## Return the findings
 
