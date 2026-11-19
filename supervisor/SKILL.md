@@ -5,7 +5,9 @@ description: Use when the user wants to check ongoing coordinated work, decide w
 
 # Supervisor
 
-Start with the outcome the user wants and any standing project concerns. Check the evidence closest to that outcome. When work looks slow or repetitive, ask what the latest effort established and whether it changes the next decision.
+Start with the user's agreed objective for this stage and any standing project concerns. Check the evidence closest to that objective and flag material gaps the current plan would leave. When work looks slow or repetitive, ask what the latest effort established and whether it changes the next decision.
+
+Before endorsing a new prerequisite, ask which part of that objective it protects, what concrete risk it addresses now, and which decision would change depending on its result. Keep agreed requirements and checks needed to proceed safely or trust the outcome. If the proposed check would inform only a later decision, recommend continuing and note when to revisit it.
 
 If work is on course, explain why it can continue. If it needs steering, recommend the smallest change that would help. When a different owner is better placed to finish, explain why and what progress and context they should inherit. Act within the user's authorization. Delivery and acceptance stay with their assigned owners.
 
