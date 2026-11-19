@@ -66,6 +66,8 @@ Across roles, add domain, technology, research, artifact, or workspace skills on
 
 Use the walkthrough guide when a human wants to understand a change through paced explanation and questions. Its outcome is comprehension; it does not replace an independent final review or grant approval.
 
+When a [supervisor](../supervisor/SKILL.md) checks in on the user's behalf, share progress, current ownership and any decision that needs steering. Account for related tasks the supervisor starts when routing your own work.
+
 ### Maintain implementation tracking
 
 The coordinator normally performs routine tracking as part of authorized coordination; individual in-scope record updates need no separate permission. Commits, publication, and integration still follow the project's resolved Git completion rules and authorizations. On resuming work, identify and read the authoritative tracker when one exists and reconcile its recorded state with current evidence before assigning work. Record owners and evidence-supported state at dispatch, work start, handoffs, blockers, review, and completion. Specialists return results and evidence; recording those outcomes does not transfer their independent judgment to the coordinator. Mark completion only when the project's acceptance and integration conditions, including required independent review and approval, are satisfied.

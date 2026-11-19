@@ -31,6 +31,10 @@ mkdir -p .agents/skills
 ln -s ../vendors/codex-skills/contract-author .agents/skills/contract-author
 ```
 
+## Supervising ongoing work
+
+Give the [supervisor](supervisor/SKILL.md) a task and the outcome you care about. For example, “Use `$supervisor` to check whether this task is on track for release and suggest work we could start in parallel.”
+
 ## Handing off unfinished implementation
 
 For transferring unfinished implementation between native Claude Code and Codex sessions, see the [agent handoff skill](agent-handoff/SKILL.md). The operator records the assignment and confirms that prior writers have released the checkout. A fresh worker in either tool reads the same installed skill and handoff record before continuing.
